@@ -1,0 +1,12 @@
+{
+  "name": "finpraktika-universal",
+  "version": "3.0.0",
+  "type": "module",
+  "private": true,
+  "description": "Расширяемый статический тренажёр финансов с детерминированным ядром",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "start": "python3 -m http.server 8000 -d site",
+    "check": "npm test"
+  }
+}
