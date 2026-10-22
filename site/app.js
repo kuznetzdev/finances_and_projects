@@ -1,4 +1,5 @@
 import {setupCasebook} from './features/casebook-ui.js';
+import {bindPracticeModes} from './features/practice-modes.js';
 import { TOPICS, LEVELS, TEMPLATE_CATALOG, generateExercise, checkAnswer, formatAnswer } from './engine/index.js';
 import { CONCEPTS, KNOWLEDGE_GROUPS, OPERATIONS, OPERATION_CATEGORIES } from './data/knowledge.js';
 import { DEFAULT_TAX_POLICY } from './data/tax.js';
@@ -14,8 +15,8 @@ function load() { try { const v = JSON.parse(localStorage.getItem(STORAGE)); ret
 let stats = load(); const save = () => { try { localStorage.setItem(STORAGE, JSON.stringify(stats)); } catch { } };
 const escape = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 function randomSeed() { if (globalThis.crypto?.getRandomValues) { let a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] || 11; } return Math.floor(Math.random() * 2 ** 32) || 11; }
-const qp = new URLSearchParams(location.search);
-const fromURL = (k, fallback) => qp.has(k) ? qp.get(k) : fallback;
+// Read the current URL, not an initial snapshot: the bank updates ?case= while in use.
+const fromURL = (k, fallback) => { const params = new URLSearchParams(location.search); return params.has(k) ? params.get(k) : fallback; };
 const allowedTopic = new Set(TOPICS.map(t => t.id));
 let app = { practiceMode: fromURL('mode','generator')==='bank'?'bank':'generator', area: STUDY_AREAS.some(x=>x.id===fromURL('area','all')) ? fromURL('area','all') : 'all', cardDeck: [], page: ['practice', 'quiz', 'cards', 'glossary', 'progress'].includes(fromURL('page', 'practice')) ? fromURL('page', 'practice') : 'practice', topic: allowedTopic.has(fromURL('topic', 'all')) ? fromURL('topic', 'all') : 'all', level: Math.max(1, Math.min(4, Number(fromURL('level', 1)) || 1)), seed: (Number(fromURL('seed', randomSeed())) >>> 0) || 42, templateId: fromURL('template', null), exercise: null, checked: false, hint: false, solution: false, quizMode: 'operations', quiz: null, quizResult: null, quizScore: 0, quizTotal: 0, quizAnswered: 0, cardIndex: 0, cardFlipped: false, cardGroup: 'Все', glossaryQuery: '', glossaryGroup: 'Все', glossarySelected: null };
 let toastTimer;
@@ -56,8 +57,19 @@ function storyHtml(value){
 function pageIntro(label, title, description, number) { return `<section class="page-intro"><div><div class="eyebrow">${escape(label)}</div><h1>${escape(title)}</h1><p>${escape(description)}</p></div><div class="hero-index" aria-hidden="true">${escape(number)}</div></section>`; }
 function render() { $('#content').dataset.page = app.page; refreshProgressSidebar(); if (app.page === 'practice') (app.practiceMode==='bank'?renderBankMode():renderPractice()); else if (app.page === 'quiz') renderQuiz(); else if (app.page === 'cards') renderCards(); else if (app.page === 'glossary') renderGlossary(); else renderProgress(); }
 function practiceTabs() { return `<div class="practice-mode-tabs" role="group" aria-label="Режим решения"><button type="button" data-practice-mode="generator" class="${app.practiceMode==='generator'?'active':''}" aria-pressed="${app.practiceMode==='generator'}">Генератор задач</button><button type="button" data-practice-mode="bank" class="${app.practiceMode==='bank'?'active':''}" aria-pressed="${app.practiceMode==='bank'}">Банк задач · 57 кейсов</button></div>`; }
-function attachPracticeTabs() { $$('[data-practice-mode]').forEach(b=>b.onclick=()=>{const next=b.dataset.practiceMode;if(next===app.practiceMode)return;app.practiceMode=next;const url=new URL(location.href);url.searchParams.set('mode',next);history.replaceState({},'',url);render();}); }
-function renderBankMode() { setupCasebook({root:$('#content'),stats,save,notice,escape,intro:pageIntro,tabs:practiceTabs,initialId:fromURL('case',null)});attachPracticeTabs(); }
+// The case book replaces #content.innerHTML after each internal action. Only #content
+// survives all renders, so practice mode changes MUST be delegated to that root.
+function changePracticeMode(next) {
+ if (next===app.practiceMode) return;
+ app.practiceMode=next;
+ const url=new URL(location.href);
+ url.searchParams.set('mode', next);
+ history.replaceState({},'',url);
+ render();
+ window.scrollTo({top:0,behavior:'instant'});
+ $('#content [data-practice-mode="'+next+'"]')?.focus({preventScroll:true});
+}
+function renderBankMode() { setupCasebook({root:$('#content'),stats,save,notice,escape,intro:pageIntro,tabs:practiceTabs,initialId:fromURL('case',null)}); }
 function renderPractice() {  
 if (!app.exercise) ensureExercise(); syncExerciseUrl(); const e = app.exercise, t = TOPICS.find(x => x.id === e.topic), total = stats.total ? Math.round(stats.correct / stats.total * 100) : 0;
   const guided = e.questions.length >= 4;
@@ -71,7 +83,7 @@ if (!app.exercise) ensureExercise(); syncExerciseUrl(); const e = app.exercise, 
  <section class="control-strip"><div class="study-filter"><label for="area-filter" class="control-label">НАПРАВЛЕНИЕ ПРОГРАММЫ</label><select id="area-filter" class="group-select" aria-label="Направление программы">${STUDY_AREAS.map(a=>`<option value="${a.id}" ${a.id===app.area ? 'selected' : ''}>${escape(a.name)}</option>`).join('')}</select></div><div class="control-label">ТЕМА ЗАДАЧ</div><div class="topic-chips">${TOPICS.map(x => `<button type="button" class="filter-chip ${x.id === app.topic ? 'selected' : ''}" data-topic="${x.id}" aria-pressed="${x.id === app.topic}">${escape(x.short)}</button>`).join('')}</div><div class="strip-lower"><div class="levels" aria-label="Сложность">${LEVELS.map(x => `<button type="button" class="level-chip ${x.id === app.level ? 'selected' : ''}" data-level="${x.id}" aria-pressed="${x.id === app.level}"><small>0${x.id}</small>${escape(x.title)}</button>`).join('')}</div><span class="skill-description">${escape(LEVELS[app.level - 1].desc)}</span></div></section>
  <section class="workspace"><div class="task-paper"><div class="task-header" tabindex="-1"><div class="task-topline"><span class="task-kicker">ЗАДАНИЕ · ${escape(t?.short || 'ФИНАНСЫ')}</span><span class="task-serial">#${String(app.seed).slice(-6).padStart(6, '0')}</span></div><h2>${escape(e.title)}</h2><div class="task-meta"><span>Уровень ${app.level}</span><i></i><span>${e.questions.length} ${e.questions.length === 1 ? 'вопрос' : e.questions.length < 5 ? 'вопроса' : 'вопросов'}</span><i></i><span>${escape(e.skill || 'Финансы')}</span></div></div><form id="exercise-form" class="task-body">${storyHtml(e.story)}<div class="sub-heading">ВАШЕ РЕШЕНИЕ</div>${guided ? `<div class="guided-head" id="guided-head"><div><strong id="guided-title">Этап 1 из ${e.questions.length}</strong><span id="guided-detail">Ответы сохраняются при переходе между этапами</span></div><button type="button" class="guided-toggle" id="show-all-steps">Показать все этапы</button></div><div class="guided-track" id="guided-track" aria-hidden="true"><span id="guided-progress"></span></div>` : ''}<div class="fields">${fields}</div><div id="exercise-result" aria-live="polite"></div><div id="hint-place"></div><div id="solution-place"></div><div class="action-row task-actions" role="group" aria-label="Действия с задачей"><div class="task-actions-aux"><button type="button" class="button ghost" id="hint-btn">? Подсказка</button><button type="button" class="button ghost" id="share-btn">↗ Поделиться</button></div><div class="task-actions-main">${guided ? `<div class="guided-nav" id="guided-nav"><button type="button" class="button secondary" id="step-prev">← Назад</button><button type="button" class="button secondary" id="step-next">Далее →</button></div>` : ''}<button type="button" class="button secondary" id="skip-task">Пропустить</button><button type="submit" class="button primary" id="check-btn">Проверить →</button></div></div></form><div class="task-source">ТЕМА: ${escape(e.areaName || 'Финансы')} · МАТЕРИАЛ: ${escape(e.source || 'Учебные материалы')} ${e.taxPolicy ? '· ставки по ' + escape(e.taxPolicy) : ''}</div></div>
  <aside class="assist-column"><div class="assist-card"><h3>ТОЧНОСТЬ РЕШЕНИЙ</h3><div class="assist-stat">${total}%</div><div class="assist-copy">Доля правильных ответов за всё время</div><div class="progress-track"><span style="width:${total}%"></span></div></div><div class="assist-card"><h3>ТВОЯ СТАТИСТИКА</h3><div class="assist-list"><div>Задач решено <b>${stats.solved}</b></div><div>Без ошибок <b>${stats.perfect}</b></div><div>Серия <b>${stats.streak}</b></div><div>На повторение <b>${stats.retry.length}</b></div></div></div><div class="assist-card assist-note"><h3>КАК РЕШАТЬ</h3><p>Проверь условие, выбери формулу и введи ответы. Пояснение можно открыть после проверки.</p></div></aside></section>`;
-  $('#content').querySelector('.control-strip').insertAdjacentHTML('beforebegin',practiceTabs()); attachPracticeTabs();
+  $('#content').querySelector('.control-strip').insertAdjacentHTML('beforebegin',practiceTabs());
   $$('[data-topic]').forEach(b => b.onclick = () => { app.topic = b.dataset.topic; app.area = 'all'; nextExercise(); }); $('#area-filter').onchange = ev => {app.area=ev.target.value;app.topic='all';nextExercise();}; $$('[data-level]').forEach(b => b.onclick = () => { app.level = Number(b.dataset.level); nextExercise(); }); $('#exercise-form').onsubmit = ev => { ev.preventDefault(); if (app.checked) {nextExercise();focusTaskHeader();} else if (guided && $('#check-btn').hidden) {$('#step-next')?.click();} else checkExercise(); }; $('#skip-task').onclick=skipExercise; $('#hint-btn').onclick = () => { app.hint = !app.hint; $('#hint-place').innerHTML = app.hint ? `<div class="hint-panel"><strong>Подсказка</strong><div>${escape(e.hint)}</div></div>` : ''; $('#hint-btn').textContent = app.hint ? 'Скрыть подсказку' : '? Подсказка'; }; $('#share-btn').onclick = async () => { syncExerciseUrl(); try { await navigator.clipboard.writeText(location.href); notice('Ссылка на задачу скопирована'); } catch { const a = document.createElement('textarea'); a.value = location.href; document.body.append(a); a.select(); document.execCommand('copy'); a.remove(); notice('Ссылка на задачу скопирована'); } };
   if(guided) setupGuidedSteps(e.questions.length);
 }
@@ -168,4 +180,6 @@ const accuracy = stats.total ? Math.round(stats.correct / stats.total * 100) : 0
 $$('[data-page]').forEach(b => b.onclick = () => route(b.dataset.page));
 try { document.documentElement.dataset.theme = localStorage.getItem(THEME) === 'dark' ? 'dark' : 'light'; } catch { }
 $('#theme-toggle').onclick = () => { const mode = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = mode; try { localStorage.setItem(THEME, mode); } catch { } };
+// Register once on the stable container, never on replaceable tab elements.
+bindPracticeModes($('#content'), changePracticeMode);
 ensureExercise(); render();
