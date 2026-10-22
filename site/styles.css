@@ -15,3 +15,31 @@
 :root[data-theme="dark"] .mobile-navigation button.selected{color:#d4ef9c}
 
 .multi-group{border:0;padding:0;margin:0;min-width:0}.multi-group .field-label{float:none;display:flex;margin:0 0 12px;padding:0}.multiple-options{display:grid;gap:8px}.multiple-option{display:flex;gap:11px;align-items:center;padding:11px 13px;border:1px solid var(--line);background:var(--bg);border-radius:11px;font-size:13px;line-height:1.45;cursor:pointer}.multiple-option input{accent-color:#246e53;width:18px;height:18px;flex:none}.multiple-option:has(input:checked){border-color:#75a98a;background:var(--paper2)}.multi-group.correct .field-feedback{color:var(--ok)}.multi-group.wrong .field-feedback{color:var(--danger)}
+
+/* v4: longer learning cards, guided multi-step solutions, syllabus filter */
+[hidden]{display:none!important}
+.study-filter{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.study-filter .group-select{max-width:100%;height:43px;min-width:min(100%,310px)}
+.guided-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 11px;flex-wrap:wrap}
+.guided-head strong{font-weight:750;font-size:13px;display:block}
+.guided-head span{font-size:11px;color:var(--muted);display:block;margin-top:4px}
+.guided-toggle{border:0;background:transparent;color:var(--forest);text-decoration:underline;text-underline-offset:3px;font-weight:700;font-size:12px;cursor:pointer;padding:8px}
+.guided-track{height:4px;background:var(--line);border-radius:8px;margin:0 0 20px;overflow:hidden}
+.guided-track span{height:100%;background:var(--ok);display:block;transition:width .18s ease}
+.guided-nav{display:flex;justify-content:space-between;gap:12px;margin:18px 0 5px}
+.flip-surface{height:auto;min-height:320px;overflow:visible;display:grid;grid-template-rows:auto minmax(120px,1fr) auto;gap:22px;align-items:stretch;isolation:isolate;overflow-wrap:anywhere;word-break:normal}
+.flip-surface .flip-main{min-width:0;align-self:center;position:relative;z-index:1}
+.flip-surface .front-term{font-size:clamp(26px,4.4vw,54px);letter-spacing:-.035em;line-height:1.17;margin:0;hyphens:auto}
+.flip-surface .back-def{font-size:clamp(17px,2.25vw,25px);line-height:1.5;letter-spacing:0;margin:0;hyphens:auto}
+.flip-surface .flip-footer{font-size:13px;line-height:1.6;max-width:100%;overflow-wrap:anywhere}
+.flip-surface .flip-footer strong{font-weight:700;color:#e5f3d9}
+.flip-surface::after{z-index:-1;font-size:270px;right:0;bottom:0;overflow:hidden}
+.quiz-question{overflow-wrap:anywhere;line-height:1.45}
+.field-group{min-width:0}
+@media(max-width:520px){.flip-surface{min-height:295px;padding:24px 21px;gap:17px}.flip-surface .front-term{font-size:clamp(24px,8vw,39px)}.flip-surface .back-def{font-size:clamp(17px,4.4vw,20px)}.flip-surface .flip-footer{font-size:12px}.study-filter{align-items:stretch}.study-filter .group-select{width:100%}.guided-nav .button{flex:1}}
+.task-story-long{display:grid;gap:13px;line-height:1.75}
+.task-story-long p{margin:0}
+.field-group:focus-within .field-label{color:var(--ink)}
+.flip-surface:focus-visible,.guided-toggle:focus-visible,.filter-chip:focus-visible,.level-chip:focus-visible{outline:3px solid var(--ok);outline-offset:3px}
+
+@media(max-width:520px){.flip-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.flip-controls .button{font-size:11px;min-width:0;padding:10px 6px;line-height:1.35;white-space:normal;min-height:46px}}

@@ -5,11 +5,13 @@ import { templates as ratioTemplates } from './templates/ratios.js';
 import { templates as modelTemplates } from './templates/modeling.js';
 import { templates as reasoningTemplates } from './templates/reasoning.js';
 import { rng, oneOf } from './helpers.js';
+import { templates as advancedTemplates } from './templates/advanced.js';
+import { curriculumFor } from '../data/curriculum.js';
 import { DEFAULT_TAX_POLICY, policyFor } from '../data/tax.js';
 
 /** Public contract. A new task module only exports {templates:[{id,topic,min,build}]}.
  * Register its array below. UI and checking are independent of task families. */
-const plugins = [...valuationTemplates, ...taxTemplates, ...ratioTemplates, ...modelTemplates, ...reasoningTemplates];
+const plugins = [...valuationTemplates, ...taxTemplates, ...ratioTemplates, ...modelTemplates, ...reasoningTemplates, ...advancedTemplates];
 const allIds = [...OLD_CATALOG.map(t => t.id), ...plugins.map(t => t.id)];
 if (new Set(allIds).size !== allIds.length) throw new Error('Duplicate exercise IDs in registry');
 const byId = new Map(plugins.map(t => [t.id, t]));
@@ -25,19 +27,19 @@ export const TOPICS = [
   { id: 'model', name: 'Финансовая модель', short: 'Модель', code: '08' }
 ];
 export { LEVELS };
-export const TEMPLATE_CATALOG = [...OLD_CATALOG, ...plugins.map(x => ({ id: x.id, topic: x.topic, min: x.min, extra: false }))];
-export const ENGINE_VERSION = '3.0';
+export const TEMPLATE_CATALOG = [...OLD_CATALOG, ...plugins.map(x => ({ id: x.id, topic: x.topic, min: x.min, extra: false }))].map(x => ({...x, ...curriculumFor(x.id,x.topic)}));
+export const ENGINE_VERSION = '4.0';
 
-export function generateExercise({ topic = 'all', level = 1, seed = 1, templateId = null, policy = DEFAULT_TAX_POLICY } = {}) {
+export function generateExercise({ topic = 'all', level = 1, seed = 1, templateId = null, area = 'all', policy = DEFAULT_TAX_POLICY } = {}) {
   const lvl = Math.max(1, Math.min(4, Number(level) || 1)), s = (Number(seed) >>> 0) || 1;
-  const available = TEMPLATE_CATALOG.filter(t => (topic === 'all' || t.topic === topic) && t.min <= lvl);
+  const available = TEMPLATE_CATALOG.filter(t => (topic === 'all' || t.topic === topic) && (area === 'all' || t.area === area) && t.min <= lvl);
   if (!available.length) throw new Error('Нет заданий для выбранного фильтра');
   const found = templateId ? available.find(t => t.id === templateId) : null;
   const selected = found || oneOf(rng(s), available);
-  if (!byId.has(selected.id)) return oldGenerate({ topic: selected.topic, level: lvl, seed: s, templateId: selected.id });
+  if (!byId.has(selected.id)) return { ...oldGenerate({ topic: selected.topic, level: lvl, seed: s, templateId: selected.id }), ...curriculumFor(selected.id, selected.topic) };
   const t = byId.get(selected.id), r = rng(s), tax = policyFor(policy), out = t.build(r, lvl, { tax });
   if (!Array.isArray(out.questions) || !out.questions.length) throw new Error('Invalid exercise questions: ' + selected.id);
-  return { ...out, seed: s, templateId: t.id, level: lvl, taxPolicy: policy };
+  return { ...out, seed: s, templateId: t.id, level: lvl, taxPolicy: policy, ...curriculumFor(t.id,t.topic) };
 }
 export function checkAnswer(question, raw) {
   if (question.type === 'choice') return String(raw).trim() === String(question.answer);
