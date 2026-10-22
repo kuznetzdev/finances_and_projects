@@ -5,13 +5,14 @@ import { templates as ratioTemplates } from './templates/ratios.js';
 import { templates as modelTemplates } from './templates/modeling.js';
 import { templates as reasoningTemplates } from './templates/reasoning.js';
 import { rng, oneOf } from './helpers.js';
+import { templates as bankTemplates } from './templates/bank-derived.js';
 import { templates as advancedTemplates } from './templates/advanced.js';
 import { curriculumFor } from '../data/curriculum.js';
 import { DEFAULT_TAX_POLICY, policyFor } from '../data/tax.js';
 
 /** Public contract. A new task module only exports {templates:[{id,topic,min,build}]}.
  * Register its array below. UI and checking are independent of task families. */
-const plugins = [...valuationTemplates, ...taxTemplates, ...ratioTemplates, ...modelTemplates, ...reasoningTemplates, ...advancedTemplates];
+const plugins = [...valuationTemplates, ...taxTemplates, ...ratioTemplates, ...modelTemplates, ...reasoningTemplates, ...advancedTemplates, ...bankTemplates];
 const allIds = [...OLD_CATALOG.map(t => t.id), ...plugins.map(t => t.id)];
 if (new Set(allIds).size !== allIds.length) throw new Error('Duplicate exercise IDs in registry');
 const byId = new Map(plugins.map(t => [t.id, t]));
@@ -28,7 +29,7 @@ export const TOPICS = [
 ];
 export { LEVELS };
 export const TEMPLATE_CATALOG = [...OLD_CATALOG, ...plugins.map(x => ({ id: x.id, topic: x.topic, min: x.min, extra: false }))].map(x => ({...x, ...curriculumFor(x.id,x.topic)}));
-export const ENGINE_VERSION = '4.0';
+export const ENGINE_VERSION = '5.0';
 
 export function generateExercise({ topic = 'all', level = 1, seed = 1, templateId = null, area = 'all', policy = DEFAULT_TAX_POLICY } = {}) {
   const lvl = Math.max(1, Math.min(4, Number(level) || 1)), s = (Number(seed) >>> 0) || 1;

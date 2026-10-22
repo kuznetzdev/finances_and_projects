@@ -9,6 +9,7 @@ export const STUDY_AREAS=[
   {id:'taxes',name:'Налоги и налоговый учёт',short:'Налоги'}
 ];
 const explicit={
+ 'bank-ledger-day':['reporting','Бухгалтерский баланс'], 'bank-ebitda-property':['reporting','ОФР и EBITDA'], 'bank-three-cashflows':['reporting','ОДДС косвенным методом'], 'bank-tax-year-profile':['taxes','Амортизация и налоговый щит'], 'bank-capm-supplier':['capital','CAPM и риски'], 'bank-covenant-penalty':['capital','Банковские ковенанты'], 'bank-amortizing-bond':['capital','Амортизируемые облигации'], 'bank-dcf-multiples-bridge':['value','Мультипликаторы EV/EBITDA'], 'bank-liquid-assets':['reporting','Коэффициенты ликвидности'],
  'a-horizontal':['reporting','Горизонтальный анализ'], 'a-vertical':['reporting','Вертикальный анализ'],
  'a-du-pont-three':['reporting','Модель Дюпона'], 'a-du-pont-five':['reporting','Модель Дюпона'],
  'a-icr-dscr':['capital','Финансовые ковенанты'], 'a-capm':['capital','CAPM'],
