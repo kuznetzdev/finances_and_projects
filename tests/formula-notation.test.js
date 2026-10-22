@@ -28,6 +28,14 @@ test('Different contexts do not confuse debt, dividends and growth',()=>{
  const social=symbolsForFormula('SDR ≈ ρ + η × g','ramsey');
  assert.match(social.find(x=>x.symbol==='g').meaning,/потреблен/);
  assert.ok(social.some(x=>x.symbol==='η'));
+ const socialAlias=symbolsForFormula('SDR ≈ ρ + η × g','social-discount');
+ assert.match(socialAlias.find(x=>x.symbol==='g').meaning,/потреблен/);
+ assert.ok(socialAlias.some(x=>x.symbol==='ρ'));
+ const preferred=symbolsForFormula('P = Постоянный дивиденд / Rp','preferred');
+ assert.match(preferred.find(x=>x.symbol==='P').meaning,/привилегирован/);
+ const covenant=symbolsForFormula('DSCR = CFADS / Платёж по долгу','dscr');
+ assert.match(covenant.find(x=>x.symbol==='CFADS').meaning,/долга/);
+
  assert.match(symbolsForFormula('I = P × r × t','loan-interest').find(x=>x.symbol==='I').meaning,/процент/);
 });
 
