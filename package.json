@@ -1,6 +1,6 @@
 {
   "name": "finpraktika",
-  "version": "7.0.0",
+  "version": "8.0.0",
   "type": "module",
   "private": true,
   "description": "Расширяемый статический тренажёр финансов с детерминированным ядром",
