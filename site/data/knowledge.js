@@ -1,6 +1,8 @@
 import { EXTRA_CONCEPTS, EXTRA_OPERATIONS } from './knowledge-extended.js';
+import { GLOSSARY_ADDITIONS } from './glossary-additions.js';
+import { enrichConcepts } from './glossary-engine.js';
 /** Knowledge is plain data; add records without editing UI. Sources are lecture/page labels. */
-export const CONCEPTS=[
+export const CONCEPTS=enrichConcepts([
  ['accrual','Метод начисления','Доходы и расходы отражаются в периоде их возникновения, даже если деньги поступили раньше или позже.','Учёт','Оплата не равна признанию выручки.','Лекция 1, с. 17–18'],
  ['cashbasis','Кассовый метод','Денежное движение фиксируют в момент фактического получения или выплаты средств.','Учёт','P&L строится по начислению, CFS отражает движение денег.','Лекция 1, с. 17–19'],
  ['matching','Принцип соответствия','Расходы соотносят с периодом получения доходов, ради которых они понесены.','Учёт','Запасы переходят в себестоимость при продаже.','Лекция 1, с. 17'],
@@ -47,7 +49,7 @@ export const CONCEPTS=[
  ['topdown','Top-down','Прогноз выручки от объёма рынка и предполагаемой доли компании.','Моделирование','Нужна проверка ресурсных ограничений методом Bottom-up.','Лекция 3, с. 25–26'],
  ['fixed','Постоянные расходы','Затраты, не зависящие напрямую от объёма производства в рассматриваемом диапазоне.','Моделирование','Аренда часто постоянна в краткосрочной модели.','Лекция 3, с. 29'],
  ['variable','Переменные расходы','Затраты, изменяющиеся вместе с количеством произведённой или проданной продукции.','Моделирование','Расходы на сырьё часто зависят от объёма выпуска.','Лекция 3, с. 29']
-].map(([id,term,definition,group,contrast,source])=>({id,term,definition,group,contrast,source})).concat(EXTRA_CONCEPTS);
+].map(([id,term,definition,group,contrast,source])=>({id,term,definition,group,contrast,source})).concat(EXTRA_CONCEPTS,GLOSSARY_ADDITIONS));
 
 /** One right answer per item; labels are standardized for classification drills. */
 export const OPERATIONS=[

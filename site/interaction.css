@@ -249,3 +249,32 @@
 }
 
 .quiz-hint-details[hidden] { display: none; }
+
+/* Glossary: readable formulas and aliases, without changing site navigation. */
+.term-list { align-items: stretch; }
+.term-item { min-width:0; display:flex; flex-direction:column; gap:7px; overflow-wrap:anywhere; transition:border-color .15s ease, transform .15s ease; }
+.term-item:hover { transform:translateY(-2px); }
+.term-item:focus-visible { outline:3px solid var(--accent, #2b7468); outline-offset:3px; }
+.term-card-top { display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+.term-formula-pill { border-radius:99px; background:var(--paper2); border:1px solid var(--line); padding:3px 9px; white-space:nowrap; font-size:11px; font-weight:700; color:var(--ink); }
+.term-detail { overflow-wrap:anywhere; padding:clamp(16px,2.8vw,30px); border-radius:18px; }
+.term-detail > h2 { line-height:1.2; overflow-wrap:anywhere; }
+.term-detail > p { line-height:1.62; }
+.glossary-synonyms { padding:9px 12px; border-left:3px solid var(--muted); background:var(--paper); border-radius:4px 9px 9px 4px; font-size:13px; }
+.glossary-note { padding:13px 16px; margin:15px 0; background:var(--paper); border:1px solid var(--line); border-radius:12px; font-size:13px; line-height:1.65; }
+.glossary-formulas { margin:25px 0 18px; }
+.glossary-formulas-head { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
+.glossary-formulas-head h3 { font-size:19px; line-height:1.3; margin:0; font-family:Georgia,serif; }
+.glossary-formulas-head > span { font-size:12px; color:var(--muted); }
+.glossary-formula-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.glossary-formula-card { border:1px solid var(--line); border-radius:13px; background:var(--paper); padding:17px 18px; min-width:0; }
+.glossary-formula-title { display:flex; align-items:start; gap:9px; font-size:13px; line-height:1.5; }
+.glossary-formula-title strong { overflow-wrap:anywhere; }
+.glossary-formula-index { flex:none; color:var(--muted); font-size:11px; font-variant-numeric:tabular-nums; padding-top:1px; }
+.glossary-formula-equation { padding:13px; border-radius:9px; background:var(--paper2); border:1px solid var(--line); font-family:ui-monospace,SFMono-Regular,Consolas,monospace; font-size:clamp(12px,1.1vw,14px); font-weight:600; line-height:1.75; overflow-wrap:anywhere; word-break:normal; white-space:normal; margin:12px 0; color:var(--ink); }
+.glossary-formula-why, .glossary-formula-note { font-size:13px; line-height:1.62; margin:10px 0 0; }
+.glossary-formula-note { color:var(--muted); padding-top:10px; border-top:1px solid var(--line); }
+.glossary-formula-note strong { color:var(--ink); }
+@media(max-width:850px) { .glossary-formula-grid { grid-template-columns:minmax(0,1fr); } }
+@media(max-width:520px) { .glossary-controls { gap:9px; } .glossary-controls > * { width:100%; min-width:0; } .term-list { grid-template-columns:minmax(0,1fr); } .term-item { min-height:auto; padding:15px 17px; } .term-item h3 { font-size:20px; } .term-detail { padding:17px; } .glossary-formula-card { padding:14px; } .glossary-formula-equation { padding:10px 11px; } }
+@media(prefers-reduced-motion:reduce) { .term-item { transition:none; } .term-item:hover { transform:none; } }
