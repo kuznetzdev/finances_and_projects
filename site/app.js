@@ -176,7 +176,10 @@ function renderCards(){
  $('#flip-card').onclick=()=>{app.cardFlipped=!app.cardFlipped;renderCards();};
  $('#card-prev').onclick=()=>{app.cardIndex=(app.cardIndex-1+items.length)%items.length;app.cardFlipped=false;stats.lastCardId=app.cardDeck[app.cardIndex];save();renderCards();};
  $('#card-next').onclick=()=>{const was=card.id;if(app.cardIndex===items.length-1)initCardDeck(was);else{app.cardIndex++;app.cardFlipped=false;stats.lastCardId=app.cardDeck[app.cardIndex];save();}renderCards();};
- $('#card-toggle').onclick=()=>{stats.known=known?stats.known.filter(x=>x!==card.id):[...stats.known,card.id];save();renderCarfunction renderGlossary() {
+ $('#card-toggle').onclick=()=>{stats.known=known?stats.known.filter(x=>x!==card.id):[...stats.known,card.id];save();renderCards();notice(known?'Добавлено на повторение':'Отмечено как изученное');};
+ $('#card-group').onchange=e=>{app.cardGroup=e.target.value;initCardDeck();renderCards();};
+}
+function renderGlossary() {
  const arr=searchConcepts(CONCEPTS, app.glossaryQuery, app.glossaryGroup, abbreviationFor);
  const sel=arr.find(x=>x.id===app.glossarySelected);
  const countFormula=CONCEPTS.filter(x=>x.formulas?.length).length;
@@ -188,10 +191,8 @@ function renderCards(){
  ${!arr.length?'<div class="empty-state">Ничего не найдено. Попробуйте другой термин или категорию.</div>':''}`;
  $('#glossary-search').oninput=e=>{const pos=e.target.selectionStart;app.glossaryQuery=e.target.value;renderGlossary();const el=$('#glossary-search');el.focus();el.setSelectionRange(pos,pos);};
  $('#glossary-group').onchange=e=>{app.glossaryGroup=e.target.value;app.glossarySelected=null;renderGlossary();};
- $('[data-term]').forEach(b=>b.onclick=()=>{app.glossarySelected=b.dataset.term;renderGlossary();window.scrollTo({top:0,behavior:'smooth'});});
+ $$('[data-term]').forEach(b=>b.onclick=()=>{app.glossarySelected=b.dataset.term;renderGlossary();window.scrollTo({top:0,behavior:'smooth'});});
  if($('#close-term'))$('#close-term').onclick=()=>{app.glossarySelected=null;renderGlossary();};
-}
-y(); window.scrollTo({ top: 0, behavior: 'smooth' }); }); if ($('#close-term')) $('#close-term').onclick = () => { app.glossarySelected = null; renderGlossary(); };
 }
 function renderProgress() {  
 const accuracy = stats.total ? Math.round(stats.correct / stats.total * 100) : 0, qa = stats.quizSolved ? Math.round(stats.quizCorrect / stats.quizSolved * 100) : 0; $('#content').innerHTML = `${pageIntro('05 / РЕЗУЛЬТАТ', 'Мой прогресс', 'Личный прогресс остаётся в браузере. Ни регистрация, ни сервер для занятий не нужны.', '05')}<section class="stat-grid"><div class="stat-tile"><strong>${stats.solved}</strong><span>Задач решено</span></div><div class="stat-tile"><strong>${accuracy}%</strong><span>Правильных ответов</span></div><div class="stat-tile"><strong>${stats.best}</strong><span>Лучшая серия</span></div></section><section class="aux-panel"><div class="mode-header"><div><h2>Твой путь</h2><p>Возвращайся к сложным задачам, а не только к тем, что уже получаются.</p></div></div><div class="data-list"><div class="data-row"><span>Задачи без ошибок</span><strong>${stats.perfect}</strong></div><div class="data-row"><span>Точность тестов</span><strong>${qa}% (${stats.quizSolved} вопросов)</strong></div><div class="data-row"><span>Изученных карточек</span><strong>${stats.known.length} / ${CONCEPTS.length}</strong></div><div class="data-row"><span>Кейсов из банка изучено</span><strong>${Object.keys(stats.caseCompleted||{}).length} / 57</strong></div><div class="data-row"><span>Задач на повторение</span><strong>${stats.retry.length}</strong></div><div class="data-row"><span>Пропущено без оценки</span><strong>${totalSkipped(stats)}</strong></div></div><div class="action-row"><button class="button primary" id="repeat-errors" ${stats.retry.length ? '' : 'disabled'}>Повторить ошибки →</button><button class="button ghost" id="export-progress">↓ Экспорт JSON</button><button class="button ghost" id="reset-progress">Сбросить статистику</button></div></section>`;
