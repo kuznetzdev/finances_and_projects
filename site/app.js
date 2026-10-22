@@ -3,7 +3,8 @@ import {bindPracticeModes} from './features/practice-modes.js';
 import { TOPICS, LEVELS, TEMPLATE_CATALOG, generateExercise, checkAnswer, formatAnswer } from './engine/index.js';
 import { CONCEPTS, KNOWLEDGE_GROUPS, OPERATIONS, OPERATION_CATEGORIES } from './data/knowledge.js';
 import { searchConcepts } from './data/glossary-engine.js';
-import { formulaVariantsMarkup, glossaryMetaMarkup, glossaryCardMarkup } from './features/glossary-ui.js';
+import { formulaVariantsMarkup, glossaryMetaMarkup, glossaryCardMarkup, symbolLegendMarkup } from './features/glossary-ui.js';
+import { symbolsForHint } from './data/formula-notation.js';
 import { DEFAULT_TAX_POLICY } from './data/tax.js';
 import { rng, oneOf } from './engine/helpers.js';
 import { shuffle, chooseFresh, recordRecent, newDeck } from './engine/scheduler.js';
@@ -129,6 +130,7 @@ function abbreviationLine(entry){
  return `<span class="abbr-key">${escape(entry.key)}</span><span><b>${escape(entry.english)}</b> — ${escape(entry.russian)}. ${escape(entry.meaning)}</span>`;
 }
 function exerciseHintHtml(exercise){
+ const symbols=symbolsForHint(exercise.hint,{topic:exercise.topic,title:exercise.title});
  const detected=abbreviationsIn([exercise.title,exercise.story,...exercise.questions.map(q=>q.label)].join(' '),6);
  const tips={
   pl:'Определите момент признания выручки и расходов: оплата может произойти в другом периоде.',
@@ -140,7 +142,7 @@ function exerciseHintHtml(exercise){
   tax:'Проверьте, что именно задано: налоговая база, ставка, период возникновения выгоды и право на вычет.',
   model:'Зафиксируйте единицы, период и допущения модели. Проверьте, как одна величина связана с другими.'
  };
- return `<div class="hint-panel"><strong>Как подойти к решению</strong><p>${escape(tips[exercise.topic]||'Выделите исходные данные, единицы и искомый показатель.')}</p><p><strong>Формула и порядок расчёта:</strong> ${escape(exercise.hint)}</p>${detected.length?`<details class="term-disclosures"><summary>Расшифровки обозначений (${detected.length})</summary><div class="abbr-list">${detected.map(abbreviationLine).join('')}</div></details>`:''}</div>`;
+ return `<div class="hint-panel"><strong>Как подойти к решению</strong><p>${escape(tips[exercise.topic]||'Выделите исходные данные, единицы и искомый показатель.')}</p><p><strong>Формула и порядок расчёта:</strong> ${escape(exercise.hint)}</p>${symbolLegendMarkup(symbols,escape)}${detected.length?`<details class="term-disclosures"><summary>Расшифровки обозначений (${detected.length})</summary><div class="abbr-list">${detected.map(abbreviationLine).join('')}</div></details>`:''}</div>`;
 }
 function renderQuiz() {
  if(!app.quiz)newQuiz();
@@ -152,7 +154,7 @@ function renderQuiz() {
  <div class="eyebrow">${item.kind==='operations'?'СИТУАЦИЯ ИЗ ПРАКТИКИ':'ОПРЕДЕЛЕНИЕ ПОНЯТИЯ'}</div>
  <p class="quiz-scenario">${escape(item.scenario)}</p>
  <h3 class="quiz-question" tabindex="-1">${escape(item.question)}</h3>
- ${!answered?`<div class="quiz-prep"><button type="button" id="quiz-hint-toggle" class="quiz-hint-toggle" aria-expanded="${app.quizHint}" aria-controls="quiz-hint-details">${app.quizHint?'Скрыть подсказку':'? Как рассуждать'}</button><div class="quiz-hint-details" id="quiz-hint-details" ${app.quizHint?'':'hidden'}><strong>Подсказка по методу</strong><p>${escape(item.hint)}</p></div></div>`:''}
+ ${!answered?`<div class="quiz-prep"><button type="button" id="quiz-hint-toggle" class="quiz-hint-toggle" aria-expanded="${app.quizHint}" aria-controls="quiz-hint-details">${app.quizHint?'Скрыть подсказку':'? Как рассуждать'}</button><div class="quiz-hint-details" id="quiz-hint-details" ${app.quizHint?'':'hidden'}><strong>Подсказка по методу</strong><p>${escape(item.hint)}</p>${symbolLegendMarkup(symbolsForHint(item.hint,{title:item.question}),escape)}</div></div>`:''}
  <div class="quiz-options">${item.options.map((x,i)=>`<button type="button" class="quiz-option ${answered?(x===item.answer?'correct':x===app.quizResult?'wrong':''):''}" data-choice="${escape(x)}" ${answered?'disabled':''}><span>${String.fromCharCode(65+i)}</span>${escape(x)}</button>`).join('')}</div>
  ${answered?`<div class="quiz-feedback" role="status"><strong>${app.quizResult===item.answer?'✓ Верно':'Разбор ответа'}</strong><p class="quiz-answer-line">Правильный ответ: <b>${escape(item.answer)}</b>.</p><p><b>Почему именно так:</b> ${escape(analysis.reason)}</p><p><b>Как отличить от похожих понятий:</b> ${escape(analysis.rule)}</p>${analysis.wrong?`<p class="quiz-mistake"><b>Почему выбранный вариант не подходит:</b> ${escape(analysis.wrong)}</p>`:''}${analysis.expansion?`<div class="quiz-term-expansion">${abbreviationLine(analysis.expansion)}</div>`:''}<details class="quiz-alternatives"><summary>Разобрать все варианты ответов</summary><div class="quiz-alternatives-list">${item.options.map(label=>`<div><strong>${escape(label)}${label===item.answer?' ✓':''}</strong><p>${escape(explainAlternative(label,item,CONCEPTS))}</p></div>`).join('')}</div></details></div>`:''}
  <div class="quiz-actions" role="group" aria-label="Управление тестом"><span class="quiz-actions-hint">${answered?'Разбор доступен выше, можно переходить к следующему вопросу.':'Пропуск не снижает точность тестов.'}</span><button type="button" class="button ${answered?'primary':'secondary'}" id="${answered?'next-quiz':'skip-quiz'}">${answered?'Следующий вопрос →':'Пропустить →'}</button></div></section>`;

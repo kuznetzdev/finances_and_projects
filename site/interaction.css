@@ -278,3 +278,47 @@
 @media(max-width:850px) { .glossary-formula-grid { grid-template-columns:minmax(0,1fr); } }
 @media(max-width:520px) { .glossary-controls { gap:9px; } .glossary-controls > * { width:100%; min-width:0; } .term-list { grid-template-columns:minmax(0,1fr); } .term-item { min-height:auto; padding:15px 17px; } .term-item h3 { font-size:20px; } .term-detail { padding:17px; } .glossary-formula-card { padding:14px; } .glossary-formula-equation { padding:10px 11px; } }
 @media(prefers-reduced-motion:reduce) { .term-item { transition:none; } .term-item:hover { transform:none; } }
+
+/* Contextual symbol legends for financial formulas and in-exercise hints. */
+.formula-legend {
+  margin: 11px 0 12px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.formula-legend summary {
+  cursor: pointer;
+  padding: 10px 4px;
+  font-weight: 650;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink);
+}
+.formula-legend summary:focus-visible { outline: 2px solid var(--accent,#527e72); outline-offset: 2px; }
+.formula-legend-items { margin: 0 0 11px; }
+.formula-legend-pair {
+  display: grid;
+  grid-template-columns: minmax(48px, 116px) minmax(0,1fr);
+  gap: 8px 12px;
+  padding: 9px 2px;
+  border-top: 1px solid var(--line);
+  align-items: baseline;
+}
+.formula-legend-pair dt {
+  font-size: 13px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.formula-legend-pair dd { margin: 0; font-size: 12px; line-height: 1.55; color: var(--ink); }
+.formula-legend-unit { display: block; color: var(--muted); margin-top: 3px; font-size: 11px; }
+.hint-panel .formula-legend { background: var(--paper); margin-top: 11px; }
+@media (max-width: 480px) {
+  .formula-legend-pair { grid-template-columns: 1fr; gap: 3px; }
+  .formula-legend-pair dt { font-size: 13px; }
+  .formula-legend-pair dd { font-size: 12px; }
+}
