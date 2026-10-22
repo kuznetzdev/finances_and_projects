@@ -1,0 +1,101 @@
+/* Version 6: dense, accessible exercise controls across desktop and mobile.
+   Deliberately separate from the visual design system in styles.css. */
+:root { --action-safe-bottom: 12px; }
+[hidden] { display: none !important; }
+
+/* Sidebar is dark in BOTH themes. Its mark must never inherit dark-theme lime. */
+.brand-mark, .mobile-mark {
+  background-color: #d9f19f;
+  color: #153c3b;
+  flex: none;
+  border: 1px solid rgba(9, 44, 40, .14);
+}
+.brand-mark span { color: #153c3b; }
+
+/* Give the learning material the space previously used by oversized headings. */
+.page-intro { margin-top: 0; margin-bottom: 20px; }
+.page-intro h1 { font-size: clamp(36px, 3.3vw, 52px); margin: 8px 0 10px; }
+.hero-index { font-size: 44px; }
+#content[data-page="quiz"] .quiz-card { max-width: 880px; }
+#content[data-page="quiz"] .quiz-question {
+  font-size: clamp(24px, 2.2vw, 30px);
+  line-height: 1.32;
+  margin: 8px 0 18px;
+}
+#content[data-page="quiz"] .quiz-toolbar { margin: 15px 0 19px; }
+#content[data-page="quiz"] .quiz-options { gap: 9px; }
+#content[data-page="quiz"] .quiz-option { min-height: 54px; padding: 12px 16px; }
+.quiz-modes { display:flex; gap: 8px; flex-wrap:wrap; }
+
+/* Sticky dock stays visible when answers are taller than the viewport. */
+.quiz-actions, .task-actions, .case-action-dock, .flip-controls {
+  position: sticky;
+  bottom: var(--action-safe-bottom);
+  z-index: 5;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  border-radius: 15px;
+  box-shadow: 0 6px 24px rgba(12, 38, 32, .12);
+}
+.quiz-actions {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; padding: 10px 12px; margin-top: 18px;
+}
+.flip-controls { padding: 10px; margin-top: 16px; gap: 8px; }
+.quiz-actions-hint { font-size: 12px; color: var(--muted); line-height: 1.45; }
+.quiz-actions .button { flex-shrink: 0; min-height: 44px; }
+
+/* No scroll-container ancestor for viewport sticky positioning. */
+.task-paper, .case-workpad { overflow: clip; }
+.task-actions { padding: 10px 12px; margin-top: 20px; display:flex; flex-wrap:wrap; gap:9px; }
+.task-actions-aux, .task-actions-main { display: flex; align-items: center; gap: 8px; flex-wrap:wrap; }
+.task-actions .button { min-height: 42px; white-space: nowrap; }
+.task-actions .guided-nav { display: flex; gap: 7px; margin: 0; align-items:center; }
+.task-actions .guided-nav .button { min-width: 0; }
+.task-header, .quiz-question, .case-statement { scroll-margin-top: 18px; }
+.case-action-dock { padding: 10px; margin-top: 16px; gap: 8px; flex-wrap:wrap; }
+.case-action-dock .button { flex: 0 1 auto; }
+.case-action-dock .case-skip { margin-left: auto; }
+
+/* Limit excessive chrome on shorter laptop displays. */
+@media (min-width: 781px) and (max-height: 850px) {
+  main { padding-top: 20px; }
+  .page-intro { margin-bottom: 15px; }
+  #content[data-page="quiz"] .aux-panel { padding: 22px 26px; }
+  #content[data-page="quiz"] .quiz-question { font-size: clamp(23px, 2vw, 27px); }
+  #content[data-page="quiz"] .quiz-option { min-height: 48px; padding: 10px 14px; }
+}
+@media (max-width: 780px) {
+  :root { --action-safe-bottom: calc(74px + env(safe-area-inset-bottom)); }
+  .page-intro h1 { font-size: clamp(32px, 6vw, 43px); }
+  .hero-index { display: none; }
+  .page-intro { margin-bottom: 16px; }
+  main { padding-top: 20px; }
+  .flip-controls { padding: 10px; margin-top: 16px; gap: 8px; }
+.quiz-actions-hint { display: none; }
+  .quiz-actions .button { width: 100%; }
+  .task-actions { margin: 13px 0 0; }
+  .task-actions-aux, .task-actions-main { width: 100%; justify-content: space-between; }
+  .task-actions-aux .button { min-height: 32px; padding: 0 7px; }
+  .task-actions-main .button { flex: 1 1 auto; }
+  .task-actions .guided-nav { flex: 1 1 100%; justify-content: space-between; }
+  .task-actions .guided-nav .button { flex:1; }
+  .case-action-dock .case-skip { flex-basis: 100%; margin-left: 0; }
+}
+@media (max-width: 520px) {
+  #content[data-page="quiz"] .quiz-question { font-size: clamp(21px, 5.7vw, 25px); line-height: 1.38; margin-bottom: 14px; }
+  #content[data-page="quiz"] .quiz-option { min-height: 48px; padding: 10px 12px; }
+  #content[data-page="quiz"] .quiz-toolbar { margin: 12px 0 17px; }
+  #content[data-page="quiz"] .aux-panel { padding: 18px 14px; }
+  .quiz-actions { margin-top: 14px; padding: 9px; }
+  .task-actions { padding: 9px; }
+  .task-actions-main { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.3fr); }
+  .task-actions-main .guided-nav { grid-column: 1 / -1; }
+  .task-actions-main .button { width: 100%; padding: 0 9px; font-size: 12px; }
+  .task-actions .task-actions-aux .button { font-size: 11px; }
+  .case-action-dock { display:grid; grid-template-columns: auto 1fr auto; }
+  .case-action-dock .case-skip { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .quiz-actions, .task-actions, .case-action-dock, .flip-controls { scroll-behavior: auto; }
+}
