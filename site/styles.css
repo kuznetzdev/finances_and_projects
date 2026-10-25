@@ -86,3 +86,29 @@
 .case-toolbar :focus-visible,.case-workspace button:focus-visible{outline:3px solid var(--ok);outline-offset:2px}
 @media(max-width:1120px){.case-workspace{grid-template-columns:minmax(0,1fr)}.case-filter-row{grid-template-columns:repeat(2,minmax(0,1fr))}.case-statement,.case-workpad{padding:24px}}
 @media(max-width:640px){.practice-mode-tabs{width:100%}.practice-mode-tabs button{flex:1;white-space:normal;padding:12px 9px}.case-toolbar{padding:14px}.case-filter-row{grid-template-columns:1fr}.case-filter-row>.button{width:100%}.case-statement,.case-workpad{padding:20px 17px}.case-statement h2{font-size:30px}.formatted-bank{font-size:13px}.case-workpad-head h2{font-size:24px}.case-finish .button{font-size:11px}.case-step-nav{gap:5px}.case-number-wrap span{font-size:11px}.case-label-row{gap:7px}}
+/* Seminar paradoxes, following the existing editorial design system */
+.paradox-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+.paradox-toolbar label,.paradox-label{display:grid;gap:9px;color:var(--muted);font-size:11px;font-weight:750;letter-spacing:1px}
+.paradox-toolbar input,.paradox-toolbar select,.paradox-detail textarea{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink);font-size:14px;letter-spacing:normal}
+.paradox-summary{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:19px 22px;display:flex;align-items:center;gap:16px;margin-top:18px}
+.paradox-summary strong{font-size:22px}.paradox-summary span{color:var(--muted);font-size:13px}.paradox-summary .progress-track{margin-left:auto;width:190px}
+.paradox-list{display:grid;gap:10px;margin-bottom:26px}
+.paradox-row{width:100%;border:1px solid var(--line);border-radius:14px;background:var(--paper);color:var(--ink);padding:19px;display:flex;gap:18px;align-items:center;text-align:left}
+.paradox-row:hover{border-color:var(--forest2);background:var(--paper2)}
+.paradox-number{font-weight:750;color:var(--muted);min-width:40px}
+.paradox-row-text{display:grid;gap:5px;flex:1}.paradox-row-text strong{font-size:15px}.paradox-row-text small{color:var(--muted);font-size:12px}
+.paradox-state{color:var(--forest2);font-weight:650;font-size:12px;white-space:nowrap}
+.paradox-detail{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:clamp(20px,4vw,40px);margin:18px 0 28px}
+.paradox-detail h2{font:normal clamp(25px,3.6vw,38px) Georgia,serif;margin:12px 0 22px;line-height:1.2}
+.paradox-detail h3{font-size:17px;margin:0 0 12px}
+.paradox-detail p{line-height:1.72}
+.paradox-question{background:var(--paper2);border-radius:12px;padding:20px 22px;margin-bottom:26px}
+.paradox-question p{margin:0}.paradox-help{font-size:13px;color:var(--muted)}
+.paradox-detail textarea{min-height:170px;resize:vertical;line-height:1.65;margin-bottom:12px}
+.paradox-actions{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.paradox-answer,.paradox-check{border-top:1px solid var(--line);margin-top:27px;padding-top:24px}
+.paradox-thesis{font-size:16px}.paradox-check-row{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:13px;margin:9px 0;cursor:pointer;line-height:1.55}
+.paradox-check-row input{margin-top:5px;accent-color:var(--forest2)}
+.paradox-check-result,.paradox-source{font-size:12px;color:var(--muted)}
+.paradox-source{margin-top:25px}
+@media(max-width:650px){.paradox-toolbar{grid-template-columns:1fr}.paradox-summary{flex-wrap:wrap}.paradox-summary .progress-track{width:100%;margin-left:0}.paradox-row{padding:14px;gap:10px}.paradox-state{font-size:11px}}
