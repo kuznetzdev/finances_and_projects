@@ -112,3 +112,5 @@
 .paradox-check-result,.paradox-source{font-size:12px;color:var(--muted)}
 .paradox-source{margin-top:25px}
 @media(max-width:650px){.paradox-toolbar{grid-template-columns:1fr}.paradox-summary{flex-wrap:wrap}.paradox-summary .progress-track{width:100%;margin-left:0}.paradox-row{padding:14px;gap:10px}.paradox-state{font-size:11px}}
+
+@media(max-width:650px){.mobile-navigation{justify-content:flex-start;overflow-x:auto;scrollbar-width:thin}.mobile-navigation button{flex:0 0 auto}}
