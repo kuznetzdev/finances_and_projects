@@ -29,7 +29,7 @@ try{
  assert.ok(iconValidity,'Broken SVG symbol reference');
  await page.locator('#hint-btn').click();
  assert.equal(await page.locator('.hint-panel .hint-step').count(),2);
- assert.equal(await page.locator('.hint-panel .ui-icon').count(),1);
+ assert.equal(await page.locator('.hint-heading .ui-icon').count(),1);
  await page.screenshot({path:'artifacts/visual-practice-hint.png',fullPage:true});
  await page.locator('[data-page="quiz"]').first().click();
  await page.locator('#quiz-hint-toggle').click();

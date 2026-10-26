@@ -3,12 +3,12 @@ import assert from 'node:assert/strict';
 import {CASE_BANK,CASE_BY_ID,CASE_CHECKPOINTS,availableCases,nextCase,verifyCheckpoint} from '../site/engine/casebook.js';
 import {TEMPLATE_CATALOG,generateExercise} from '../site/engine/index.js';
 const ans=(e,key)=>e.questions.find(x=>x.key===key).answer;
-test('Audited source bank has 57 unique tasks, conditions, solutions and staged breakdown',()=>{
- assert.equal(CASE_BANK.length,57);
- assert.equal(new Set(CASE_BANK.map(x=>x.id)).size,57);
+test('Original source bank and ten lecture tasks have unique identifiers, conditions, solutions and staged breakdown',()=>{
+ assert.equal(CASE_BANK.length,67);
+ assert.equal(new Set(CASE_BANK.map(x=>x.id)).size,67);
  assert.equal(CASE_BANK.filter(x=>x.id.startsWith('F')).length,19);
  assert.equal(CASE_BANK.filter(x=>x.id.startsWith('T')).length,17);
- assert.equal(CASE_BANK.filter(x=>x.id.startsWith('V')).length,21);
+ assert.equal(CASE_BANK.filter(x=>x.id.startsWith('V')&&!x.id.startsWith('VC')).length,21);
  for(const item of CASE_BANK){assert.ok(item.conditionHtml.length>70,item.id);assert.ok(item.solutionHtml.length>25,item.id);assert.ok(item.steps.length>=1,item.id);assert.ok(item.topic,item.id);}
  assert.ok(CASE_BY_ID.get('F05').caveat);
  assert.ok(CASE_BY_ID.get('T15').caveat);
