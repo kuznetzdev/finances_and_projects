@@ -20,6 +20,8 @@ try{
  page.on('pageerror',e=>errors.push(e.message));
  await page.goto(base+'?page=practice&mode=bank&case=LC01',{waitUntil:'networkidle'});
  assert.equal(await page.locator('.case-code').innerText(),'LC01');
+ assert.equal(await page.locator('#bank-group').inputValue(),'LBO · видеолекция');
+ assert.equal(await page.locator('#bank-random .ui-icon').count(),1);
  assert.match(await page.locator('.case-counter').innerText(),/67 разобранных задач/);
  assert.match(await page.locator('.case-condition').innerText(),/500 млн/);
  await page.locator('#bank-answer').fill('150');
@@ -33,6 +35,26 @@ try{
  await page.locator('#bank-answer-form button[type="submit"]').click();
  assert.equal(await page.locator('#bank-complete').isEnabled(),true);
  await page.screenshot({path:'artifacts/lecture-lbo-desktop.png',fullPage:true});
+ // Regression: changing an already verified answer must immediately revoke credit.
+ await page.locator('#bank-answer').fill('100');
+ assert.equal(await page.locator('#bank-complete').isDisabled(),true);
+ assert.match(await page.locator('#bank-feedback').innerText(),/изменён/);
+ assert.equal(await page.locator('.case-workpad-head strong').innerText(),'2/3');
+ await page.reload({waitUntil:'networkidle'});
+ // The book intentionally returns to step one on page reload; navigate to the saved third answer.
+ await page.locator('#bank-next').click();
+ await page.locator('#bank-next').click();
+ assert.equal(await page.locator('#bank-answer').inputValue(),'100');
+ assert.equal(await page.locator('#bank-complete').isDisabled(),true);
+ await page.locator('#bank-answer').fill('2,333');
+ await page.locator('#bank-answer-form button[type="submit"]').click();
+ assert.equal(await page.locator('#bank-complete').isEnabled(),true);
+ await page.locator('#bank-complete').click();
+ assert.ok(await page.locator('.case-success').isVisible());
+ // A changed answer also revokes a previously completed case.
+ await page.locator('#bank-answer').fill('3');
+ assert.equal(await page.locator('.case-success').count(),0);
+ assert.equal(await page.locator('#bank-complete').isDisabled(),true);
  await page.goto(base+'?page=practice&mode=bank&case=VC03',{waitUntil:'networkidle'});
  assert.equal(await page.locator('.case-code').innerText(),'VC03');
  assert.match(await page.locator('.case-condition').innerText(),/500 млн/);
@@ -46,12 +68,29 @@ try{
  assert.equal(await page.locator('.case-code').innerText(),'RO01');
  assert.ok(await page.locator('.case-caution').isVisible());
  assert.equal(await page.locator('#bank-answer').count(),0);
+ // Self-graded reasoning must not be certified without an original explanation.
+ await page.locator('#bank-compare').click();
+ assert.equal(await page.locator('#bank-understood').isDisabled(),true);
+ await page.locator('#bank-notes').fill('Пока не могу объяснить расчет');
+ assert.equal(await page.locator('#bank-understood').isDisabled(),true);
+ const reasoning='Ключевое условие состоит в возможности не осуществлять инвестиции при неблагоприятном сценарии. Затраты после раскрытия информации должны учитываться только в той ветке дерева, где менеджмент действительно выбирает масштабирование, иначе стоимость опциона окажется искаженной.';
+ await page.locator('#bank-notes').fill(reasoning);
+ assert.equal(await page.locator('#bank-understood').isEnabled(),true);
+ await page.reload({waitUntil:'networkidle'});
+ assert.equal(await page.locator('#bank-notes').inputValue(),reasoning);
+ await page.locator('#bank-compare').click();
+ assert.equal(await page.locator('#bank-understood').isEnabled(),true);
+ await page.locator('#bank-understood').click();
+ assert.equal(await page.locator('.case-workpad-head strong').innerText(),'1/3');
+ await page.locator('#bank-prev').click();
+ assert.equal(await page.locator('#bank-next').isEnabled(),true);
  await page.locator('#bank-solution-toggle').click();
  const solution=await page.locator('.case-full-solution').innerText();
  assert.match(solution,/378,07/);assert.match(solution,/756,14/);
  await page.goto(base+'?page=practice&mode=bank&case=RO02',{waitUntil:'networkidle'});
  assert.equal(await page.locator('.case-code').innerText(),'RO02');
  assert.match(await page.locator('.case-condition').innerText(),/переключ/);
+ assert.equal(await page.locator('#bank-group').inputValue(),'Реальные опционы · видеолекция');
  await page.locator('#bank-group').selectOption('Реальные опционы · видеолекция');
  assert.equal(await page.locator('#bank-select option').count(),3);
  await page.screenshot({path:'artifacts/lecture-options-desktop.png',fullPage:true});
@@ -64,10 +103,13 @@ try{
  mob.on('pageerror',e=>errors.push('mobile: '+e.message));
  await mob.goto(base+'?page=practice&mode=bank&case=VC04',{waitUntil:'networkidle'});
  assert.equal(await mob.locator('.case-code').innerText(),'VC04');
+ assert.equal(await mob.locator('#bank-random .ui-icon').count(),1);
+ await mob.locator('#bank-solution-toggle').click();
+ assert.equal(await mob.locator('#bank-solution-toggle').getAttribute('aria-expanded'),'true');
  await mob.screenshot({path:'artifacts/lecture-venture-mobile.png',fullPage:true});
  const widths=await mob.evaluate(()=>({document:document.documentElement.scrollWidth,viewport:innerWidth}));
  assert.ok(widths.document<=widths.viewport+5,JSON.stringify(widths));
  await mobile.close();
  assert.deepEqual(errors,[]);
- console.log('PASS: lecture bank integration, LBO and VC arithmetic, options caveat, category filtering, mobile layout.');
+ console.log('PASS: source cases, numeric grading invalidation, reasoning minimum, draft persistence, SVG icons and mobile styling.');
 }finally{await browser?.close();server.kill('SIGTERM');}
