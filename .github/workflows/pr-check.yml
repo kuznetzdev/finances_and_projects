@@ -7,6 +7,7 @@ on:
       - 'tests/**'
       - 'scripts/smoke-paradoxes.mjs'
       - 'scripts/smoke-visual.mjs'
+      - 'scripts/smoke-lecture-cases.mjs'
       - 'package.json'
       - '.github/workflows/pr-check.yml'
   workflow_dispatch:
@@ -31,6 +32,8 @@ jobs:
         run: node scripts/smoke-paradoxes.mjs
       - name: Typography, math and icon browser smoke test
         run: node scripts/smoke-visual.mjs
+      - name: Lecture cases Chromium smoke test
+        run: node scripts/smoke-lecture-cases.mjs
       - name: Attach UI screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -39,4 +42,5 @@ jobs:
           path: |
             artifacts/paradoxes-*.png
             artifacts/visual-*.png
+            artifacts/lecture-*.png
           if-no-files-found: ignore
