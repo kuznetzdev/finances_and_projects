@@ -7,7 +7,7 @@ import {LECTURE_CHECKPOINTS} from '../site/data/lecture-checkpoints.js';
 test('Search covers case statement details, categories, Russian ё and LBO-specific terms',()=>{
  assert.ok(availableCases('Все направления','мебель').some(c=>c.id==='LC03'));
  assert.ok(availableCases('Все направления','опционный пул').some(c=>c.id==='VC04'));
- assert.ok(availableCases('Все направления','погашение тела долга').some(c=>c.id==='LC01'));
+ assert.ok(availableCases('Все направления','уменьшение основного долга').some(c=>c.id==='LC01'));
  assert.deepEqual(availableCases('LBO · видеолекция','редкая_ошибка_поиска'),[]);
  assert.ok(availableCases('Все направления','развёрнутый').length===availableCases('Все направления','развернутый').length);
  assert.ok(availableCases('Все направления','СВОБОДНОГО    денежного потока').some(c=>c.id==='LC01'));
