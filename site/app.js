@@ -1,3 +1,4 @@
+import {CASE_BANK} from './engine/casebook.js';
 import { renderParadoxes, resetParadoxesView } from './features/paradoxes-ui.js';
 import {setupCasebook} from './features/casebook-ui.js';
 import {bindPracticeModes} from './features/practice-modes.js';
@@ -83,7 +84,7 @@ function storyHtml(value){
 }
 function pageIntro(label, title, description, number) { return `<section class="page-intro"><div><div class="eyebrow">${escape(label)}</div><h1>${escape(title)}</h1><p>${escape(description)}</p></div><div class="hero-index" aria-hidden="true">${escape(number)}</div></section>`; }
 function render() { $('#content').dataset.page = app.page; refreshProgressSidebar(); if (app.page === 'practice') (app.practiceMode==='bank'?renderBankMode():renderPractice()); else if (app.page === 'quiz') renderQuiz(); else if (app.page === 'cards') renderCards(); else if (app.page === 'glossary') renderGlossary(); else if (app.page === 'paradoxes') renderParadoxes($('#content'),pageIntro); else renderProgress(); }
-function practiceTabs() { return `<div class="practice-mode-tabs" role="group" aria-label="Режим решения"><button type="button" data-practice-mode="generator" class="${app.practiceMode==='generator'?'active':''}" aria-pressed="${app.practiceMode==='generator'}">Генератор задач</button><button type="button" data-practice-mode="bank" class="${app.practiceMode==='bank'?'active':''}" aria-pressed="${app.practiceMode==='bank'}">Банк задач · 57 кейсов</button></div>`; }
+function practiceTabs() { return `<div class="practice-mode-tabs" role="group" aria-label="Режим решения"><button type="button" data-practice-mode="generator" class="${app.practiceMode==='generator'?'active':''}" aria-pressed="${app.practiceMode==='generator'}">Генератор задач</button><button type="button" data-practice-mode="bank" class="${app.practiceMode==='bank'?'active':''}" aria-pressed="${app.practiceMode==='bank'}">Банк задач · ${CASE_BANK.length} кейсов</button></div>`; }
 // The case book replaces #content.innerHTML after each internal action. Only #content
 // survives all renders, so practice mode changes MUST be delegated to that root.
 function changePracticeMode(next) {
