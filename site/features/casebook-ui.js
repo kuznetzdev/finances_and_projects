@@ -1,22 +1,28 @@
+import {formulaMarkup} from './math-ui.js';
 import {CASE_BANK, CASE_CHECKPOINTS, CASE_GROUPS, availableCases, nextCase, recordRecent, verifyCheckpoint, CASE_BY_ID} from '../engine/casebook.js';
 import {recordSkip} from '../engine/attempts.js';
 
-const state={group:'Все направления',id:null,index:0,showReference:false,search:'',revealedStep:null};
+const state={group:'Все направления',id:null,index:0,showReference:false,search:'',revealedStep:null,revealedHint:null};
 const MIN_REASONING_LENGTH=80;
 let deps, pendingSave=null;
 function flushDraft(){if(pendingSave!==null){clearTimeout(pendingSave);pendingSave=null;}deps?.save();}
 function saveDraftSoon(){if(pendingSave!==null)clearTimeout(pendingSave);pendingSave=setTimeout(()=>{pendingSave=null;deps?.save();},450);}
 if(typeof window!=='undefined')window.addEventListener('pagehide',()=>{if(pendingSave!==null)flushDraft();});
-function stepSolved(checkpoints,d){return checkpoints?checkpoints.reduce((total,_,i)=>total+(d.checked[i]===true?1:0),0):Object.values(d.reviewed).filter(x=>x==='understood').length;}
-function updateProgressUI(checkpoints,d,count){const solved=stepSolved(checkpoints,d);const number=$('.case-workpad-head strong');if(number)number.textContent=`${solved}/${count}`;const bar=$('.case-segment-track');if(bar){bar.setAttribute('aria-valuenow',String(solved));bar.querySelector('span').style.width=`${solved/count*100}%`;}const complete=$('#bank-complete');if(complete){complete.disabled=solved!==count;complete.title=solved===count?'':'Сначала пройдите все этапы';}}
+function stepSolved(checkpoints,d,count){
+ if(checkpoints)return checkpoints.reduce((total,q,i)=>total+(d.checked?.[i]===true&&verifyCheckpoint(q,d.answers?.[i])===true?1:0),0);
+ let countSolved=0;
+ for(let i=0;i<count;i++)if(d.reviewed?.[i]==='understood'&&(d.notes?.[i]??'').trim().length>=MIN_REASONING_LENGTH)countSolved++;
+ return countSolved;
+}
+function updateProgressUI(checkpoints,d,count){const solved=stepSolved(checkpoints,d,count);const number=$('.case-workpad-head strong');if(number)number.textContent=`${solved}/${count}`;const bar=$('.case-segment-track');if(bar){bar.setAttribute('aria-valuenow',String(solved));bar.querySelector('span').style.width=`${solved/count*100}%`;}const complete=$('#bank-complete');if(complete){complete.disabled=solved!==count;complete.title=solved===count?'':'Сначала пройдите все этапы';}}
 function invalidateCompletion(item){if(deps.stats.caseCompleted?.[item.id]){delete deps.stats.caseCompleted[item.id];$('.case-success')?.remove();}}
 
 const safe=()=>deps.stats.caseDrafts ??= {};
 const draft=()=>safe()[state.id] ??= {answers:{}, checked:{}, notes:{}, reviewed:{}};
-const filters=()=>`<section class="case-toolbar" aria-label="Поиск по банку"><div class="case-filter-row"><label class="case-filter"><span>Раздел</span><select id="bank-group">${CASE_GROUPS.map(g=>`<option value="${deps.escape(g)}" ${g===state.group?'selected':''}>${deps.escape(g)}</option>`).join('')}</select></label><label class="case-filter"><span>Поиск по банку</span><input id="bank-search" type="search" value="${deps.escape(state.search)}" placeholder="Например: облигации, DCF, ликвидность" autocomplete="off"></label><label class="case-filter"><span>Задача</span><select id="bank-select">${(availableCases(state.group,state.search).length?availableCases(state.group,state.search):availableCases(state.group)).map(c=>`<option value="${c.id}" ${c.id===state.id?'selected':''}>${c.id} · ${deps.escape(c.title)}</option>`).join('')}</select></label><button type="button" class="button primary" id="bank-random"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-refresh"></use></svg> Случайная задача</button></div><p class="case-counter">${CASE_BANK.length} разобранных задач из банка · ${CASE_BANK.filter(x=>deps.stats.caseCompleted?.[x.id]).length} изучено · решения с оговорками обозначены отдельно</p></section>`;
+const filters=()=>`<section class="case-toolbar" aria-label="Поиск по банку"><div class="case-filter-row"><label class="case-filter"><span>Раздел</span><select id="bank-group">${CASE_GROUPS.map(g=>`<option value="${deps.escape(g)}" ${g===state.group?'selected':''}>${deps.escape(g)}</option>`).join('')}</select></label><label class="case-filter"><span>Поиск по банку</span><input id="bank-search" type="search" value="${deps.escape(state.search)}" placeholder="Например: облигации, DCF, ликвидность" autocomplete="off"></label><label class="case-filter"><span>Задача</span><select id="bank-select">${availableCases(state.group,state.search).map(c=>`<option value="${c.id}" ${c.id===state.id?'selected':''}>${c.id} · ${deps.escape(c.title)}</option>`).join('')||'<option value="">Ничего не найдено</option>'}</select></label><button type="button" class="button primary" id="bank-random"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-refresh"></use></svg> Случайная задача</button></div><p class="case-counter">${CASE_BANK.length} разобранных задач из банка · ${CASE_BANK.filter(x=>deps.stats.caseCompleted?.[x.id]).length} изучено · решения с оговорками обозначены отдельно</p></section>`;
 function selectCase(id,remember=true){
  if(!CASE_BY_ID.has(id))return;
- flushDraft();state.id=id;state.index=0;state.showReference=false;state.revealedStep=null;
+ flushDraft();state.id=id;state.index=0;state.showReference=false;state.revealedStep=null;state.revealedHint=null;
  if(remember){deps.stats.recentCases=recordRecent(deps.stats.recentCases??[],id,24);deps.save();}
  const url=new URL(location.href);url.searchParams.set('mode','bank');url.searchParams.set('case',id);history.replaceState({},'',url);
  render();
@@ -25,13 +31,23 @@ function render(){
  if(pendingSave!==null)flushDraft();
  const item=CASE_BY_ID.get(state.id), checkpoints=CASE_CHECKPOINTS[item.id]??null;
  const d=draft(),count=checkpoints?.length??item.steps.length,idx=Math.min(state.index,count-1);
+ const solved=stepSolved(checkpoints,d,count);
+ if(solved!==count&&deps.stats.caseCompleted?.[item.id]){delete deps.stats.caseCompleted[item.id];deps.save();}
  state.index=idx;
  const numerical=!!checkpoints, step=checkpoints?.[idx];
  let activity='';
  if(numerical){
   const current=d.answers[idx]??'', feedback=d.checked[idx];
   const label=deps.escape(step.label);
-  activity=`<div class="case-step-heading"><span>ШАГ ${idx+1} / ${count}</span><h3>${label}</h3><p>Ответ в ${deps.escape(step.unit)}. Дробные числа можно вводить через запятую или точку.</p></div><form id="bank-answer-form" class="case-answer-form"><label for="bank-answer">Ваш расчёт</label><div class="case-number-wrap"><input id="bank-answer" type="text" inputmode="decimal" autocomplete="off" value="${deps.escape(current)}" placeholder="Введите число"><span>${deps.escape(step.unit)}</span></div><div id="bank-feedback" class="case-feedback" aria-live="polite">${feedback===true?'<strong class="case-ok">Верно.</strong>':feedback===false?'<strong class="case-bad">Ответ пока не совпадает. Проверь единицы и промежуточные расчёты.</strong>':''}</div><button class="button primary" type="submit">Проверить шаг</button></form>`;
+  const hintExpanded=state.revealedHint===`${item.id}:${idx}`;
+  const hint=step.hint? `<div class="case-step-help">
+   <button type="button" id="bank-step-hint" class="case-hint-toggle" aria-expanded="${hintExpanded}" aria-controls="bank-step-hint-content">
+     <svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-bulb"></use></svg>
+     ${hintExpanded?'Скрыть подсказку':'Подсказка к расчёту'}
+   </button>
+   ${hintExpanded?`<div class="case-hint-panel" id="bank-step-hint-content" role="region" aria-label="Подсказка к расчёту"><p>${deps.escape(step.hint.guide)}</p><div class="glossary-formula-equation">${formulaMarkup(step.hint.formula,deps.escape)}</div></div>`:''}
+  </div>`:'';
+  activity=`<div class="case-step-heading"><span>ШАГ ${idx+1} / ${count}</span><h3>${label}</h3><p>Ответ в ${deps.escape(step.unit)}. Дробные числа можно вводить через запятую или точку.</p></div><form id="bank-answer-form" class="case-answer-form"><label for="bank-answer">Ваш расчёт</label><div class="case-number-wrap"><input id="bank-answer" type="text" inputmode="decimal" autocomplete="off" value="${deps.escape(current)}" placeholder="Введите число"><span>${deps.escape(step.unit)}</span></div><div id="bank-feedback" class="case-feedback" aria-live="polite">${feedback===true?'<strong class="case-ok">Верно.</strong>':feedback===false?'<strong class="case-bad">Ответ пока не совпадает. Проверь единицы и промежуточные расчёты.</strong>':''}</div><button class="button primary" type="submit">Проверить шаг</button>${hint}</form>`;
  }else{
   const content=d.notes[idx]??'',revealed=state.revealedStep===`${item.id}:${idx}`;
   activity=`<div class="case-step-heading"><span>ЭТАП ${idx+1} / ${count}</span><h3>Разберите решение: часть ${idx+1}</h3><p>Запишите формулу, ход вычислений или объяснение своими словами. Эти этапы проверяются самостоятельно, потому что единственного машинно проверяемого ответа может не быть.</p></div><label class="case-note-label" for="bank-notes">Ваш ход решения</label><textarea id="bank-notes" class="case-notes" rows="5" placeholder="Что известно? Какую формулу примените? Какие допущения понадобятся?">${deps.escape(content)}</textarea><p class="case-reasoning-note" id="bank-reasoning-note" aria-live="polite">Для отметки этапа напиши ответ от ${MIN_REASONING_LENGTH} символов. ${content.trim().length} / ${MIN_REASONING_LENGTH}</p><button type="button" class="button secondary" id="bank-compare" aria-expanded="${revealed}">${revealed?'Скрыть эталон':'Сравнить с решением'}</button>${revealed?`<div class="case-reference-piece formatted-bank"><div class="case-piece-title">Разбор из банка задач</div>${item.steps[idx]}</div><div class="case-assessment" aria-label="Самооценка этапа"><button type="button" class="button secondary" id="bank-review">Нужно повторить</button><button type="button" class="button primary" id="bank-understood" ${content.trim().length>=MIN_REASONING_LENGTH?'':'disabled'}>Разобрался ✓</button></div>`:''}`;
@@ -39,7 +55,7 @@ function render(){
  const solved=stepSolved(checkpoints,d);
  const completed=deps.stats.caseCompleted?.[item.id];
  deps.root.innerHTML=`${deps.intro('01 / БАНК ЗАДАЧ','Разобранные задачи','Учебные условия сохранены. Сначала решите сами, затем проверьте результат по шагам.','01')}${deps.tabs()}${filters()}
- <section class="case-workspace"><article class="case-statement" tabindex="-1"><div class="case-label-row"><span class="case-code">${item.id}</span><span>${deps.escape(item.group)}</span>${completed?'<span class="case-success">Изучено ✓</span>':''}</div><h2>${deps.escape(item.title)}</h2><div class="case-topic">${deps.escape(item.topic.replace(/^\d+(?:[.\d–-]+)?\s*/,'').trim())}</div>${item.caveat?'<div class="case-caution"><strong>Важны допущения.</strong> Сверяйте не только число, но и условия применимости вывода.</div>':''}<div class="formatted-bank case-condition">${item.conditionHtml}</div><div class="case-footnote">Источник: ${deps.escape(item.source)}. Числа приведены как в исходном банке.</div></article>
+ <section class="case-workspace"><article class="case-statement" tabindex="-1"><div class="case-label-row"><span class="case-code">${item.id}</span><span>${deps.escape(item.group)}</span>${completed?'<span class="case-success">Изучено ✓</span>':''}</div><h2>${deps.escape(item.title)}</h2><div class="case-topic">${deps.escape(item.topic.replace(/^\d+(?:[.\d–-]+)?\s*/,'').trim())}</div>${item.caveat?'<div class="case-caution"><strong>Важны допущения.</strong> Сверяйте не только число, но и условия применимости вывода.</div>':''}<div class="formatted-bank case-condition">${item.conditionHtml}</div><div class="case-footnote">Источник: ${deps.escape(item.source)}.</div></article>
  <section class="case-workpad" aria-label="Рабочая тетрадь"><div class="case-workpad-head"><div><span class="case-workpad-kicker">РАБОЧАЯ ТЕТРАДЬ</span><h2>${numerical?'Проверьте расчёт':'Сверьте ход решения'}</h2></div><strong>${solved}/${count}</strong></div><div class="case-segment-track" role="progressbar" aria-valuemin="0" aria-valuemax="${count}" aria-valuenow="${solved}"><span style="width:${solved/count*100}%"></span></div>${activity}
  <div class="case-step-nav case-action-dock" role="group" aria-label="Действия с задачей"><button class="button secondary" id="bank-prev" type="button" ${idx===0?'disabled':''}>← Назад</button><span>${idx+1} / ${count}</span><button class="button secondary" id="bank-next" type="button">${idx===count-1?'К началу':'Далее →'}</button><button class="button secondary case-skip" id="bank-skip" type="button">Пропустить задачу →</button></div>
  <button type="button" class="case-solution-toggle" id="bank-solution-toggle" aria-expanded="${state.showReference}">${state.showReference?'Скрыть полный разбор':'Показать полное решение'} <span><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-chevron"></use></svg></span></button>${state.showReference?`<div class="case-full-solution formatted-bank"><h3>Полное решение из банка</h3>${item.solutionHtml}${item.answerHtml?`<div class="case-source-answer">${item.answerHtml}</div>`:''}</div>`:''}
@@ -53,8 +69,9 @@ function render(){
  $('#bank-skip').onclick=()=>{const pool=availableCases(state.group);if(pool.length<2){deps.notice('В выбранном разделе нет другой задачи');return;}recordSkip(deps.stats,'case');deps.save();selectCase(nextCase(deps.stats.recentCases??[],state.group).id);const heading=deps.root.querySelector('.case-statement');heading?.scrollIntoView({block:'start',behavior:'instant'});heading?.focus({preventScroll:true});deps.notice('Задача пропущена без оценки');};
  $('#bank-solution-toggle').onclick=()=>{state.showReference=!state.showReference;render();};
  $('#bank-repeat').onclick=()=>{deps.stats.caseReview??=[];if(!deps.stats.caseReview.includes(item.id))deps.stats.caseReview.unshift(item.id);deps.save();deps.notice('Задача добавлена на повторение');};
- $('#bank-complete').onclick=()=>{if(stepSolved(checkpoints,d)!==count){deps.notice('Сначала завершите все этапы');return;}deps.stats.caseCompleted??={};deps.stats.caseCompleted[item.id]=new Date().toISOString().slice(0,10);deps.stats.caseReview=(deps.stats.caseReview??[]).filter(x=>x!==item.id);deps.save();deps.notice('Задача отмечена как изученная');render();};
+ $('#bank-complete').onclick=()=>{if(stepSolved(checkpoints,d,count)!==count){deps.notice('Сначала завершите все этапы');return;}deps.stats.caseCompleted??={};deps.stats.caseCompleted[item.id]=new Date().toISOString().slice(0,10);deps.stats.caseReview=(deps.stats.caseReview??[]).filter(x=>x!==item.id);deps.save();deps.notice('Задача отмечена как изученная');render();};
  if(numerical){
+  if(step.hint)$('#bank-step-hint').onclick=()=>{state.revealedHint=state.revealedHint===`${item.id}:${idx}`?null:`${item.id}:${idx}`;render();$('#bank-step-hint')?.focus({preventScroll:true});};
   $('#bank-answer').oninput=ev=>{if(d.answers[idx]===ev.target.value)return;d.answers[idx]=ev.target.value;delete d.checked[idx];invalidateCompletion(item);const feedback=$('#bank-feedback');feedback.textContent='Ответ изменён. Проверьте расчёт повторно.';updateProgressUI(checkpoints,d,count);saveDraftSoon();};
   $('#bank-answer-form').onsubmit=ev=>{ev.preventDefault();const result=verifyCheckpoint(step,d.answers[idx]);if(result===null){deps.notice('Введите ответ');return;}d.checked[idx]=result;deps.save();render();if(result===true&&idx<count-1){deps.notice('Верно. Можно переходить дальше.');}};
  }else{
@@ -70,7 +87,7 @@ export function setupCasebook({root,stats,save,notice,escape,intro,tabs,initialI
  if(initialId&&CASE_BY_ID.has(initialId)&&initialId!==state.id){
   state.id=initialId;
   state.group=CASE_BY_ID.get(initialId).group;
-  state.search='';state.index=0;state.revealedStep=null;state.showReference=false;
+  state.search='';state.index=0;state.revealedStep=null;state.revealedHint=null;state.showReference=false;
  }
  if(!state.id){state.id=nextCase(stats.recentCases??[]).id;stats.recentCases=recordRecent(stats.recentCases??[],state.id,24);save();}
  render();
