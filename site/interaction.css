@@ -437,3 +437,62 @@ h1,h2,h3,h4,.page-intro h1,.task-header h2,.mode-header h2,.term-item h3,
   .mobile-navigation button{font-size:10px;min-width:54px}
 }
 @media(prefers-reduced-motion:reduce){.formula-legend .legend-chevron{transition:none}}
+
+/* Casebook QA: consistent lecture reading surface, accessible icon controls. */
+.case-statement h2,.case-workpad-head h2,.case-step-heading h3{
+ font-family:var(--font-ui);
+ font-weight:730;
+ letter-spacing:-.023em;
+ line-height:1.26;
+}
+.case-statement h2{font-size:clamp(23px,2.65vw,32px);margin:17px 0 11px}
+.case-workpad-head h2{font-size:clamp(20px,2.15vw,25px)}
+.case-step-heading h3{font-size:clamp(19px,2vw,23px);margin:10px 0 9px}
+.case-statement,.case-workpad{line-height:1.65}
+.case-condition{font-size:14px}
+.case-condition>ol{margin-top:5px;margin-bottom:10px}
+.formatted-bank li{margin-bottom:10px;line-height:1.65}
+.case-source-answer{font-size:14px}
+.case-workpad-head strong{font-family:var(--font-ui);font-size:14px;font-variant-numeric:tabular-nums}
+.case-segment-track{margin-bottom:22px}
+.case-step-heading>span,.case-workpad-kicker{letter-spacing:.1em}
+.case-caution{line-height:1.6}
+.case-number-wrap input{font-variant-numeric:tabular-nums}
+.case-feedback{min-height:25px;line-height:1.55}
+.case-reasoning-note{font-size:12px;line-height:1.55;color:var(--muted);margin:-4px 0 15px}
+.case-reference-piece{border:1px solid var(--line);padding:19px;border-radius:12px}
+.case-piece-title{font-size:13px}
+.case-assessment .button{min-height:44px}
+.case-solution-toggle{min-height:51px;gap:12px}
+.case-solution-toggle span{display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:8px;background:var(--paper2);border:1px solid var(--line)}
+.case-solution-toggle .ui-icon{width:17px;height:17px;transition:transform .15s ease}
+.case-solution-toggle[aria-expanded="true"] .ui-icon{transform:rotate(180deg)}
+#bank-random{display:inline-flex;align-items:center;justify-content:center;gap:9px}
+#bank-random .ui-icon{width:17px;height:17px}
+.case-full-solution h3{font-family:var(--font-ui);font-size:16px}
+.case-full-solution .formatted-bank code,.case-reference-piece code{
+ font-family:var(--font-math);
+ font-weight:550;
+ font-size:1em;
+ line-height:1.6;
+}
+.case-full-solution code,.case-reference-piece code,.case-condition code{
+ font-family:var(--font-math);
+ font-weight:550;
+ font-size:.96em;
+ background:var(--paper);
+ border:1px solid var(--line);
+ border-radius:6px;
+ padding:2px 6px;
+ font-variant-numeric:tabular-nums;
+}
+.case-full-solution table,.case-reference-piece table{font-family:var(--font-ui)}
+@media(max-width:650px){
+ .case-statement h2{font-size:clamp(22px,6vw,28px)}
+ .case-workpad-head h2{font-size:21px}
+ .case-step-heading h3{font-size:19px}
+ .case-reasoning-note{margin:0 0 12px}
+ .case-step-nav .button{min-width:0}
+ .case-reference-piece{padding:14px}
+}
+@media(prefers-reduced-motion:reduce){.case-solution-toggle .ui-icon{transition:none}}
