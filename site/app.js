@@ -1,4 +1,4 @@
-import { renderParadoxes } from './features/paradoxes-ui.js';
+import { renderParadoxes, resetParadoxesView } from './features/paradoxes-ui.js';
 import {setupCasebook} from './features/casebook-ui.js';
 import {bindPracticeModes} from './features/practice-modes.js';
 import { TOPICS, LEVELS, TEMPLATE_CATALOG, generateExercise, checkAnswer, formatAnswer } from './engine/index.js';
@@ -27,7 +27,27 @@ const allowedTopic = new Set(TOPICS.map(t => t.id));
 let app = { practiceMode: fromURL('mode','generator')==='bank'?'bank':'generator', area: STUDY_AREAS.some(x=>x.id===fromURL('area','all')) ? fromURL('area','all') : 'all', cardDeck: [], page: ['practice', 'quiz', 'cards', 'paradoxes', 'glossary', 'progress'].includes(fromURL('page', 'practice')) ? fromURL('page', 'practice') : 'practice', topic: allowedTopic.has(fromURL('topic', 'all')) ? fromURL('topic', 'all') : 'all', level: Math.max(1, Math.min(4, Number(fromURL('level', 1)) || 1)), seed: (Number(fromURL('seed', randomSeed())) >>> 0) || 42, templateId: fromURL('template', null), exercise: null, checked: false, hint: false, solution: false, quizMode: 'operations', quiz: null, quizResult: null, quizHint: false, quizScore: 0, quizTotal: 0, quizAnswered: 0, cardIndex: 0, cardFlipped: false, cardGroup: 'Все', glossaryQuery: '', glossaryGroup: 'Все', glossarySelected: null };
 let toastTimer;
 function notice(text) { const el = $('#toast'); el.textContent = text; el.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2500); }
-function route(page) { app.page = page; $$('[data-page]').forEach(e => { e.classList.toggle('selected', e.dataset.page === page); if (e.dataset.page === page) e.setAttribute('aria-current', 'page'); else e.removeAttribute('aria-current'); }); const label = { practice: 'ЗАДАЧИ', quiz: 'ТЕСТЫ', cards: 'КАРТОЧКИ', paradoxes: 'ПАРАДОКСЫ', glossary: 'СЛОВАРЬ', progress: 'ПРОГРЕСС' }; $('#page-crumb').textContent = label[page]; const u = new URL(location.href); u.searchParams.set('page', page); history.replaceState({}, '', u); render(); window.scrollTo({ top: 0, behavior: 'instant' }); }
+function syncPageNavigation(page) {
+ $('[data-page]').forEach(e => {
+  const current=e.dataset.page===page;
+  e.classList.toggle('selected',current);
+  if(current)e.setAttribute('aria-current','page');
+  else e.removeAttribute('aria-current');
+ });
+ const labels={practice:'ЗАДАЧИ',quiz:'ТЕСТЫ',cards:'КАРТОЧКИ',paradoxes:'ПАРАДОКСЫ',glossary:'СЛОВАРЬ',progress:'ПРОГРЕСС'};
+ $('#page-crumb').textContent=labels[page]||'ЗАДАЧИ';
+}
+function route(page) {
+ if(page!=='paradoxes')resetParadoxesView();
+ app.page=page;
+ syncPageNavigation(page);
+ const u=new URL(location.href);
+ u.searchParams.set('page',page);
+ if(page!=='paradoxes')u.searchParams.delete('paradox');
+ history.replaceState({},'',u);
+ render();
+ window.scrollTo({top:0,behavior:'instant'});
+}
 function refreshProgressSidebar() { $('#side-solved').textContent = stats.solved; $('#side-accuracy').textContent = stats.total ? Math.round(stats.correct / stats.total * 100) + '%' : '0%'; }
 function availableTemplates() { return TEMPLATE_CATALOG.filter(t => (app.topic === 'all' || t.topic === app.topic) && (app.area === 'all' || t.area === app.area) && t.min <= app.level); }
 function ensureExercise() { try { app.exercise = generateExercise({ topic: app.topic, area: app.area, level: app.level, seed: app.seed, templateId: app.templateId, policy: DEFAULT_TAX_POLICY }); app.templateId = app.exercise.templateId; } catch { app.topic = 'all'; app.area = 'all'; app.templateId = null; app.exercise = generateExercise({ topic: 'all', level: app.level, seed: app.seed, policy: DEFAULT_TAX_POLICY }); app.templateId = app.exercise.templateId; } }
@@ -206,4 +226,7 @@ try { document.documentElement.dataset.theme = localStorage.getItem(THEME) === '
 $('#theme-toggle').onclick = () => { const mode = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = mode; try { localStorage.setItem(THEME, mode); } catch { } };
 // Register once on the stable container, never on replaceable tab elements.
 bindPracticeModes($('#content'), changePracticeMode);
-ensureExercise(); render();
+if(app.page==='practice'&&app.practiceMode!=='bank')ensureExercise();
+syncPageNavigation(app.page);
+render();
+$('#brand').addEventListener('click',e=>{e.preventDefault();route('practice');});
