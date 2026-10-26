@@ -496,3 +496,33 @@ h1,h2,h3,h4,.page-intro h1,.task-header h2,.mode-header h2,.term-item h3,
  .case-reference-piece{padding:14px}
 }
 @media(prefers-reduced-motion:reduce){.case-solution-toggle .ui-icon{transition:none}}
+
+/* Calculation hints: clear hierarchy, consistent with the glossary equation cards. */
+.case-step-help{margin-top:2px}
+.case-hint-toggle{
+ display:inline-flex;align-items:center;gap:9px;
+ min-height:44px;border:1px solid var(--line);border-radius:10px;
+ background:var(--paper2);color:var(--ink);padding:9px 14px;
+ font-family:var(--font-ui);font-size:13px;font-weight:670;text-align:left;
+}
+.case-hint-toggle:hover{border-color:var(--forest2)}
+.case-hint-toggle:focus-visible{outline:3px solid var(--ok);outline-offset:2px}
+.case-hint-toggle .ui-icon{width:18px;height:18px;color:var(--forest2)}
+.case-hint-panel{
+ margin-top:12px;padding:17px 19px;border-radius:12px;
+ border:1px solid var(--line);border-left:3px solid var(--forest2);
+ background:var(--paper);max-width:100%;min-width:0;
+}
+.case-hint-panel p{font-size:13px;line-height:1.65;margin:0 0 13px}
+.case-hint-panel .glossary-formula-equation{
+ margin:0;padding:13px;background:var(--paper2);border:1px solid var(--line);
+ border-radius:9px;max-width:100%;overflow-x:auto;
+}
+.case-hint-panel .financial-formula{font-size:clamp(14px,1.35vw,18px)}
+#bank-match-count{font-weight:700;color:var(--ink)}
+@media(max-width:650px){
+ .case-hint-toggle{width:100%;justify-content:center}
+ .case-hint-panel{padding:13px}
+ .case-hint-panel .glossary-formula-equation{padding:10px}
+ .case-hint-panel .financial-formula{font-size:15px}
+}
