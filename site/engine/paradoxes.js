@@ -12,7 +12,9 @@ export function filterParadoxes(seminar='all',search=''){
 export function normalizeRecord(input){
  const r=input&&typeof input==='object'&&!Array.isArray(input)?input:{};
  const checks=Array.isArray(r.checks)?[...new Set(r.checks.filter(x=>Number.isInteger(x)&&x>=0&&x<3))]:[];
- return {draft:typeof r.draft==='string'?r.draft:'',checks,status:r.status==='done'?'done':'review'};
+ const draft=typeof r.draft==='string'?r.draft:'';
+ const valid=checks.length===3&&draft.trim().length>=MIN_ANSWER_LENGTH;
+ return {draft,checks,status:r.status==='done'&&valid?'done':'review'};
 }
 export function canMarkReviewed(p,input){
  const r=normalizeRecord(input);
