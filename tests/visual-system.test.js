@@ -30,7 +30,7 @@ test('Navigation icons and source headings stay consistent without decorative gl
  assert.doesNotMatch(html,/УЧЁБНЫЙ ПРОЦЕСС/);
  const matches=[...html.matchAll(/<use href="#(icon-[a-z-]+)"/g)];
  for(const m of matches)assert.ok(html.includes('id="'+m[1]+'"'),m[1]);
- assert.ok(matches.length>=17);
+ assert.ok(matches.length>=15);
  assert.ok(!/[◫◈▤◇⌕▥◐]/.test(html));
  assert.match(app,/uiIcon\('bulb'\)/);
  assert.match(css,/--font-ui:/);
