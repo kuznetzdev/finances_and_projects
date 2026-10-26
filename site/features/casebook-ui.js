@@ -67,7 +67,11 @@ function render(){
 function $(selector){return deps.root.querySelector(selector);}
 export function setupCasebook({root,stats,save,notice,escape,intro,tabs,initialId=null}){
  deps={root,stats,save,notice,escape,intro,tabs};
- if(initialId&&CASE_BY_ID.has(initialId))state.id=initialId;
+ if(initialId&&CASE_BY_ID.has(initialId)&&initialId!==state.id){
+  state.id=initialId;
+  state.group=CASE_BY_ID.get(initialId).group;
+  state.search='';state.index=0;state.revealedStep=null;state.showReference=false;
+ }
  if(!state.id){state.id=nextCase(stats.recentCases??[]).id;stats.recentCases=recordRecent(stats.recentCases??[],state.id,24);save();}
  render();
 }
