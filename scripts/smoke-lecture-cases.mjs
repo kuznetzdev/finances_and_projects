@@ -41,6 +41,9 @@ try{
  assert.match(await page.locator('#bank-feedback').innerText(),/изменён/);
  assert.equal(await page.locator('.case-workpad-head strong').innerText(),'2/3');
  await page.reload({waitUntil:'networkidle'});
+ // The book intentionally returns to step one on page reload; navigate to the saved third answer.
+ await page.locator('#bank-next').click();
+ await page.locator('#bank-next').click();
  assert.equal(await page.locator('#bank-answer').inputValue(),'100');
  assert.equal(await page.locator('#bank-complete').isDisabled(),true);
  await page.locator('#bank-answer').fill('2,333');
