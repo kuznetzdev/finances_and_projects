@@ -28,7 +28,7 @@ let app = { practiceMode: fromURL('mode','generator')==='bank'?'bank':'generator
 let toastTimer;
 function notice(text) { const el = $('#toast'); el.textContent = text; el.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2500); }
 function syncPageNavigation(page) {
- $('[data-page]').forEach(e => {
+ $$('[data-page]').forEach(e => {
   const current=e.dataset.page===page;
   e.classList.toggle('selected',current);
   if(current)e.setAttribute('aria-current','page');
