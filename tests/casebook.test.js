@@ -8,7 +8,7 @@ test('Original source bank and ten lecture tasks have unique identifiers, condit
  assert.equal(new Set(CASE_BANK.map(x=>x.id)).size,67);
  assert.equal(CASE_BANK.filter(x=>x.id.startsWith('F')).length,19);
  assert.equal(CASE_BANK.filter(x=>x.id.startsWith('T')).length,17);
- assert.equal(CASE_BANK.filter(x=>x.id.startsWith('V')).length,21);
+ assert.equal(CASE_BANK.filter(x=>/^V\\d/.test(x.id)).length,21);
  for(const item of CASE_BANK){assert.ok(item.conditionHtml.length>70,item.id);assert.ok(item.solutionHtml.length>25,item.id);assert.ok(item.steps.length>=1,item.id);assert.ok(item.topic,item.id);}
  assert.ok(CASE_BY_ID.get('F05').caveat);
  assert.ok(CASE_BY_ID.get('T15').caveat);
