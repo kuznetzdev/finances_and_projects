@@ -1,0 +1,85 @@
+import {spawn} from 'node:child_process';
+import {existsSync, mkdirSync} from 'node:fs';
+import assert from 'node:assert/strict';
+import {setTimeout as delay} from 'node:timers/promises';
+import {chromium} from 'playwright-core';
+
+const PORT=8765, HOST='http://127.0.0.1:'+PORT+'/';
+const paths=['/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/usr/bin/chromium','/opt/google/chrome/chrome'];
+const binary=process.env.CHROME_BIN||paths.find(existsSync);
+if(!binary)throw new Error('Browser is not installed on the runner');
+mkdirSync('artifacts',{recursive:true});
+const server=spawn('python3',['-m','http.server',String(PORT),'-d','site'],{stdio:'ignore'});
+let browser;
+try{
+ let ok=false;
+ for(let n=0;n<35;n++){
+  try{const res=await fetch(HOST);if(res.ok){ok=true;break;}}catch{}
+  await delay(150);
+ }
+ assert.ok(ok,'local static server did not start');
+ browser=await chromium.launch({headless:true,executablePath:binary,args:['--no-sandbox','--disable-dev-shm-usage']});
+ const context=await browser.newContext({viewport:{width:1440,height:1000}});
+ const page=await context.newPage(),errors=[];
+ page.on('pageerror',e=>{errors.push(e.message);console.error('DESKTOP PAGE ERROR',e.stack||e.message);});
+ page.on('console',msg=>{if(msg.type()==='error')console.error('DESKTOP CONSOLE',msg.text());});
+ const response=await page.goto(HOST+'?page=paradoxes',{waitUntil:'networkidle'});
+ console.log('Desktop HTTP:',response?.status(),'URL:',page.url());
+ await page.waitForTimeout(350);
+ console.log('Desktop content preview:',(await page.locator('body').innerText()).slice(0,1100));
+ await page.screenshot({path:'artifacts/paradoxes-debug.png',fullPage:true});
+ if(errors.length)throw new Error('Page error before render: '+errors.join('; '));
+ await page.locator('.paradox-row').first().waitFor({timeout:5000});
+ assert.equal(await page.locator('.paradox-row').count(),30);
+ assert.equal(await page.locator('#page-crumb').textContent(),'ПАРАДОКСЫ');
+ assert.equal(await page.locator('#desktop-navigation [data-page="paradoxes"].selected').count(),1);
+ await page.screenshot({path:'artifacts/paradoxes-desktop.png',fullPage:true});
+ const search=page.locator('#paradox-search');
+ await search.fill('МСФО');
+ assert.equal(await page.locator('.paradox-row').count(),1);
+ assert.equal(await search.evaluate(el=>document.activeElement===el),true,'search lost focus');
+ await search.fill('');
+ await page.locator('#paradox-seminar').selectOption('2');
+ assert.equal(await page.locator('.paradox-row').count(),10);
+ await page.locator('[data-paradox="s2-p1"]').click();
+ assert.match(await page.locator('.paradox-question').innerText(),/рыночную премию/);
+ await page.locator('#paradox-reveal').click();
+ assert.equal(await page.locator('#paradox-done').isDisabled(),true);
+ await page.locator('#paradox-draft').fill('Нужно объяснить различие абсолютной и избыточной доходности. Бета умножается на премию за рыночный риск, а безрисковая ставка добавляется отдельно. Для актива с нулевой бетой ожидаемая доходность равна безрисковой, иначе возникло бы противоречие. Подстановка полной рыночной доходности неверно масштабирует вознаграждение за ожидание.');
+ for(let i=0;i<3;i++)await page.locator('[data-check="'+i+'"]').check();
+ assert.equal(await page.locator('#paradox-done').isEnabled(),true);
+ await page.locator('#paradox-done').click();
+ await page.locator('#paradox-back').click();
+ assert.match(await page.locator('.paradox-summary').innerText(),/1 из 30/);
+ await page.reload({waitUntil:'networkidle'});
+ assert.match(await page.locator('.paradox-summary').innerText(),/1 из 30/);
+ await page.locator('#theme-toggle').click();
+ await page.screenshot({path:'artifacts/paradoxes-dark.png',fullPage:true});
+ await page.goto(HOST+'?page=paradoxes&paradox=s1-p1',{waitUntil:'networkidle'});
+ assert.equal(await page.locator('.paradox-detail').count(),1);
+ assert.equal(await page.locator('#page-crumb').textContent(),'ПАРАДОКСЫ');
+ await page.locator('#desktop-navigation [data-page="practice"]').click();
+ assert.equal(await page.locator('.paradox-detail').count(),0);
+ assert.equal(await page.locator('#desktop-navigation [data-page="practice"].selected').count(),1);
+ await context.close();
+ const mobile=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true});
+ const mobilePage=await mobile.newPage();
+ mobilePage.on('pageerror',e=>errors.push('mobile: '+e.message));
+ await mobilePage.goto(HOST+'?page=paradoxes',{waitUntil:'networkidle'});
+ assert.equal(await mobilePage.locator('.paradox-row').count(),30);
+ assert.equal(await mobilePage.locator('#mobile-navigation [data-page="paradoxes"].selected').count(),1);
+ const widths=await mobilePage.evaluate(()=>({body:document.documentElement.scrollWidth,viewport:innerWidth}));
+ assert.ok(widths.body<=widths.viewport+4,'horizontal page overflow '+JSON.stringify(widths));
+ await mobilePage.screenshot({path:'artifacts/paradoxes-mobile.png',fullPage:true});
+ await mobilePage.locator('[data-paradox="s1-p1"]').click();
+ assert.equal(await mobilePage.locator('.paradox-question').isVisible(),true);
+ await mobilePage.screenshot({path:'artifacts/paradoxes-mobile-detail.png',fullPage:true});
+ await mobilePage.locator('#paradox-reveal').click();
+ assert.equal(await mobilePage.locator('.paradox-answer').isVisible(),true);
+ await mobile.close();
+ assert.deepEqual(errors,[],'uncaught browser errors');
+ console.log('PASS: desktop/mobile, seminar filters, original question, live search, autosave, self-check, deep links, page navigation.');
+}finally{
+ await browser?.close();
+ server.kill('SIGTERM');
+}

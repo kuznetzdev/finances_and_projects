@@ -1,3 +1,4 @@
+import { renderParadoxes, resetParadoxesView } from './features/paradoxes-ui.js';
 import {setupCasebook} from './features/casebook-ui.js';
 import {bindPracticeModes} from './features/practice-modes.js';
 import { TOPICS, LEVELS, TEMPLATE_CATALOG, generateExercise, checkAnswer, formatAnswer } from './engine/index.js';
@@ -23,10 +24,30 @@ function randomSeed() { if (globalThis.crypto?.getRandomValues) { let a = new Ui
 // Read the current URL, not an initial snapshot: the bank updates ?case= while in use.
 const fromURL = (k, fallback) => { const params = new URLSearchParams(location.search); return params.has(k) ? params.get(k) : fallback; };
 const allowedTopic = new Set(TOPICS.map(t => t.id));
-let app = { practiceMode: fromURL('mode','generator')==='bank'?'bank':'generator', area: STUDY_AREAS.some(x=>x.id===fromURL('area','all')) ? fromURL('area','all') : 'all', cardDeck: [], page: ['practice', 'quiz', 'cards', 'glossary', 'progress'].includes(fromURL('page', 'practice')) ? fromURL('page', 'practice') : 'practice', topic: allowedTopic.has(fromURL('topic', 'all')) ? fromURL('topic', 'all') : 'all', level: Math.max(1, Math.min(4, Number(fromURL('level', 1)) || 1)), seed: (Number(fromURL('seed', randomSeed())) >>> 0) || 42, templateId: fromURL('template', null), exercise: null, checked: false, hint: false, solution: false, quizMode: 'operations', quiz: null, quizResult: null, quizHint: false, quizScore: 0, quizTotal: 0, quizAnswered: 0, cardIndex: 0, cardFlipped: false, cardGroup: 'Все', glossaryQuery: '', glossaryGroup: 'Все', glossarySelected: null };
+let app = { practiceMode: fromURL('mode','generator')==='bank'?'bank':'generator', area: STUDY_AREAS.some(x=>x.id===fromURL('area','all')) ? fromURL('area','all') : 'all', cardDeck: [], page: ['practice', 'quiz', 'cards', 'paradoxes', 'glossary', 'progress'].includes(fromURL('page', 'practice')) ? fromURL('page', 'practice') : 'practice', topic: allowedTopic.has(fromURL('topic', 'all')) ? fromURL('topic', 'all') : 'all', level: Math.max(1, Math.min(4, Number(fromURL('level', 1)) || 1)), seed: (Number(fromURL('seed', randomSeed())) >>> 0) || 42, templateId: fromURL('template', null), exercise: null, checked: false, hint: false, solution: false, quizMode: 'operations', quiz: null, quizResult: null, quizHint: false, quizScore: 0, quizTotal: 0, quizAnswered: 0, cardIndex: 0, cardFlipped: false, cardGroup: 'Все', glossaryQuery: '', glossaryGroup: 'Все', glossarySelected: null };
 let toastTimer;
 function notice(text) { const el = $('#toast'); el.textContent = text; el.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2500); }
-function route(page) { app.page = page; $$('[data-page]').forEach(e => { e.classList.toggle('selected', e.dataset.page === page); if (e.dataset.page === page) e.setAttribute('aria-current', 'page'); else e.removeAttribute('aria-current'); }); const label = { practice: 'ЗАДАЧИ', quiz: 'ТЕСТЫ', cards: 'КАРТОЧКИ', glossary: 'СЛОВАРЬ', progress: 'ПРОГРЕСС' }; $('#page-crumb').textContent = label[page]; const u = new URL(location.href); u.searchParams.set('page', page); history.replaceState({}, '', u); render(); window.scrollTo({ top: 0, behavior: 'instant' }); }
+function syncPageNavigation(page) {
+ $$('[data-page]').forEach(e => {
+  const current=e.dataset.page===page;
+  e.classList.toggle('selected',current);
+  if(current)e.setAttribute('aria-current','page');
+  else e.removeAttribute('aria-current');
+ });
+ const labels={practice:'ЗАДАЧИ',quiz:'ТЕСТЫ',cards:'КАРТОЧКИ',paradoxes:'ПАРАДОКСЫ',glossary:'СЛОВАРЬ',progress:'ПРОГРЕСС'};
+ $('#page-crumb').textContent=labels[page]||'ЗАДАЧИ';
+}
+function route(page) {
+ if(page!=='paradoxes')resetParadoxesView();
+ app.page=page;
+ syncPageNavigation(page);
+ const u=new URL(location.href);
+ u.searchParams.set('page',page);
+ if(page!=='paradoxes')u.searchParams.delete('paradox');
+ history.replaceState({},'',u);
+ render();
+ window.scrollTo({top:0,behavior:'instant'});
+}
 function refreshProgressSidebar() { $('#side-solved').textContent = stats.solved; $('#side-accuracy').textContent = stats.total ? Math.round(stats.correct / stats.total * 100) + '%' : '0%'; }
 function availableTemplates() { return TEMPLATE_CATALOG.filter(t => (app.topic === 'all' || t.topic === app.topic) && (app.area === 'all' || t.area === app.area) && t.min <= app.level); }
 function ensureExercise() { try { app.exercise = generateExercise({ topic: app.topic, area: app.area, level: app.level, seed: app.seed, templateId: app.templateId, policy: DEFAULT_TAX_POLICY }); app.templateId = app.exercise.templateId; } catch { app.topic = 'all'; app.area = 'all'; app.templateId = null; app.exercise = generateExercise({ topic: 'all', level: app.level, seed: app.seed, policy: DEFAULT_TAX_POLICY }); app.templateId = app.exercise.templateId; } }
@@ -60,7 +81,7 @@ function storyHtml(value){
  return `<div class="task-story task-story-long">${pairs.map(x=>`<p>${escape(x)}</p>`).join('')}</div>`;
 }
 function pageIntro(label, title, description, number) { return `<section class="page-intro"><div><div class="eyebrow">${escape(label)}</div><h1>${escape(title)}</h1><p>${escape(description)}</p></div><div class="hero-index" aria-hidden="true">${escape(number)}</div></section>`; }
-function render() { $('#content').dataset.page = app.page; refreshProgressSidebar(); if (app.page === 'practice') (app.practiceMode==='bank'?renderBankMode():renderPractice()); else if (app.page === 'quiz') renderQuiz(); else if (app.page === 'cards') renderCards(); else if (app.page === 'glossary') renderGlossary(); else renderProgress(); }
+function render() { $('#content').dataset.page = app.page; refreshProgressSidebar(); if (app.page === 'practice') (app.practiceMode==='bank'?renderBankMode():renderPractice()); else if (app.page === 'quiz') renderQuiz(); else if (app.page === 'cards') renderCards(); else if (app.page === 'glossary') renderGlossary(); else if (app.page === 'paradoxes') renderParadoxes($('#content'),pageIntro); else renderProgress(); }
 function practiceTabs() { return `<div class="practice-mode-tabs" role="group" aria-label="Режим решения"><button type="button" data-practice-mode="generator" class="${app.practiceMode==='generator'?'active':''}" aria-pressed="${app.practiceMode==='generator'}">Генератор задач</button><button type="button" data-practice-mode="bank" class="${app.practiceMode==='bank'?'active':''}" aria-pressed="${app.practiceMode==='bank'}">Банк задач · 57 кейсов</button></div>`; }
 // The case book replaces #content.innerHTML after each internal action. Only #content
 // survives all renders, so practice mode changes MUST be delegated to that root.
@@ -185,7 +206,7 @@ function renderGlossary() {
  const arr=searchConcepts(CONCEPTS, app.glossaryQuery, app.glossaryGroup, abbreviationFor);
  const sel=arr.find(x=>x.id===app.glossarySelected);
  const countFormula=CONCEPTS.filter(x=>x.formulas?.length).length;
- $('#content').innerHTML=`${pageIntro('04 / БАЗА ЗНАНИЙ','Финансовый словарь','Термины, синонимы и варианты финансовых формул с пояснениями.', '04')}
+ $('#content').innerHTML=`${pageIntro('05 / БАЗА ЗНАНИЙ','Финансовый словарь','Термины, синонимы и варианты финансовых формул с пояснениями.', '05')}
  <section class="glossary-controls"><input type="search" class="search-input" id="glossary-search" placeholder="Название, аббревиатура или формула…" value="${escape(app.glossaryQuery)}" aria-label="Поиск термина"><select class="group-select" id="glossary-group" aria-label="Категория"><option value="Все">Все темы</option>${KNOWLEDGE_GROUPS.map(x=>`<option value="${escape(x)}" ${x===app.glossaryGroup?'selected':''}>${escape(x)}</option>`).join('')}</select></section>
  ${sel?`<section class="term-detail" aria-labelledby="selected-term-title"><div class="eyebrow">${escape(sel.group)}</div><h2 id="selected-term-title" style="font:normal clamp(25px,3.5vw,33px) Georgia,serif;margin:13px 0">${escape(sel.term)}</h2><p>${escape(sel.definition)}</p><p><strong>Чем отличается:</strong> ${escape(sel.contrast)}</p>${glossaryMetaMarkup(sel,escape)}${abbreviationFor(sel.term)?`<div class="glossary-expansion">${abbreviationLine(abbreviationFor(sel.term))}</div>`:''}${formulaVariantsMarkup(sel,escape)}<small>${escape(sel.source)}</small><div style="margin-top:14px"><button type="button" class="button ghost" id="close-term">Закрыть ↑</button></div></section>`:''}
  <div class="micro" style="margin-bottom:12px">НАЙДЕНО: ${arr.length} · ВСЕГО ПОНЯТИЙ: ${CONCEPTS.length} · С ФОРМУЛАМИ: ${countFormula}</div>
@@ -197,7 +218,7 @@ function renderGlossary() {
  if($('#close-term'))$('#close-term').onclick=()=>{app.glossarySelected=null;renderGlossary();};
 }
 function renderProgress() {  
-const accuracy = stats.total ? Math.round(stats.correct / stats.total * 100) : 0, qa = stats.quizSolved ? Math.round(stats.quizCorrect / stats.quizSolved * 100) : 0; $('#content').innerHTML = `${pageIntro('05 / РЕЗУЛЬТАТ', 'Мой прогресс', 'Личный прогресс остаётся в браузере. Ни регистрация, ни сервер для занятий не нужны.', '05')}<section class="stat-grid"><div class="stat-tile"><strong>${stats.solved}</strong><span>Задач решено</span></div><div class="stat-tile"><strong>${accuracy}%</strong><span>Правильных ответов</span></div><div class="stat-tile"><strong>${stats.best}</strong><span>Лучшая серия</span></div></section><section class="aux-panel"><div class="mode-header"><div><h2>Твой путь</h2><p>Возвращайся к сложным задачам, а не только к тем, что уже получаются.</p></div></div><div class="data-list"><div class="data-row"><span>Задачи без ошибок</span><strong>${stats.perfect}</strong></div><div class="data-row"><span>Точность тестов</span><strong>${qa}% (${stats.quizSolved} вопросов)</strong></div><div class="data-row"><span>Изученных карточек</span><strong>${stats.known.length} / ${CONCEPTS.length}</strong></div><div class="data-row"><span>Кейсов из банка изучено</span><strong>${Object.keys(stats.caseCompleted||{}).length} / 57</strong></div><div class="data-row"><span>Задач на повторение</span><strong>${stats.retry.length}</strong></div><div class="data-row"><span>Пропущено без оценки</span><strong>${totalSkipped(stats)}</strong></div></div><div class="action-row"><button class="button primary" id="repeat-errors" ${stats.retry.length ? '' : 'disabled'}>Повторить ошибки →</button><button class="button ghost" id="export-progress">↓ Экспорт JSON</button><button class="button ghost" id="reset-progress">Сбросить статистику</button></div></section>`;
+const accuracy = stats.total ? Math.round(stats.correct / stats.total * 100) : 0, qa = stats.quizSolved ? Math.round(stats.quizCorrect / stats.quizSolved * 100) : 0; $('#content').innerHTML = `${pageIntro('06 / РЕЗУЛЬТАТ', 'Мой прогресс', 'Личный прогресс остаётся в браузере. Ни регистрация, ни сервер для занятий не нужны.', '06')}<section class="stat-grid"><div class="stat-tile"><strong>${stats.solved}</strong><span>Задач решено</span></div><div class="stat-tile"><strong>${accuracy}%</strong><span>Правильных ответов</span></div><div class="stat-tile"><strong>${stats.best}</strong><span>Лучшая серия</span></div></section><section class="aux-panel"><div class="mode-header"><div><h2>Твой путь</h2><p>Возвращайся к сложным задачам, а не только к тем, что уже получаются.</p></div></div><div class="data-list"><div class="data-row"><span>Задачи без ошибок</span><strong>${stats.perfect}</strong></div><div class="data-row"><span>Точность тестов</span><strong>${qa}% (${stats.quizSolved} вопросов)</strong></div><div class="data-row"><span>Изученных карточек</span><strong>${stats.known.length} / ${CONCEPTS.length}</strong></div><div class="data-row"><span>Кейсов из банка изучено</span><strong>${Object.keys(stats.caseCompleted||{}).length} / 57</strong></div><div class="data-row"><span>Задач на повторение</span><strong>${stats.retry.length}</strong></div><div class="data-row"><span>Пропущено без оценки</span><strong>${totalSkipped(stats)}</strong></div></div><div class="action-row"><button class="button primary" id="repeat-errors" ${stats.retry.length ? '' : 'disabled'}>Повторить ошибки →</button><button class="button ghost" id="export-progress">↓ Экспорт JSON</button><button class="button ghost" id="reset-progress">Сбросить статистику</button></div></section>`;
   $('#repeat-errors').onclick = () => { const a = stats.retry[0]; if (!a) return; app.level = a.level; app.topic = a.topic; app.area = 'all'; app.seed = a.seed; app.templateId = a.templateId; app.exercise = null; app.checked = false; app.hint = false; app.solution = false; route('practice'); }; $('#reset-progress').onclick = () => { if (confirm('Удалить весь личный прогресс в этом браузере?')) { stats = baseline(); save(); renderProgress(); refreshProgressSidebar(); } }; $('#export-progress').onclick = () => { const blob = new Blob([JSON.stringify({ version: 4, exportedAt: new Date().toISOString(), stats }, null, 2)], { type: 'application/json' }); const u = URL.createObjectURL(blob), a = document.createElement('a'); a.href = u; a.download = 'finpraktika-progress.json'; a.click(); URL.revokeObjectURL(u); };
 }
 $$('[data-page]').forEach(b => b.onclick = () => route(b.dataset.page));
@@ -205,4 +226,7 @@ try { document.documentElement.dataset.theme = localStorage.getItem(THEME) === '
 $('#theme-toggle').onclick = () => { const mode = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = mode; try { localStorage.setItem(THEME, mode); } catch { } };
 // Register once on the stable container, never on replaceable tab elements.
 bindPracticeModes($('#content'), changePracticeMode);
-ensureExercise(); render();
+if(app.page==='practice'&&app.practiceMode!=='bank')ensureExercise();
+syncPageNavigation(app.page);
+render();
+$('#brand').addEventListener('click',e=>{e.preventDefault();route('practice');});
