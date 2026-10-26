@@ -154,3 +154,6 @@ export function renderParadoxes(root,intro){
   });
  }
 }
+
+/** Leave the detail view and flush pending drafts when changing app sections. */
+export function resetParadoxesView(){flush();state.selected=null;state.showAnswer=false;}
