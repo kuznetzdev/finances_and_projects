@@ -14,8 +14,8 @@ export function availableCases(group='Все направления',query=''){
  const q=searchText(query);
  return CASE_BANK.filter(x=>(group==='Все направления'||x.group===group)&&(!q||SEARCH_INDEX.get(x.id).includes(q)));
 }
-export function nextCase(history=[],group='Все направления',random=Math.random){
- const pool=availableCases(group);
+export function nextCase(history=[],group='Все направления',random=Math.random,query=''){
+ const pool=availableCases(group,query);
  return chooseFresh(pool,history,random,x=>x.id,8);
 }
 export {recordRecent,CASE_BANK,CASE_CHECKPOINTS};
