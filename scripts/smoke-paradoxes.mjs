@@ -21,9 +21,15 @@ try{
  browser=await chromium.launch({headless:true,executablePath:binary,args:['--no-sandbox','--disable-dev-shm-usage']});
  const context=await browser.newContext({viewport:{width:1440,height:1000}});
  const page=await context.newPage(),errors=[];
- page.on('pageerror',e=>errors.push(e.message));
- await page.goto(HOST+'?page=paradoxes',{waitUntil:'networkidle'});
- await page.locator('.paradox-row').first().waitFor();
+ page.on('pageerror',e=>{errors.push(e.message);console.error('DESKTOP PAGE ERROR',e.stack||e.message);});
+ page.on('console',msg=>{if(msg.type()==='error')console.error('DESKTOP CONSOLE',msg.text());});
+ const response=await page.goto(HOST+'?page=paradoxes',{waitUntil:'networkidle'});
+ console.log('Desktop HTTP:',response?.status(),'URL:',page.url());
+ await page.waitForTimeout(350);
+ console.log('Desktop content preview:',(await page.locator('body').innerText()).slice(0,1100));
+ await page.screenshot({path:'artifacts/paradoxes-debug.png',fullPage:true});
+ if(errors.length)throw new Error('Page error before render: '+errors.join('; '));
+ await page.locator('.paradox-row').first().waitFor({timeout:5000});
  assert.equal(await page.locator('.paradox-row').count(),30);
  assert.equal(await page.locator('#page-crumb').textContent(),'ПАРАДОКСЫ');
  assert.equal(await page.locator('#desktop-navigation [data-page="paradoxes"].selected').count(),1);
