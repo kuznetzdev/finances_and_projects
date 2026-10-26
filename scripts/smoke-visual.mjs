@@ -60,7 +60,7 @@ try{
  await mob.screenshot({path:'artifacts/visual-glossary-mobile.png',fullPage:true});
  const w=await mob.evaluate(()=>({doc:document.documentElement.scrollWidth,view:innerWidth,formulas:[...document.querySelectorAll('.glossary-formula-equation')].map(e=>({scroll:e.scrollWidth,client:e.clientWidth}))}));
  assert.ok(w.doc<=w.view+4,'mobile page overflow '+JSON.stringify(w));
- assert.ok(await mob.locator('.financial-formula').isVisible());
+ assert.ok(await mob.locator('.financial-formula').first().isVisible());
  await mob.locator('#mobile-navigation [data-page="practice"]').click();
  await mob.locator('#hint-btn').click();
  assert.equal(await mob.locator('.hint-panel .hint-step').count(),2);
