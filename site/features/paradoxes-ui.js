@@ -108,7 +108,7 @@ function detail(p){
 export function renderParadoxes(root,intro){
  if(!root)return;
  const selected=PARADOXES.find(x=>x.id===state.selected);
- root.innerHTML=`${intro('06 / ПАРАДОКСЫ','Парадоксы','30 семинарских вопросов: сначала своё решение, затем аргументированный разбор и самопроверка.','06')}${selected?detail(selected):list()}`;
+ root.innerHTML=`${intro('04 / ПАРАДОКСЫ','Парадоксы','30 семинарских вопросов: сначала своё решение, затем аргументированный разбор и самопроверка.','04')}${selected?detail(selected):list()}`;
  if(!selected){
   const results=root.querySelector('#paradox-list-results');
   root.querySelector('#paradox-seminar').addEventListener('change',e=>{state.seminar=e.target.value;results.innerHTML=rows();});
