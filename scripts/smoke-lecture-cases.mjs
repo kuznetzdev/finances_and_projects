@@ -22,6 +22,16 @@ try{
  assert.equal(await page.locator('.case-code').innerText(),'LC01');
  assert.equal(await page.locator('#bank-group').inputValue(),'LBO · видеолекция');
  assert.equal(await page.locator('#bank-random .ui-icon').count(),1);
+ assert.equal(await page.locator('#bank-match-count').innerText(),'3 найдено по фильтру');
+ // A hint is available without disclosing or grading the user's result.
+ await page.locator('#bank-step-hint').click();
+ assert.equal(await page.locator('#bank-step-hint').getAttribute('aria-expanded'),'true');
+ assert.ok(await page.locator('.case-hint-panel .financial-formula').isVisible());
+ assert.match(await page.locator('.case-hint-panel').innerText(),/350/);
+ await page.screenshot({path:'artifacts/lecture-lbo-hint.png',fullPage:true});
+ await page.locator('#bank-step-hint').click();
+ assert.equal(await page.locator('.case-hint-panel').count(),0);
+
  assert.match(await page.locator('.case-counter').innerText(),/67 разобранных задач/);
  assert.match(await page.locator('.case-condition').innerText(),/500 млн/);
  await page.locator('#bank-answer').fill('150');
@@ -55,6 +65,19 @@ try{
  await page.locator('#bank-answer').fill('3');
  assert.equal(await page.locator('.case-success').count(),0);
  assert.equal(await page.locator('#bank-complete').isDisabled(),true);
+ // A corrupted old localStorage record cannot preserve an unearned passing state.
+ await page.evaluate(()=>{
+   const stats=JSON.parse(localStorage.getItem('finpraktika.v3'));
+   stats.caseDrafts.LC01.checked[0]=true;
+   stats.caseDrafts.LC01.answers[0]='999';
+   stats.caseCompleted.LC01='2026-10-26';
+   localStorage.setItem('finpraktika.v3',JSON.stringify(stats));
+ });
+ await page.reload({waitUntil:'networkidle'});
+ assert.equal(await page.locator('.case-workpad-head strong').innerText(),'1/3');
+ assert.equal(await page.locator('.case-success').count(),0);
+ assert.equal(await page.locator('#bank-complete').isDisabled(),true);
+ assert.doesNotMatch(await page.locator('#bank-feedback').innerText(),/Верно/);
  await page.goto(base+'?page=practice&mode=bank&case=VC03',{waitUntil:'networkidle'});
  assert.equal(await page.locator('.case-code').innerText(),'VC03');
  assert.match(await page.locator('.case-condition').innerText(),/500 млн/);
@@ -93,6 +116,18 @@ try{
  assert.equal(await page.locator('#bank-group').inputValue(),'Реальные опционы · видеолекция');
  await page.locator('#bank-group').selectOption('Реальные опционы · видеолекция');
  assert.equal(await page.locator('#bank-select option').count(),3);
+ // Search the actual problem text, not only title metadata.
+ await page.locator('#bank-group').selectOption('Все направления');
+ await page.locator('#bank-search').fill('мебель');
+ assert.ok((await page.locator('#bank-select option').allTextContents()).some(x=>x.includes('LC03')));
+ assert.equal(await page.locator('#bank-match-count').innerText(),'1 найдено по фильтру');
+ await page.locator('#bank-search').fill('нереальное_слово_для_поиска');
+ assert.equal(await page.locator('#bank-random').isDisabled(),true);
+ assert.equal(await page.locator('#bank-select').inputValue(),'');
+ assert.equal(await page.locator('#bank-match-count').innerText(),'0 найдено по фильтру');
+ await page.locator('#bank-search').fill('IRR и MOIC');
+ assert.equal(await page.locator('#bank-random').isEnabled(),true);
+
  await page.screenshot({path:'artifacts/lecture-options-desktop.png',fullPage:true});
  await page.locator('[data-page="glossary"]').first().click();
  await page.locator('#glossary-search').fill('pro-rata');
@@ -111,5 +146,5 @@ try{
  assert.ok(widths.document<=widths.viewport+5,JSON.stringify(widths));
  await mobile.close();
  assert.deepEqual(errors,[]);
- console.log('PASS: source cases, numeric grading invalidation, reasoning minimum, draft persistence, SVG icons and mobile styling.');
+ console.log('PASS: valid saved answers, corrupt-state invalidation, formula hints, indexed search, filter reset, numeric/reasoned tasks and mobile styling.');
 }finally{await browser?.close();server.kill('SIGTERM');}
