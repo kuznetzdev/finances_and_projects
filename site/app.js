@@ -14,7 +14,7 @@ import { recordSkip, totalSkipped } from './engine/attempts.js';
 import { buildOperationQuiz, buildConceptQuiz, describeQuizAnswer, explainAlternative } from './engine/quiz-learning.js';
 import { abbreviationFor, abbreviationsIn } from './data/abbreviations.js';
 
-const $ = sel => document.querySelector(sel), $ = sel => [...document.querySelectorAll(sel)];
+const $ = sel => document.querySelector(sel), $$ = sel => [...document.querySelectorAll(sel)];
 const uiIcon = name => `<svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-${name}"></use></svg>`;
 const STORAGE = 'finpraktika.v3', THEME = 'finpraktika.theme';
 const baseline = () => ({ lastCardId: null, solved: 0, perfect: 0, total: 0, correct: 0, streak: 0, best: 0, quizSolved: 0, quizCorrect: 0, known: [], retry: [], recentTemplates: [], recentOperations: [], recentTerms: [], recentCases: [], caseCompleted: {}, caseReview: [], caseDrafts: {}, skippedTasks: 0, skippedQuizzes: 0, skippedCases: 0 });
