@@ -65,6 +65,8 @@ try{
  await page.locator('#bank-answer').fill('3');
  assert.equal(await page.locator('.case-success').count(),0);
  assert.equal(await page.locator('#bank-complete').isDisabled(),true);
+ // Ensure the debounce has completed before deliberately modifying persisted storage.
+ await page.waitForTimeout(650);
  // A corrupted old localStorage record cannot preserve an unearned passing state.
  await page.evaluate(()=>{
    const stats=JSON.parse(localStorage.getItem('finpraktika.v3'));
