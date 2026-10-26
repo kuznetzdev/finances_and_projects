@@ -6,6 +6,7 @@ on:
       - 'site/**'
       - 'tests/**'
       - 'scripts/smoke-paradoxes.mjs'
+      - 'scripts/smoke-visual.mjs'
       - 'package.json'
       - '.github/workflows/pr-check.yml'
   workflow_dispatch:
@@ -28,10 +29,14 @@ jobs:
         run: npm install --no-save playwright-core@1.56.0
       - name: Browser smoke test (desktop and mobile)
         run: node scripts/smoke-paradoxes.mjs
+      - name: Typography, math and icon browser smoke test
+        run: node scripts/smoke-visual.mjs
       - name: Attach UI screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: paradoxes-screenshots
-          path: artifacts/paradoxes-*.png
+          path: |
+            artifacts/paradoxes-*.png
+            artifacts/visual-*.png
           if-no-files-found: ignore
