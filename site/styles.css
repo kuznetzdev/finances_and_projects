@@ -114,3 +114,18 @@
 @media(max-width:650px){.paradox-toolbar{grid-template-columns:1fr}.paradox-summary{flex-wrap:wrap}.paradox-summary .progress-track{width:100%;margin-left:0}.paradox-row{padding:14px;gap:10px}.paradox-state{font-size:11px}}
 
 @media(max-width:650px){.mobile-navigation{justify-content:flex-start;overflow-x:auto;scrollbar-width:thin}.mobile-navigation button{flex:0 0 auto}}
+
+
+.paradox-group{margin:26px 0 34px}
+.paradox-group-heading{display:flex;justify-content:space-between;align-items:end;gap:14px;margin-bottom:14px}
+.paradox-group-heading h2{font-size:clamp(18px,2.4vw,23px);font-weight:650;line-height:1.3;margin:8px 0 0}
+.paradox-group-heading>span{font-size:12px;color:var(--muted);white-space:nowrap}
+.paradox-row{min-height:68px;transition:background-color .15s,border-color .15s}
+.paradox-row-text{min-width:0}.paradox-row-text small{line-height:1.5;overflow-wrap:anywhere}
+.paradox-answer-meta{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px;font-size:11px;color:var(--muted);margin:0 0 18px}
+.paradox-pagination{display:flex;justify-content:space-between;gap:12px;margin-top:25px;padding-top:20px;border-top:1px solid var(--line)}
+.paradox-done-state{color:var(--ok)}
+.paradox-detail .paradox-question p{white-space:pre-line}
+.paradox-detail .paradox-answer p,.paradox-detail .paradox-check p{max-width:78ch}
+.paradox-detail .paradox-actions .button{min-height:44px}
+@media(max-width:650px){.paradox-row{align-items:flex-start}.paradox-row-text small{font-size:11px}.paradox-state{align-self:center}.paradox-group-heading{align-items:start}.paradox-group-heading>span{font-size:11px}.paradox-detail{padding:19px 16px}.paradox-pagination .button{padding-left:10px;padding-right:10px}}
