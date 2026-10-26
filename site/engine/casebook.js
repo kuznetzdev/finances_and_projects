@@ -7,12 +7,15 @@ const CASE_CHECKPOINTS={...SOURCE_CHECKPOINTS,...LECTURE_CHECKPOINTS};
 import {chooseFresh,recordRecent} from './scheduler.js';
 export const CASE_GROUPS=['Все направления',...new Set(CASE_BANK.map(x=>x.group))];
 export const CASE_BY_ID=new Map(CASE_BANK.map(c=>[c.id,c]));
+const searchText=s=>String(s??'').normalize('NFKC').toLocaleLowerCase('ru').replace(/ё/g,'е').replace(/\s+/g,' ').trim();
+// Cached once: include task conditions as well as titles so topic searches find the actual assignment.
+const SEARCH_INDEX=new Map(CASE_BANK.map(x=>[x.id,searchText([x.id,x.title,x.topic,x.group,x.conditionHtml.replace(/<[^>]*>/g,' ')].join(' '))]));
 export function availableCases(group='Все направления',query=''){
- const q=query.trim().toLocaleLowerCase('ru');
- return CASE_BANK.filter(x=>(group==='Все направления'||x.group===group)&&(!q||`${x.id} ${x.title} ${x.topic}`.toLocaleLowerCase('ru').includes(q)));
+ const q=searchText(query);
+ return CASE_BANK.filter(x=>(group==='Все направления'||x.group===group)&&(!q||SEARCH_INDEX.get(x.id).includes(q)));
 }
-export function nextCase(history=[],group='Все направления',random=Math.random){
- const pool=availableCases(group);
+export function nextCase(history=[],group='Все направления',random=Math.random,query=''){
+ const pool=availableCases(group,query);
  return chooseFresh(pool,history,random,x=>x.id,8);
 }
 export {recordRecent,CASE_BANK,CASE_CHECKPOINTS};
