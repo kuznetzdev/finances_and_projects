@@ -67,7 +67,10 @@ try{
  mobilePage.on('pageerror',e=>errors.push('mobile: '+e.message));
  await mobilePage.goto(HOST+'?page=paradoxes',{waitUntil:'networkidle'});
  assert.equal(await mobilePage.locator('.paradox-row').count(),30);
- assert.equal(await mobilePage.locator('#mobile-navigation [data-page="paradoxes"].selected').count(),1);
+ assert.equal(await mobilePage.locator('#mobile-more-toggle.selected').count(),1);
+ await mobilePage.locator('#mobile-more-toggle').click();
+ assert.equal(await mobilePage.locator('#mobile-more-menu [data-page="paradoxes"]').isVisible(),true);
+ await mobilePage.locator('#mobile-more-toggle').click();
  const widths=await mobilePage.evaluate(()=>({body:document.documentElement.scrollWidth,viewport:innerWidth}));
  assert.ok(widths.body<=widths.viewport+4,'horizontal page overflow '+JSON.stringify(widths));
  await mobilePage.screenshot({path:'artifacts/paradoxes-mobile.png',fullPage:true});
