@@ -52,6 +52,7 @@ try{
  assert.ok(width.doc<=width.view+3,'desktop overflow '+JSON.stringify(width));
  await page.goto(origin+'?page=practice&topic=valuation&level=4&template=dcf-two-stage&seed=123',{waitUntil:'networkidle'});
  assert.match(await page.locator('#content').innerText(),/Двухэтапный DCF/);
+ for(let i=0;i<8&&!(await page.locator('#check-btn').isVisible());i++)await page.locator('#step-next').click();
  await page.locator('#check-btn').click();
  await page.locator('#solution-btn').click();
  assert.equal(await page.locator('.solution-panel .financial-formula').count(),1);
@@ -74,6 +75,7 @@ try{
  assert.equal(await mob.locator('.hint-panel .hint-step').count(),2);
  await mob.screenshot({path:'artifacts/visual-practice-mobile.png',fullPage:true});
  await mob.goto(origin+'?page=practice&topic=valuation&level=4&template=dcf-two-stage&seed=123',{waitUntil:'networkidle'});
+ for(let i=0;i<8&&!(await mob.locator('#check-btn').isVisible());i++)await mob.locator('#step-next').click();
  await mob.locator('#check-btn').click();
  await mob.locator('#solution-btn').click();
  assert.ok(await mob.locator('.solution-panel .math-sum').count()>0);
