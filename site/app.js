@@ -69,7 +69,12 @@ function skipQuiz(){
 }
 function nextExercise(forceTemplate=null) {
  const pool=availableTemplates();
- if(!pool.length){app.area='all';app.topic='all';app.levelFilter='all';}
+ if(!pool.length){
+  // Keep the dimension the user just selected whenever possible rather than silently wiping all filters.
+  if(practicePool(TEMPLATE_CATALOG,{area:app.area,level:app.levelFilter}).length)app.topic='all';
+  else if(practicePool(TEMPLATE_CATALOG,{topic:app.topic,level:app.levelFilter}).length)app.area='all';
+  else {app.area='all';app.topic='all';app.levelFilter='all';}
+ }
  const chosenPool=availableTemplates();
  const selected=forceTemplate&&chosenPool.some(t=>t.id===forceTemplate) ? chosenPool.find(t=>t.id===forceTemplate) : chooseFresh(chosenPool,stats.recentTemplates,Math.random);
  app.level=app.levelFilter==='all' ? choosePracticeLevel('all',selected.min) : choosePracticeLevel(app.levelFilter,selected.min);
@@ -123,8 +128,8 @@ if (!app.exercise) ensureExercise(); syncExerciseUrl(); const e = app.exercise, 
  <section class="workspace"><div class="task-paper"><div class="task-header" tabindex="-1"><div class="task-topline"><span class="task-kicker">ЗАДАНИЕ · ${escape(t?.short || 'ФИНАНСЫ')}</span><span class="task-serial">#${String(app.seed).slice(-6).padStart(6, '0')}</span></div><h2>${escape(e.title)}</h2><div class="task-meta"><span>Уровень ${app.level}</span><i></i><span>${e.questions.length} ${e.questions.length === 1 ? 'вопрос' : e.questions.length < 5 ? 'вопроса' : 'вопросов'}</span><i></i><span>${escape(e.skill || 'Финансы')}</span></div></div><form id="exercise-form" class="task-body">${storyHtml(e.story)}<div class="sub-heading">ВАШЕ РЕШЕНИЕ</div>${guided ? `<div class="guided-head" id="guided-head"><div><strong id="guided-title">Этап 1 из ${e.questions.length}</strong><span id="guided-detail">Ответы сохраняются при переходе между этапами</span></div><button type="button" class="guided-toggle" id="show-all-steps">Показать все этапы</button></div><div class="guided-track" id="guided-track" aria-hidden="true"><span id="guided-progress"></span></div>` : ''}<div class="fields">${fields}</div><div id="exercise-result" aria-live="polite"></div><div id="hint-place"></div><div id="solution-place"></div><div class="action-row task-actions" role="group" aria-label="Действия с задачей"><div class="task-actions-aux"><button type="button" class="button ghost" id="hint-btn" aria-expanded="${app.hint}">${uiIcon('bulb')} Подсказка</button><button type="button" class="button ghost" id="share-btn">${uiIcon('share')} Поделиться</button></div><div class="task-actions-main">${guided ? `<div class="guided-nav" id="guided-nav"><button type="button" class="button secondary" id="step-prev">← Назад</button><button type="button" class="button secondary" id="step-next">Далее →</button></div>` : ''}<button type="button" class="button secondary" id="skip-task">Пропустить</button><button type="submit" class="button primary" id="check-btn">Проверить →</button></div></div></form><div class="task-source">ТЕМА: ${escape(e.areaName || 'Финансы')} · МАТЕРИАЛ: ${escape(e.source || 'Учебные материалы')} ${e.taxPolicy ? '· ставки по ' + escape(e.taxPolicy) : ''}</div></div>
  <aside class="assist-column"><div class="assist-card"><h3>ТОЧНОСТЬ РЕШЕНИЙ</h3><div class="assist-stat">${total}%</div><div class="assist-copy">Доля правильных ответов за всё время</div><div class="progress-track"><span style="width:${total}%"></span></div></div><div class="assist-card"><h3>ТВОЯ СТАТИСТИКА</h3><div class="assist-list"><div>Задач решено <b>${stats.solved}</b></div><div>Без ошибок <b>${stats.perfect}</b></div><div>Серия <b>${stats.streak}</b></div><div>На повторение <b>${stats.retry.length}</b></div></div></div><div class="assist-card assist-note"><h3>КАК РЕШАТЬ</h3><p>Проверь условие, выбери формулу и введи ответы. Пояснение можно открыть после проверки.</p></div></aside></section>`;
   $('#content').querySelector('.control-strip').insertAdjacentHTML('beforebegin',practiceTabs());
-  $('#area-filter').onchange=ev=>{app.area=ev.target.value;app.templateId=null;nextExercise();};
-  $('#topic-filter').onchange=ev=>{app.topic=ev.target.value;app.templateId=null;nextExercise();};
+  $('#area-filter').onchange=ev=>{app.area=ev.target.value;if(!practicePool(TEMPLATE_CATALOG,{area:app.area,topic:app.topic,level:app.levelFilter}).length)app.topic='all';app.templateId=null;nextExercise();};
+  $('#topic-filter').onchange=ev=>{app.topic=ev.target.value;if(!practicePool(TEMPLATE_CATALOG,{area:app.area,topic:app.topic,level:app.levelFilter}).length)app.area='all';app.templateId=null;nextExercise();};
   $('#level-filter').onchange=ev=>{app.levelFilter=ev.target.value;app.templateId=null;nextExercise();};
   $('#random-exercise').onclick=()=>{nextExercise();focusTaskHeader();};
   $('#reset-practice-filters').onclick=()=>{app.area='all';app.topic='all';app.levelFilter='all';nextExercise();};
