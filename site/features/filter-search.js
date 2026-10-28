@@ -1,5 +1,5 @@
 /** Fast, accent-tolerant matches for the section/topic search comboboxes. */
-export const normalizeSearch=value=>String(value??'').toLocaleLowerCase('ru-RU').replace(/ё/g,'е').replace(/[^\\p{L}\\p{N}]+/gu,' ').trim();
+export const normalizeSearch=value=>String(value??'').toLocaleLowerCase('ru-RU').replace(/ё/g,'е').replace(/[^\p{L}\p{N}]+/gu,' ').trim();
 const acronyms={reporting:'баланс прибыль отчетность офр оддс финансовый анализ',capital:'кредит облигации долг capm бета стоимость капитала',value:'оценка dcf fcff fcfe wacc npv irr мультипликатор инвестиции',deals:'рычаг wacc mm структура капитала pecking order сделки',forecast:'прогноз модель финансовое моделирование',taxes:'налог амортизация прибыль убытки',pl:'прибыль выручка расходы ebitda',cash:'потоки cash flow оддс',balance:'активы пассивы баланс',links:'три формы отчетности',valuation:'dcf wacc npv irr fcfe fcff оценка инвестиции',tax:'налоги щит амортизация',ratios:'коэффициент рентабельность ликвидность roe roa',model:'финансовая модель прогноз'};
 export function searchFilterOptions(options,term,minChars=3){
  const needle=normalizeSearch(term);if([...needle].length<minChars)return [];
