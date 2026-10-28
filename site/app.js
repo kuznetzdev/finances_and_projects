@@ -247,9 +247,46 @@ function renderGlossary() {
  $$('[data-term]').forEach(b=>b.onclick=()=>{app.glossarySelected=b.dataset.term;renderGlossary();window.scrollTo({top:0,behavior:'smooth'});});
  if($('#close-term'))$('#close-term').onclick=()=>{app.glossarySelected=null;renderGlossary();};
 }
-function renderProgress() {  
-const accuracy = stats.total ? Math.round(stats.correct / stats.total * 100) : 0, qa = stats.quizSolved ? Math.round(stats.quizCorrect / stats.quizSolved * 100) : 0; $('#content').innerHTML = `${pageIntro('06 / РЕЗУЛЬТАТ', 'Мой прогресс', 'Личный прогресс остаётся в браузере. Ни регистрация, ни сервер для занятий не нужны.', '06')}<section class="stat-grid"><div class="stat-tile"><strong>${stats.solved}</strong><span>Задач решено</span></div><div class="stat-tile"><strong>${accuracy}%</strong><span>Правильных ответов</span></div><div class="stat-tile"><strong>${stats.best}</strong><span>Лучшая серия</span></div></section><section class="aux-panel"><div class="mode-header"><div><h2>Твой путь</h2><p>Возвращайся к сложным задачам, а не только к тем, что уже получаются.</p></div></div><div class="data-list"><div class="data-row"><span>Задачи без ошибок</span><strong>${stats.perfect}</strong></div><div class="data-row"><span>Точность тестов</span><strong>${qa}% (${stats.quizSolved} вопросов)</strong></div><div class="data-row"><span>Изученных карточек</span><strong>${stats.known.length} / ${CONCEPTS.length}</strong></div><div class="data-row"><span>Кейсов из банка изучено</span><strong>${Object.keys(stats.caseCompleted||{}).length} / 57</strong></div><div class="data-row"><span>Задач на повторение</span><strong>${stats.retry.length}</strong></div><div class="data-row"><span>Пропущено без оценки</span><strong>${totalSkipped(stats)}</strong></div></div><div class="action-row"><button class="button primary" id="repeat-errors" ${stats.retry.length ? '' : 'disabled'}>Повторить ошибки →</button><button class="button ghost" id="export-progress">↓ Экспорт JSON</button><button class="button ghost" id="reset-progress">Сбросить статистику</button></div></section>`;
-  $('#repeat-errors').onclick = () => { const a = stats.retry[0]; if (!a) return; app.level = a.level; app.topic = a.topic; app.area = 'all'; app.seed = a.seed; app.templateId = a.templateId; app.exercise = null; app.checked = false; app.hint = false; app.solution = false; route('practice'); }; $('#reset-progress').onclick = () => { if (confirm('Удалить весь личный прогресс в этом браузере?')) { stats = baseline(); save(); renderProgress(); refreshProgressSidebar(); } }; $('#export-progress').onclick = () => { const blob = new Blob([JSON.stringify({ version: 4, exportedAt: new Date().toISOString(), stats }, null, 2)], { type: 'application/json' }); const u = URL.createObjectURL(blob), a = document.createElement('a'); a.href = u; a.download = 'finpraktika-progress.json'; a.click(); URL.revokeObjectURL(u); };
+function openRetry(area='all',topic='all'){
+ const item=nextRetry(stats.retry,TEMPLATE_CATALOG,area,topic);
+ if(!item)return;
+ const template=TEMPLATE_CATALOG.find(t=>t.id===item.templateId);
+ if(!template){notice('Тип задания больше не доступен');return;}
+ app.practiceMode='generator';
+ app.area=template.area;
+ app.topic=template.topic;
+ app.level=Number(item.level)||4;
+ app.levelFilter=String(app.level);
+ app.seed=item.seed;
+ app.templateId=item.templateId;
+ app.exercise=null;app.checked=false;app.hint=false;app.solution=false;
+ const url=new URL(location.href);url.searchParams.set('mode','generator');history.replaceState({},'',url);
+ route('practice');
+}
+function renderProgress() {
+ const accuracy=stats.total?Math.round(stats.correct/stats.total*100):0;
+ const quizAccuracy=stats.quizSolved?Math.round(stats.quizCorrect/stats.quizSolved*100):0;
+ const groups=progressRows(stats,STUDY_AREAS,TOPICS,TEMPLATE_CATALOG);
+ const detailed=groups.filter(a=>a.attempts);
+ const dataAvailable=detailed.length>0;
+ const bar=x=>x.accuracy===null?'<span class="progress-no-data">Нет решений</span>':'<span class="topic-score '+(x.accuracy<60?'needs-review':x.accuracy<80?'needs-practice':'doing-well')+'">'+x.accuracy+'%</span>';
+ const itemText=x=>x.attempts+' реш. · '+x.correct+' из '+x.questions+' ответов верно';
+ const rows=groups.map(a=>{
+  const topicRows=a.topics.map(t=>`<div class="progress-topic-row"><div><strong>${escape(t.name)}</strong><small>${itemText(t)}</small></div>${bar(t)}<button class="button secondary progress-review" data-repeat-area="${escape(a.id)}" data-repeat-topic="${escape(t.id)}" ${t.pending?'':'disabled'}>Повторить (${t.pending})</button></div>`).join('');
+  return `<article class="progress-area-row"><div class="progress-area-top"><div class="progress-area-title"><strong>${escape(a.name)}</strong><span>${a.attempts?'Решений: '+a.attempts+' · вопросов: '+a.questions:'Пока нет решений'}</span></div>${bar(a)}<button class="button secondary progress-review" data-repeat-area="${escape(a.id)}" data-repeat-topic="all" ${a.pending?'':'disabled'}>Повторить ошибки (${a.pending})</button></div><div class="progress-area-track" role="meter" aria-label="Точность по направлению ${escape(a.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${a.accuracy??0}"><span style="width:${a.accuracy??0}%"></span></div>${topicRows?`<details class="progress-area-topics"><summary>Темы и результаты (${a.topics.length})</summary><div>${topicRows}</div></details>`:''}</article>`;
+ }).join('');
+ $('#content').innerHTML=`${pageIntro('06 / РЕЗУЛЬТАТ','Мой прогресс','Личный прогресс остаётся в этом браузере.','06')}
+ <section class="stat-grid"><div class="stat-tile"><strong>${stats.solved}</strong><span>Задач решено</span></div><div class="stat-tile"><strong>${accuracy}%</strong><span>Правильных ответов</span></div><div class="stat-tile"><strong>${stats.best}</strong><span>Лучшая серия</span></div></section>
+ <section class="aux-panel"><div class="mode-header"><div><h2>Где стоит повторить?</h2><p>Направления отсортированы по точности, сначала самые сложные для вас. Раскройте направление, чтобы увидеть отдельные темы.</p></div></div>
+ ${!dataAvailable?'<p class="progress-empty">Статистика по направлениям появится после решения новых задач. Результаты старых попыток не были привязаны к направлениям, поэтому мы не выдумываем их задним числом.</p>':''}
+ <div class="progress-areas">${rows}</div>
+ <p class="progress-legend">Точность рассчитана по отдельным ответам. При небольшом количестве решений результат предварительный. Кнопки «Повторить» открывают именно ошибочно решённую задачу, а не новую случайную.</p></section>
+ <section class="aux-panel"><div class="mode-header"><div><h2>Общая статистика</h2></div></div><div class="data-list"><div class="data-row"><span>Задачи без ошибок</span><strong>${stats.perfect}</strong></div><div class="data-row"><span>Точность тестов</span><strong>${quizAccuracy}% (${stats.quizSolved} вопросов)</strong></div><div class="data-row"><span>Изученных карточек</span><strong>${stats.known.length} / ${CONCEPTS.length}</strong></div><div class="data-row"><span>Кейсов из банка изучено</span><strong>${Object.keys(stats.caseCompleted||{}).length} / ${CASE_BANK.length}</strong></div><div class="data-row"><span>Ожидают повторения</span><strong>${stats.retry.length}</strong></div><div class="data-row"><span>Пропущено без оценки</span><strong>${totalSkipped(stats)}</strong></div></div>
+ <div class="action-row"><button class="button primary" id="repeat-errors" ${stats.retry.length?'':'disabled'}>Повторить все ошибки →</button><button class="button ghost" id="export-progress">↓ Экспорт JSON</button><button class="button ghost" id="reset-progress">Сбросить статистику</button></div></section>`;
+ $('#repeat-errors').onclick=()=>openRetry();
+ $$('[data-repeat-area]').forEach(btn=>btn.onclick=()=>openRetry(btn.dataset.repeatArea,btn.dataset.repeatTopic));
+ $('#reset-progress').onclick=()=>{if(confirm('Удалить весь личный прогресс в этом браузере?')){stats=baseline();save();renderProgress();refreshProgressSidebar();}};
+ $('#export-progress').onclick=()=>{const blob=new Blob([JSON.stringify({version:5,exportedAt:new Date().toISOString(),stats},null,2)],{type:'application/json'});const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='finpraktika-progress.json';a.click();URL.revokeObjectURL(u);};
 }
 $$('[data-page]').forEach(b => b.onclick = () => route(b.dataset.page));
 try { document.documentElement.dataset.theme = localStorage.getItem(THEME) === 'dark' ? 'dark' : 'light'; } catch { }
