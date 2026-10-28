@@ -108,7 +108,7 @@ try{
  await page.goto(origin+'?page=progress',{waitUntil:'networkidle'});
  assert.ok(await page.locator('.progress-area-row').count()>=6);
  assert.ok((await page.locator('.progress-area-row').first().innerText()).includes('Оценка бизнеса'));
- await page.locator('.progress-area-row').first().locator('[data-repeat-area="value"]').click();
+ await page.locator('.progress-area-row').first().locator('[data-repeat-area="value"][data-repeat-topic="all"]').click();
  assert.equal(new URL(page.url()).searchParams.get('template'),'dcf-two-stage');
  assert.equal(new URL(page.url()).searchParams.get('seed'),'123');
  await context.close();
