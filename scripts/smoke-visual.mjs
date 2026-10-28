@@ -22,6 +22,20 @@ try{
  page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text());});
  await page.goto(origin+'?page=practice',{waitUntil:'networkidle'});
  assert.ok(await page.locator('#random-exercise .ui-icon').count()===1,'shuffle icon missing');
+ await page.locator('#area-search').fill('оце');
+ assert.equal(await page.locator('#area-search-results').isVisible(),true);
+ assert.ok(await page.locator('#area-search-results [data-option-id="value"]').count()>0);
+ await page.locator('#area-search').fill('о');
+ assert.equal(await page.locator('#area-search-results').isVisible(),false);
+ await page.locator('#area-search').fill('wacc');
+ await page.locator('#area-search-results [data-option-id="deals"]').click();
+ assert.equal(await page.locator('#area-filter').inputValue(),'deals');
+ await page.locator('#topic-search').fill('DCF');
+ assert.ok(await page.locator('#topic-search-results [data-option-id="valuation"]').count()>0);
+ await page.locator('#topic-search').press('ArrowDown');
+ await page.locator('#topic-search').press('Escape');
+ assert.equal(await page.locator('#topic-search-results').isVisible(),false);
+
  assert.ok(await page.locator('#area-filter').isVisible());
  assert.ok(await page.locator('#topic-filter').isVisible());
  assert.ok(await page.locator('#level-filter').isVisible());
@@ -83,6 +97,20 @@ try{
  assert.ok(await page.locator('.solution-panel .math-sum').count()>0);
  assert.ok(await page.locator('.solution-panel .math-fraction').count()>0);
  await page.screenshot({path:'artifacts/visual-dcf-desktop.png',fullPage:true});
+ // Inject a small realistic local history, reload, and verify weak-topic review opens the exact failed exercise.
+ await page.evaluate(()=>{
+  const key='finpraktika.v3',v=JSON.parse(localStorage.getItem(key)||'{}');
+  v.byArea={value:{attempts:4,perfect:1,questions:12,correct:4},reporting:{attempts:3,perfect:2,questions:9,correct:8}};
+  v.byTopic={'value::valuation':{attempts:4,perfect:1,questions:12,correct:4}};
+  v.retry=[{area:'value',topic:'valuation',templateId:'dcf-two-stage',level:4,seed:123}];
+  localStorage.setItem(key,JSON.stringify(v));
+ });
+ await page.goto(origin+'?page=progress',{waitUntil:'networkidle'});
+ assert.ok(await page.locator('.progress-area-row').count()>=6);
+ assert.ok((await page.locator('.progress-area-row').first().innerText()).includes('Оценка бизнеса'));
+ await page.locator('.progress-area-row').first().locator('[data-repeat-area="value"][data-repeat-topic="all"]').click();
+ assert.equal(new URL(page.url()).searchParams.get('template'),'dcf-two-stage');
+ assert.equal(new URL(page.url()).searchParams.get('seed'),'123');
  await context.close();
  const mobile=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true});
  const mob=await mobile.newPage();
@@ -94,6 +122,12 @@ try{
  const w=await mob.evaluate(()=>({doc:document.documentElement.scrollWidth,view:innerWidth,formulas:[...document.querySelectorAll('.glossary-formula-equation')].map(e=>({scroll:e.scrollWidth,client:e.clientWidth}))}));
  assert.ok(w.doc<=w.view+4,'mobile page overflow '+JSON.stringify(w));
  assert.ok(await mob.locator('.financial-formula').first().isVisible());
+ assert.equal(await mob.locator('#mobile-navigation>button').count(),5);
+ await mob.locator('#mobile-more-toggle').click();
+ assert.equal(await mob.locator('#mobile-more-menu').isVisible(),true);
+ await mob.locator('#mobile-more-menu [data-page="cards"]').click();
+ assert.equal(await mob.locator('#mobile-more-menu').isVisible(),false);
+ assert.ok((await mob.locator('#content').innerText()).includes('Карточки'));
  await mob.locator('#mobile-navigation [data-page="practice"]').click();
  await mob.locator('#hint-btn').click();
  assert.equal(await mob.locator('.hint-panel .hint-step').count(),2);
