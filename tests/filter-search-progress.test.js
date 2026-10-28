@@ -1,24 +1,42 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {searchFilterOptions,normalizeSearch} from '../site/features/filter-search.js';
+import {searchFilterOptions,normalizeSearch,buildFilterOptions} from '../site/features/filter-search.js';
 import {recordPracticeResult,progressRows,retryArea,retryTopic,nextRetry} from '../site/features/progress-breakdown.js';
 import {STUDY_AREAS} from '../site/data/curriculum.js';
 import {TOPICS,TEMPLATE_CATALOG} from '../site/engine/index.js';
 
-test('search appears only from 3 characters and understands Russian, case, aliases',()=>{
- const areas=STUDY_AREAS.map(x=>({...x,keywords:TEMPLATE_CATALOG.filter(t=>t.area===x.id).map(t=>t.skill).filter(Boolean)}));
- assert.deepEqual(searchFilterOptions(areas,'дв'),[]);
- assert.ok(searchFilterOptions(areas,'ОЦЕ').some(x=>x.id==='value'));
- assert.ok(searchFilterOptions(areas,'wacc').some(x=>x.id==='deals'));
- assert.ok(searchFilterOptions(areas,'долг').some(x=>x.id==='capital'));
+test('an unopened query or one/two characters shows the entire in-app option list',()=>{
+ const areas=buildFilterOptions(STUDY_AREAS,TEMPLATE_CATALOG,'area');
+ for(const query of ['','о','оц','CF','  '])assert.deepEqual(searchFilterOptions(areas,query).map(x=>x.id),STUDY_AREAS.map(x=>x.id));
+ assert.ok(searchFilterOptions(areas,'оце').some(x=>x.id==='value'));
+ assert.equal(searchFilterOptions(areas,'ъъъ').length,0);
  assert.equal(normalizeSearch('Ёмкость / EBITDA!'),'емкость ebitda');
- assert.deepEqual(searchFilterOptions(areas,'ъъъ'),[]);
 });
-test('topic searches include indexed skills and financial synonyms',()=>{
- const topics=TOPICS.map(x=>({...x,keywords:TEMPLATE_CATALOG.filter(t=>t.topic===x.id).map(t=>t.skill).filter(Boolean)}));
- assert.ok(searchFilterOptions(topics,'EBITDA').some(x=>x.id==='pl'));
- assert.ok(searchFilterOptions(topics,'DCF').some(x=>x.id==='valuation'));
- assert.ok(searchFilterOptions(topics,'бал').some(x=>x.id==='balance'));
+test('financial acronym indexes target their actual syllabus directions',()=>{
+ const areas=buildFilterOptions(STUDY_AREAS,TEMPLATE_CATALOG,'area');
+ const topics=buildFilterOptions(TOPICS,TEMPLATE_CATALOG,'topic');
+ const has=(rows,id)=>rows.some(x=>x.id===id);
+ assert.ok(has(searchFilterOptions(areas,'CAPM'),'capital'));
+ assert.ok(has(searchFilterOptions(topics,'capm'),'valuation'));
+ assert.ok(has(searchFilterOptions(areas,'CFF'),'reporting'));
+ assert.ok(has(searchFilterOptions(topics,'CFF'),'cash'));
+ assert.ok(!has(searchFilterOptions(areas,'CFF'),'value'),'CFF is financing cash flow, not FCFF');
+ assert.ok(has(searchFilterOptions(areas,'FCFF'),'value'));
+ assert.ok(has(searchFilterOptions(areas,'FCFE'),'value'));
+ assert.ok(has(searchFilterOptions(topics,'DCF'),'valuation'));
+ assert.ok(has(searchFilterOptions(topics,'EBITDA'),'pl'));
+ assert.ok(has(searchFilterOptions(topics,'бал'),'balance'));
+ assert.ok(has(searchFilterOptions(areas,'долг'),'capital'));
+ assert.ok(has(searchFilterOptions(areas,'амортизация'),'taxes'));
+ assert.ok(has(searchFilterOptions(areas,'wacc'),'deals'));
+});
+test('the embedded pickers offer accurate counts for current level and companion filter',()=>{
+ const areas=buildFilterOptions(STUDY_AREAS,TEMPLATE_CATALOG,'area',{topic:'valuation',level:'all'});
+ const value=areas.find(x=>x.id==='value');
+ assert.equal(value.count,TEMPLATE_CATALOG.filter(t=>t.area==='value'&&t.topic==='valuation').length);
+ const topics=buildFilterOptions(TOPICS,TEMPLATE_CATALOG,'topic',{area:'reporting',level:'1'});
+ const cash=topics.find(x=>x.id==='cash');
+ assert.equal(cash.count,TEMPLATE_CATALOG.filter(t=>t.topic==='cash'&&t.area==='reporting'&&t.min<=1).length);
 });
 test('attempt stats count separate answers, skips never call recorder',()=>{
  const stats={retry:[],byArea:{},byTopic:{}};

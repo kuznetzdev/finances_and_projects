@@ -603,3 +603,34 @@ h1,h2,h3,h4,.page-intro h1,.task-header h2,.mode-header h2,.term-item h3,
  .progress-topic-row{flex-wrap:wrap}
  .progress-review{min-width:92px}
 }
+
+
+/* The direction/topic picker is a real in-app popover, not an operating system select. */
+.practice-discovery{position:relative;z-index:4;overflow:visible}
+.discovery-field{min-width:0}
+.filter-picker-label{font-size:12px;font-weight:750;color:var(--ink)}
+.embedded-filter{position:relative;min-width:0}
+.embedded-filter.is-open{z-index:40}
+.filter-trigger{width:100%;min-height:46px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);display:flex;align-items:center;gap:10px;justify-content:space-between;padding:10px 12px;text-align:left;font-weight:650;font-size:13px}
+.filter-trigger:hover,.embedded-filter.is-open .filter-trigger{border-color:var(--forest2);background:var(--paper2)}
+.filter-trigger:focus-visible{outline:2px solid var(--forest2);outline-offset:2px}
+.filter-trigger-copy{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.filter-trigger .ui-icon{width:18px;height:18px;flex:none;transition:transform .15s}
+.embedded-filter.is-open .filter-trigger .ui-icon{transform:rotate(180deg)}
+.filter-popover{position:absolute;top:calc(100% + 6px);left:0;width:max(100%,300px);max-width:min(440px,calc(100vw - 36px));z-index:41;background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 40px rgba(13,39,35,.20);overflow:hidden;padding:0}
+.filter-search-header{padding:12px 12px 8px;border-bottom:1px solid var(--line);background:var(--paper)}
+.filter-search-input{min-height:44px;font-size:13px}
+.filter-search-status{display:block;font-size:11px;color:var(--muted);margin-top:7px;font-weight:650}
+.filter-popover .filter-search-results{position:static;top:auto;left:auto;right:auto;z-index:auto;max-height:min(320px,43vh);min-height:44px;overflow-y:auto;overscroll-behavior:contain;background:var(--paper);border:0;border-radius:0;box-shadow:none;margin:0;padding:6px;scrollbar-width:thin}
+.filter-popover .filter-search-results button{min-height:55px;display:grid;grid-template-columns:minmax(0,1fr);align-content:center;gap:4px;width:100%;border:0;border-radius:9px;padding:9px 11px;text-align:left;color:var(--ink);background:transparent}
+.filter-popover .filter-search-results button:hover,.filter-popover .filter-search-results button.active,.filter-popover .filter-search-results button:focus-visible{background:var(--paper2);color:var(--ink)}
+.filter-popover .filter-search-results button[aria-selected="true"]{border-left:3px solid var(--forest2);padding-left:8px}
+.filter-result-text{font-size:13px;line-height:1.35;font-weight:690}
+.filter-result-meta{font-size:11px;line-height:1.35;color:var(--muted);font-weight:450}
+.filter-search-tip{border-top:1px solid var(--line);padding:9px 12px;font-size:10px;line-height:1.45;color:var(--muted)}
+@media(max-width:940px){.filter-popover{width:max(100%,300px)}}
+@media(max-width:600px){
+ .filter-popover{width:100%;max-width:100%;border-radius:12px}
+ .filter-popover .filter-search-results{max-height:min(300px,38vh)}
+ .filter-search-tip{font-size:10px}
+}
