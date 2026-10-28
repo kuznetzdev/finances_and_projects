@@ -4,7 +4,7 @@ import {CASE_BANK,CASE_BY_ID,CASE_CHECKPOINTS,availableCases,nextCase,verifyChec
 import {TEMPLATE_CATALOG,generateExercise} from '../site/engine/index.js';
 const ans=(e,key)=>e.questions.find(x=>x.key===key).answer;
 test('Original source bank and ten lecture tasks have unique identifiers, conditions, solutions and staged breakdown',()=>{
- assert.equal(CASE_BANK.length,67);
+ assert.equal(CASE_BANK.length,68);
  assert.equal(new Set(CASE_BANK.map(x=>x.id)).size,67);
  assert.equal(CASE_BANK.filter(x=>x.id.startsWith('F')).length,19);
  assert.equal(CASE_BANK.filter(x=>x.id.startsWith('T')).length,17);
