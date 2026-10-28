@@ -1,9 +1,10 @@
 import {CASE_BANK as ORIGINAL_CASE_BANK} from '../data/case-bank.js';
 import {LECTURE_CASES} from '../data/lecture-cases.js';
 import {LECTURE_CHECKPOINTS} from '../data/lecture-checkpoints.js';
-const CASE_BANK=[...ORIGINAL_CASE_BANK,...LECTURE_CASES];
+import {ADVANCED_CASES,ADVANCED_CHECKPOINTS} from '../data/advanced-cases.js';
+const CASE_BANK=[...ORIGINAL_CASE_BANK,...LECTURE_CASES,...ADVANCED_CASES];
 import {CASE_CHECKPOINTS as SOURCE_CHECKPOINTS} from '../data/case-checkpoints.js';
-const CASE_CHECKPOINTS={...SOURCE_CHECKPOINTS,...LECTURE_CHECKPOINTS};
+const CASE_CHECKPOINTS={...SOURCE_CHECKPOINTS,...LECTURE_CHECKPOINTS,...ADVANCED_CHECKPOINTS};
 import {chooseFresh,recordRecent} from './scheduler.js';
 export const CASE_GROUPS=['Все направления',...new Set(CASE_BANK.map(x=>x.group))];
 export const CASE_BY_ID=new Map(CASE_BANK.map(c=>[c.id,c]));
