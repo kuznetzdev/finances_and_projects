@@ -30,7 +30,7 @@ test('New card deck avoids previous card across shuffle boundaries',()=>{
  }
 });
 test('Every template and new concept maps to thematic course content',()=>{
- assert.equal(TEMPLATE_CATALOG.length,104);
+ assert.equal(TEMPLATE_CATALOG.length,108);
  const allowed=new Set(STUDY_AREAS.map(a=>a.id));
  for(const t of TEMPLATE_CATALOG){assert.ok(allowed.has(t.area),t.id);assert.ok(t.skill&&t.areaName,t.id);assert.deepEqual(curriculumFor(t.id,t.topic).skill,t.skill);}
  assert.ok(CONCEPTS.length>=100);
