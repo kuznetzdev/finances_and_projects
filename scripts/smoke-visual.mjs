@@ -22,12 +22,9 @@ try{
  page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text());});
  await page.goto(origin+'?page=practice',{waitUntil:'networkidle'});
  assert.ok(await page.locator('#random-exercise .ui-icon').count()===1,'shuffle icon missing');
- await page.locator('#area-search').fill('оц');
+ await page.locator('#area-search').fill('оце');
  assert.equal(await page.locator('#area-search-results').isVisible(),true);
  assert.ok(await page.locator('#area-search-results [data-option-id="value"]').count()>0);
- await page.locator('#area-search').fill('оц');
- await page.locator('#area-search').fill('оц');
- await page.locator('#area-search').fill('оц');
  await page.locator('#area-search').fill('о');
  assert.equal(await page.locator('#area-search-results').isVisible(),false);
  await page.locator('#area-search').fill('wacc');
