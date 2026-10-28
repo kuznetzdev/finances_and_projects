@@ -66,7 +66,9 @@ export function validateDcfAudit(ex){
    break;
   case 'dcf-fcfe-equity':
    ensure(v.fcfe>0&&v.equity>0&&v.ke>0&&v.ke<.5,'положительная Equity/FCFE/Ke');
+   ensure(v.debt>0&&v.kd>0&&close(v.netBorrowing,0)&&close(v.interest,v.debt*v.kd),'постоянный бессрочный долг, нулевое чистое привлечение и согласованные проценты');
    ensure(close(v.fcfe,v.fcff-v.interest*(1-v.tax)+v.netBorrowing)&&close(v.equity,v.fcfe/v.ke),'FCFE/Equity');
+   ensure(close(v.ev,v.equity+v.debt)&&close(v.wacc,(v.equity*v.ke+v.debt*v.kd*(1-v.tax))/v.ev)&&close(v.ev,v.fcff/v.wacc),'EV и согласованный рыночный WACC');
    break;
   case 'dcf-two-stage':
    ensure(v.fcffs?.length===v.years&&v.fcffs.every(x=>finite(x)&&x>0),'потоки прогноза');
