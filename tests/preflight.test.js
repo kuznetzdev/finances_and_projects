@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {validateExercise,validateDcfAudit,validateCatalog,preflight} from '../scripts/lib/preflight.js';
+import {validateExercise,validateDcfAudit,validateBusinessAudit,validateCatalog,preflight} from '../scripts/lib/preflight.js';
 import {formulaMarkup} from '../site/features/math-ui.js';
 import {generateExercise,TEMPLATE_CATALOG} from '../site/engine/index.js';
 const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -44,4 +44,17 @@ test('Summation limits, numerator denominator and subscripts render semantically
  assert.match(markup,/role="math"/);
  assert.match(markup,/aria-label="EV = Σ/);
  assert.ok(!markup.includes('<script>'));
+});
+
+test('Preflight independently catches previously implemented tax and capital arithmetic corruption',()=>{
+ for(const id of ['capital-wacc-dynamic','capital-waterfall','tax-temporary-differences','tax-loss-carryforward']){
+  const ex=generateExercise({templateId:id,level:4,topic:id.startsWith('tax-')?'tax':'valuation',seed:27});
+  assert.deepEqual(validateBusinessAudit(ex),[],id);
+  let corrupted={...ex,audit:{...ex.audit}};
+  if(id==='capital-wacc-dynamic')corrupted.audit.wacc=[...ex.audit.wacc.map(x=>x+3)];
+  if(id==='capital-waterfall')corrupted.audit.paid=[...ex.audit.paid.map(x=>x+10)];
+  if(id==='tax-temporary-differences')corrupted.audit.currentTax=ex.audit.currentTax+5;
+  if(id==='tax-loss-carryforward')corrupted.audit.totalTax=ex.audit.totalTax+5;
+  assert.ok(validateBusinessAudit(corrupted).some(x=>x.code==='FINANCE_IDENTITY'),id);
+ }
 });
