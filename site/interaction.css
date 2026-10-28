@@ -558,3 +558,48 @@ h1,h2,h3,h4,.page-intro h1,.task-header h2,.mode-header h2,.term-item h3,
 .discovery-note{font-size:12px;line-height:1.6;color:var(--muted);margin:12px 0 0}
 @media(max-width:940px){.discovery-selectors{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.practice-discovery{padding:16px}.discovery-heading{align-items:stretch;flex-direction:column}.discovery-selectors{grid-template-columns:1fr}.random-exercise{width:100%}.discovery-bottom{align-items:flex-start}}
+
+
+/* Searchable dual-mode filters: native select remains available without typing. */
+.discovery-field>label{font-size:12px;font-weight:750;color:var(--ink)}
+.filter-search-wrap{position:relative;min-width:0}
+.filter-search-input{width:100%;height:44px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);font-size:13px}
+.filter-search-input:focus-visible{outline:2px solid var(--forest2);outline-offset:1px}
+.filter-search-results{position:absolute;z-index:35;top:calc(100% + 5px);left:0;right:0;max-height:min(280px,40vh);overflow-y:auto;background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 30px rgba(6,40,35,.18);padding:5px}
+.filter-search-results button{display:flex;width:100%;min-height:43px;align-items:center;gap:8px;padding:9px 12px;background:transparent;color:var(--ink);border:0;text-align:left;border-radius:8px;font-size:13px;line-height:1.4}
+.filter-search-results button:hover,.filter-search-results button.active{background:var(--paper2);color:var(--forest)}
+.filter-empty{padding:10px;font-size:12px;line-height:1.5;color:var(--muted);margin:0}
+.discovery-field .group-select{min-height:43px}
+.progress-areas{display:grid;gap:12px}
+.progress-area-row{border:1px solid var(--line);border-radius:14px;padding:15px;background:var(--paper)}
+.progress-area-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.progress-area-title{flex:1;min-width:190px;display:grid;gap:5px}
+.progress-area-title strong{font-size:14px;line-height:1.35}
+.progress-area-title span,.progress-topic-row small{display:block;color:var(--muted);font-size:11px}
+.topic-score{font-size:15px;font-weight:750;font-variant-numeric:tabular-nums;min-width:40px;text-align:right}
+.topic-score.needs-review{color:var(--danger)}
+.topic-score.needs-practice{color:var(--accent)}
+.topic-score.doing-well{color:var(--ok)}
+.progress-no-data{color:var(--muted);font-size:11px}
+.progress-review{font-size:11px;min-height:38px;white-space:normal}
+.progress-area-track{height:6px;border-radius:99px;background:var(--paper2);margin:13px 0 6px;overflow:hidden}
+.progress-area-track span{display:block;height:100%;background:var(--forest2);border-radius:99px}
+.progress-area-topics{margin-top:10px}
+.progress-area-topics summary{cursor:pointer;font-weight:700;font-size:12px}
+.progress-area-topics>div{display:grid;gap:8px;margin-top:12px}
+.progress-topic-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
+.progress-topic-row>div:first-child{flex:1;min-width:100px}
+.progress-topic-row strong{font-size:12px}
+.progress-legend,.progress-empty{font-size:12px;line-height:1.65;color:var(--muted)}
+.progress-empty{border-left:3px solid var(--forest2);padding:7px 12px;background:var(--paper2)}
+@media(max-width:780px){
+ .mobile-navigation{padding:4px 8px calc(4px + env(safe-area-inset-bottom));justify-content:space-around;gap:2px}
+ .mobile-navigation>button{flex:1;min-width:0;min-height:43px;padding:3px 4px;font-size:9px;gap:2px}
+ .mobile-navigation>button span{font-size:18px}
+ .mobile-navigation>button .ui-icon{width:20px;height:20px}
+ .mobile-more-menu{position:absolute;right:10px;bottom:calc(100% + 8px);display:grid;gap:5px;background:var(--paper);border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.19);border-radius:14px;padding:8px;min-width:176px;max-width:calc(100vw - 20px)}
+ .mobile-more-menu button{width:100%;display:flex;flex-direction:row;justify-content:flex-start;align-items:center;gap:10px;font-size:13px;text-align:left;padding:10px 12px;min-height:44px}
+ .mobile-more-menu button .ui-icon{width:20px;height:20px;flex:none}
+ .progress-topic-row{flex-wrap:wrap}
+ .progress-review{min-width:92px}
+}
