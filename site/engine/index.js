@@ -8,12 +8,15 @@ import { rng, oneOf } from './helpers.js';
 import { templates as bankTemplates } from './templates/bank-derived.js';
 import { templates as advancedTemplates } from './templates/advanced.js';
 import { templates as practiceVariants } from './templates/practice-variants.js';
+import { templates as taxAdvancedTemplates } from './templates/tax-advanced.js';
+import { templates as capitalStructureTemplates } from './templates/capital-structure.js';
+import { templates as dcfAdvancedTemplates } from './templates/dcf-advanced.js';
 import { curriculumFor } from '../data/curriculum.js';
 import { DEFAULT_TAX_POLICY, policyFor } from '../data/tax.js';
 
 /** Public contract. A new task module only exports {templates:[{id,topic,min,build}]}.
  * Register its array below. UI and checking are independent of task families. */
-const plugins = [...valuationTemplates, ...taxTemplates, ...ratioTemplates, ...modelTemplates, ...reasoningTemplates, ...advancedTemplates, ...bankTemplates, ...practiceVariants];
+const plugins = [...valuationTemplates, ...taxTemplates, ...ratioTemplates, ...modelTemplates, ...reasoningTemplates, ...advancedTemplates, ...bankTemplates, ...practiceVariants, ...taxAdvancedTemplates, ...capitalStructureTemplates, ...dcfAdvancedTemplates];
 const allIds = [...OLD_CATALOG.map(t => t.id), ...plugins.map(t => t.id)];
 if (new Set(allIds).size !== allIds.length) throw new Error('Duplicate exercise IDs in registry');
 const byId = new Map(plugins.map(t => [t.id, t]));

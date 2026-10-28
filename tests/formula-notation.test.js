@@ -71,3 +71,10 @@ test('No legend on empty formula text',()=>{
  assert.deepEqual(symbolsForFormula('','pv'),[]);
  assert.equal(symbolLegendMarkup([],escape),'');
 });
+
+test('Iteration 2 distinguishes Ku and debt D in MM and tax shield formulas',()=>{
+ const mm=symbolsForFormula('Re = Ku + (Ku − Rd) × D/E','capital-mm-ii');
+ assert.match(mm.find(x=>x.symbol==='Ku').meaning,/безрычагов|активов/);
+ const shield=symbolsForFormula('PV налогового щита = T × D','capital-debt-tax-benefit');
+ assert.match(shield.find(x=>x.symbol==='D').meaning,/долг/);
+});
