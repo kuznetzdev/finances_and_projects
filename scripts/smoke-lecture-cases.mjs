@@ -32,7 +32,7 @@ try{
  await page.locator('#bank-step-hint').click();
  assert.equal(await page.locator('.case-hint-panel').count(),0);
 
- assert.match(await page.locator('.case-counter').innerText(),/73 разобранных задач/);
+ assert.match(await page.locator('.case-counter').innerText(),/74 разобранных задач/);
  assert.match(await page.locator('.case-condition').innerText(),/500 млн/);
  await page.locator('#bank-answer').fill('150');
  await page.locator('#bank-answer-form button[type="submit"]').click();
