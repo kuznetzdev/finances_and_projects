@@ -292,7 +292,7 @@ function renderProgress() {
  $('#reset-progress').onclick=()=>{if(confirm('Удалить весь личный прогресс в этом браузере?')){stats=baseline();save();renderProgress();refreshProgressSidebar();}};
  $('#export-progress').onclick=()=>{const blob=new Blob([JSON.stringify({version:5,exportedAt:new Date().toISOString(),stats},null,2)],{type:'application/json'});const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='finpraktika-progress.json';a.click();URL.revokeObjectURL(u);};
 }
-$('[data-page]').forEach(b => b.onclick = () => route(b.dataset.page));
+$$('[data-page]').forEach(b => b.onclick = () => route(b.dataset.page));
 $('#mobile-more-toggle').onclick=()=>{
  const menu=$('#mobile-more-menu'),toggle=$('#mobile-more-toggle');
  menu.hidden=!menu.hidden;
