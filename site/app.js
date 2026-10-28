@@ -13,7 +13,7 @@ import { rng, oneOf } from './engine/helpers.js';
 import { shuffle, chooseFresh, recordRecent, newDeck } from './engine/scheduler.js';
 import { STUDY_AREAS } from './data/curriculum.js';
 import {practicePool,choosePracticeLevel} from './features/practice-discovery.js';
-import {bindFilterSearch} from './features/filter-search.js';
+import {bindFilterSearch,buildFilterOptions} from './features/filter-search.js';
 import {recordPracticeResult,progressRows,nextRetry} from './features/progress-breakdown.js';
 import { recordSkip, totalSkipped } from './engine/attempts.js';
 import { buildOperationQuiz, buildConceptQuiz, describeQuizAnswer, explainAlternative } from './engine/quiz-learning.js';
@@ -97,7 +97,8 @@ function storyHtml(value){
  return `<div class="task-story task-story-long">${pairs.map(x=>`<p>${escape(x)}</p>`).join('')}</div>`;
 }
 function pageIntro(label, title, description, number) { return `<section class="page-intro"><div><div class="eyebrow">${escape(label)}</div><h1>${escape(title)}</h1><p>${escape(description)}</p></div><div class="hero-index" aria-hidden="true">${escape(number)}</div></section>`; }
-function render() { $('#content').dataset.page = app.page; refreshProgressSidebar(); if (app.page === 'practice') (app.practiceMode==='bank'?renderBankMode():renderPractice()); else if (app.page === 'quiz') renderQuiz(); else if (app.page === 'cards') renderCards(); else if (app.page === 'glossary') renderGlossary(); else if (app.page === 'paradoxes') renderParadoxes($('#content'),pageIntro); else renderProgress(); }
+let disposePracticeFilters=()=>{};
+function render() { disposePracticeFilters(); disposePracticeFilters=()=>{}; $('#content').dataset.page = app.page; refreshProgressSidebar(); if (app.page === 'practice') (app.practiceMode==='bank'?renderBankMode():renderPractice()); else if (app.page === 'quiz') renderQuiz(); else if (app.page === 'cards') renderCards(); else if (app.page === 'glossary') renderGlossary(); else if (app.page === 'paradoxes') renderParadoxes($('#content'),pageIntro); else renderProgress(); }
 function practiceTabs() { return `<div class="practice-mode-tabs" role="group" aria-label="Режим решения"><button type="button" data-practice-mode="generator" class="${app.practiceMode==='generator'?'active':''}" aria-pressed="${app.practiceMode==='generator'}">Генератор задач</button><button type="button" data-practice-mode="bank" class="${app.practiceMode==='bank'?'active':''}" aria-pressed="${app.practiceMode==='bank'}">Банк задач · ${CASE_BANK.length} кейсов</button></div>`; }
 // The case book replaces #content.innerHTML after each internal action. Only #content
 // survives all renders, so practice mode changes MUST be delegated to that root.
@@ -112,7 +113,23 @@ function changePracticeMode(next) {
  $('#content [data-practice-mode="'+next+'"]')?.focus({preventScroll:true});
 }
 function renderBankMode() { setupCasebook({root:$('#content'),stats,save,notice,escape,intro:pageIntro,tabs:practiceTabs,initialId:fromURL('case',null)}); }
+function filterPickerMarkup(id,label,items,selected){
+ const current=items.find(x=>x.id===selected)||items[0];
+ return `<div class="discovery-field">
+  <span class="filter-picker-label" id="${id}-filter-label">${escape(label)}</span>
+  <div class="embedded-filter" id="${id}-picker" data-selected="${escape(current.id)}">
+   <button type="button" class="filter-trigger" id="${id}-filter" aria-labelledby="${id}-filter-label ${id}-filter-current" aria-haspopup="listbox" aria-expanded="false" aria-controls="${id}-filter-panel"><span class="filter-trigger-copy" id="${id}-filter-current">${escape(current.name)}</span>${uiIcon('chevron')}</button>
+   <div class="filter-popover" id="${id}-filter-panel" hidden>
+    <div class="filter-search-header"><input type="search" id="${id}-search" class="filter-search-input" autocomplete="off" spellcheck="false" placeholder="Название, CAPM, CFF, FCFF…" role="combobox" aria-haspopup="listbox" aria-autocomplete="list" aria-expanded="false" aria-controls="${id}-search-results" aria-label="Поиск: ${escape(label)}">
+      <span class="filter-search-status" data-filter-status aria-live="polite"></span></div>
+    <div class="filter-search-results" id="${id}-search-results" role="listbox" aria-label="Варианты: ${escape(label)}"></div>
+    <div class="filter-search-tip">До 3 символов показываются все варианты. Для выбора можно прокручивать список или использовать стрелки и Enter.</div>
+   </div>
+  </div>
+ </div>`;
+}
 function renderPractice() {  
+disposePracticeFilters();disposePracticeFilters=()=>{};
 if (!app.exercise) ensureExercise(); syncExerciseUrl(); const e = app.exercise, t = TOPICS.find(x => x.id === e.topic), total = stats.total ? Math.round(stats.correct / stats.total * 100) : 0;
   const guided = e.questions.length >= 4;
   const fields = e.questions.map((q, i) => {
@@ -125,8 +142,8 @@ if (!app.exercise) ensureExercise(); syncExerciseUrl(); const e = app.exercise, 
  <section class="control-strip practice-discovery" aria-label="Подбор задач">
   <div class="discovery-heading"><div><h2>Выберите задачу</h2><p>Настройте тему и сложность или откройте конкретное задание из каталога.</p></div><button type="button" class="button primary random-exercise" id="random-exercise" title="Случайная задача из выбранных тем и уровней">${uiIcon('shuffle')} <span>Случайная задача</span></button></div>
   <div class="discovery-selectors">
-   <div class="discovery-field"><label for="area-filter">1. Направление</label><div class="filter-search-wrap"><input type="search" id="area-search" class="filter-search-input" placeholder="Поиск направления: от 3 букв" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="area-search-results" aria-label="Найти направление"><div id="area-search-results" class="filter-search-results" role="listbox" hidden></div></div><select id="area-filter" class="group-select" aria-label="Выбрать направление из списка">${STUDY_AREAS.map(a=>`<option value="${a.id}" ${a.id===app.area?'selected':''}>${escape(a.name)} (${practicePool(TEMPLATE_CATALOG,{area:a.id,topic:app.topic,level:app.levelFilter}).length})</option>`).join('')}</select></div>
-   <div class="discovery-field"><label for="topic-filter">2. Тема</label><div class="filter-search-wrap"><input type="search" id="topic-search" class="filter-search-input" placeholder="Поиск темы: от 3 букв" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="topic-search-results" aria-label="Найти тему"><div id="topic-search-results" class="filter-search-results" role="listbox" hidden></div></div><select id="topic-filter" class="group-select" aria-label="Выбрать тему из списка">${TOPICS.map(t=>`<option value="${t.id}" ${t.id===app.topic?'selected':''}>${escape(t.name)} (${practicePool(TEMPLATE_CATALOG,{area:app.area,topic:t.id,level:app.levelFilter}).length})</option>`).join('')}</select></div>
+   ${filterPickerMarkup('area','1. Направление',STUDY_AREAS,app.area)}
+   ${filterPickerMarkup('topic','2. Тема',TOPICS,app.topic)}
    <label class="discovery-field"><span>3. Сложность</span><select id="level-filter" class="group-select"><option value="all" ${app.levelFilter==='all'?'selected':''}>Все уровни (1–4)</option>${LEVELS.map(l=>`<option value="${l.id}" ${String(l.id)===app.levelFilter?'selected':''}>До уровня ${l.id} · ${escape(l.title)}</option>`).join('')}</select></label>
   </div>
   <div class="discovery-bottom"><span class="discovery-count" aria-live="polite">Доступно ${availableTemplates().length} из ${TEMPLATE_CATALOG.length} типов задач</span><button type="button" class="button secondary" id="reset-practice-filters">Сбросить фильтры</button></div>
@@ -135,12 +152,19 @@ if (!app.exercise) ensureExercise(); syncExerciseUrl(); const e = app.exercise, 
  <section class="workspace"><div class="task-paper"><div class="task-header" tabindex="-1"><div class="task-topline"><span class="task-kicker">ЗАДАНИЕ · ${escape(t?.short || 'ФИНАНСЫ')}</span><span class="task-serial">#${String(app.seed).slice(-6).padStart(6, '0')}</span></div><h2>${escape(e.title)}</h2><div class="task-meta"><span>Уровень ${app.level}</span><i></i><span>${e.questions.length} ${e.questions.length === 1 ? 'вопрос' : e.questions.length < 5 ? 'вопроса' : 'вопросов'}</span><i></i><span>${escape(e.skill || 'Финансы')}</span></div></div><form id="exercise-form" class="task-body">${storyHtml(e.story)}<div class="sub-heading">ВАШЕ РЕШЕНИЕ</div>${guided ? `<div class="guided-head" id="guided-head"><div><strong id="guided-title">Этап 1 из ${e.questions.length}</strong><span id="guided-detail">Ответы сохраняются при переходе между этапами</span></div><button type="button" class="guided-toggle" id="show-all-steps">Показать все этапы</button></div><div class="guided-track" id="guided-track" aria-hidden="true"><span id="guided-progress"></span></div>` : ''}<div class="fields">${fields}</div><div id="exercise-result" aria-live="polite"></div><div id="hint-place"></div><div id="solution-place"></div><div class="action-row task-actions" role="group" aria-label="Действия с задачей"><div class="task-actions-aux"><button type="button" class="button ghost" id="hint-btn" aria-expanded="${app.hint}">${uiIcon('bulb')} Подсказка</button><button type="button" class="button ghost" id="share-btn">${uiIcon('share')} Поделиться</button></div><div class="task-actions-main">${guided ? `<div class="guided-nav" id="guided-nav"><button type="button" class="button secondary" id="step-prev">← Назад</button><button type="button" class="button secondary" id="step-next">Далее →</button></div>` : ''}<button type="button" class="button secondary" id="skip-task">Пропустить</button><button type="submit" class="button primary" id="check-btn">Проверить →</button></div></div></form><div class="task-source">ТЕМА: ${escape(e.areaName || 'Финансы')} · МАТЕРИАЛ: ${escape(e.source || 'Учебные материалы')} ${e.taxPolicy ? '· ставки по ' + escape(e.taxPolicy) : ''}</div></div>
  <aside class="assist-column"><div class="assist-card"><h3>ТОЧНОСТЬ РЕШЕНИЙ</h3><div class="assist-stat">${total}%</div><div class="assist-copy">Доля правильных ответов за всё время</div><div class="progress-track"><span style="width:${total}%"></span></div></div><div class="assist-card"><h3>ТВОЯ СТАТИСТИКА</h3><div class="assist-list"><div>Задач решено <b>${stats.solved}</b></div><div>Без ошибок <b>${stats.perfect}</b></div><div>Серия <b>${stats.streak}</b></div><div>На повторение <b>${stats.retry.length}</b></div></div></div><div class="assist-card assist-note"><h3>КАК РЕШАТЬ</h3><p>Проверь условие, выбери формулу и введи ответы. Пояснение можно открыть после проверки.</p></div></aside></section>`;
   $('#content').querySelector('.control-strip').insertAdjacentHTML('beforebegin',practiceTabs());
-  const areaSearchOptions=STUDY_AREAS.map(a=>({...a,keywords:TEMPLATE_CATALOG.filter(t=>t.area===a.id).map(t=>t.skill).filter(Boolean)}));
-  const topicSearchOptions=TOPICS.map(t=>({...t,keywords:TEMPLATE_CATALOG.filter(x=>x.topic===t.id).map(x=>x.skill).filter(Boolean)}));
-  bindFilterSearch({input:$('#area-search'),results:$('#area-search-results'),options:areaSearchOptions,escape,onPick:id=>{$('#area-filter').value=id;$('#area-filter').dispatchEvent(new Event('change',{bubbles:true}));}});
-  bindFilterSearch({input:$('#topic-search'),results:$('#topic-search-results'),options:topicSearchOptions,escape,onPick:id=>{$('#topic-filter').value=id;$('#topic-filter').dispatchEvent(new Event('change',{bubbles:true}));}});
-  $('#area-filter').onchange=ev=>{app.area=ev.target.value;if(!practicePool(TEMPLATE_CATALOG,{area:app.area,topic:app.topic,level:app.levelFilter}).length)app.topic='all';app.templateId=null;nextExercise();};
-  $('#topic-filter').onchange=ev=>{app.topic=ev.target.value;if(!practicePool(TEMPLATE_CATALOG,{area:app.area,topic:app.topic,level:app.levelFilter}).length)app.area='all';app.templateId=null;nextExercise();};
+  const areaOptions=buildFilterOptions(STUDY_AREAS,TEMPLATE_CATALOG,'area',{topic:app.topic,level:app.levelFilter});
+  const topicOptions=buildFilterOptions(TOPICS,TEMPLATE_CATALOG,'topic',{area:app.area,level:app.levelFilter});
+  const areaPicker=bindFilterSearch({root:$('#area-picker'),trigger:$('#area-filter'),panel:$('#area-filter-panel'),input:$('#area-search'),list:$('#area-search-results'),options:areaOptions,escape,onPick:id=>{
+    app.area=id;
+    if(!practicePool(TEMPLATE_CATALOG,{area:app.area,topic:app.topic,level:app.levelFilter}).length)app.topic='all';
+    app.templateId=null;nextExercise();
+  }});
+  const topicPicker=bindFilterSearch({root:$('#topic-picker'),trigger:$('#topic-filter'),panel:$('#topic-filter-panel'),input:$('#topic-search'),list:$('#topic-search-results'),options:topicOptions,escape,onPick:id=>{
+    app.topic=id;
+    if(!practicePool(TEMPLATE_CATALOG,{area:app.area,topic:app.topic,level:app.levelFilter}).length)app.area='all';
+    app.templateId=null;nextExercise();
+  }});
+  disposePracticeFilters=()=>{areaPicker.dispose();topicPicker.dispose();};
   $('#level-filter').onchange=ev=>{app.levelFilter=ev.target.value;app.templateId=null;nextExercise();};
   $('#random-exercise').onclick=()=>{nextExercise();focusTaskHeader();};
   $('#reset-practice-filters').onclick=()=>{app.area='all';app.topic='all';app.levelFilter='all';nextExercise();};
