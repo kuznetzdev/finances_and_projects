@@ -88,6 +88,45 @@ export function validateDcfAudit(ex){
  }
  return errors;
 }
+/** Domain invariants are intentionally explicit: negative NPV or CFO is not globally invalid. */
+export function validateBusinessAudit(ex){
+ const id=ex?.templateId??'',v=ex?.audit;
+ if(!id.startsWith('capital-')&&!id.startsWith('tax-'))return [];
+ if(!v||typeof v!=='object')return [issue('FINANCE_IDENTITY',id+' audit missing')];
+ const errors=[];
+ const verify=(condition,message)=>{if(!condition)errors.push(issue('FINANCE_IDENTITY',id+': '+message));};
+ switch(id){
+  case 'capital-financing-match':
+   verify(close(v.lta+v.permanentWC+v.seasonalWC,v.totalAssets)&&close(v.longTerm+v.shortTerm,v.totalAssets),'sources ≠ assets');break;
+  case 'capital-roa-debt-roe':
+   verify(v.roes?.length===v.debtShares?.length&&v.debtShares.every((d,i)=>d>=0&&d<1&&close(v.roes[i],(v.roa*v.assets-v.kd*v.assets*d)*(1-v.tax)/(v.assets*(1-d))*100)),'ROE from operating profit');break;
+  case 'capital-wacc-dynamic':
+   verify(v.shares?.length===v.re?.length&&v.re.length===v.rd?.length&&v.rd.length===v.wacc?.length&&v.shares.every((d,i)=>d>=0&&d<=1&&close(v.wacc[i],((1-d)*v.re[i]+d*v.rd[i]*(1-v.tax))*100)),'WACC weights and tax');break;
+  case 'capital-mm-tax':
+   verify(close(v.unlevered,v.ebit*(1-v.tax)/v.ku)&&close(v.taxShield,v.debt*v.tax)&&close(v.levered,v.unlevered+v.taxShield),'MM with tax');break;
+  case 'capital-tradeoff':
+   verify(v.debts?.length===v.distressCosts?.length&&v.debts.length===v.values?.length&&v.debts.every((d,i)=>close(v.values[i],v.unlevered+v.tax*d-v.distressCosts[i])),'cost of distress');break;
+  case 'capital-pecking-order':
+   verify(close(v.internal+v.debt+v.equityIssue,v.need)&&v.internal<=v.cash&&v.debt<=v.debtCapacity&&v.equityIssue>=0,'financing identity');break;
+  case 'capital-waterfall':{
+   let remain=v.proceeds,ok=Array.isArray(v.claims)&&v.claims.length===v.paid?.length&&v.proceeds>=0;
+   if(ok)for(let i=0;i<v.claims.length;i++){let amount=Math.min(v.claims[i],remain);ok=ok&&close(v.paid[i],amount);remain-=amount;}
+   verify(ok&&close(remain,v.common)&&close(sum(v.paid)+v.common,v.proceeds),'capital waterfall payouts');break;
+  }
+  case 'tax-depreciation-method-comparison':
+   verify(['linear','declining','sumYears'].every(k=>Array.isArray(v[k])&&v[k].length===v.life&&v[k].every(d=>d>=0)&&close(sum(v[k]),v.cost)),'depreciation schedules');break;
+  case 'tax-temporary-differences':
+   verify(close(v.taxable,v.bookProfit+v.bookDep-v.taxDep)&&close(v.currentTax,v.taxable*v.tax)&&close(v.dtl,(v.taxDep-v.bookDep)*v.tax),'tax bridge');break;
+  case 'tax-payments-schedule':
+   verify(v.accrued?.length===4&&v.paid?.length===4&&close(sum(v.accrued)-sum(v.paid),v.endPayable)&&v.paid.every((p,i)=>close(p,i?v.accrued[i-1]:0)),'tax calendar');break;
+  case 'tax-loss-carryforward':
+   verify(v.taxable?.length===3&&v.profits?.length===3&&v.used?.length===3&&
+    v.used.every((a,i)=>a>=0&&close(a+v.taxable[i],v.profits[i]))&&
+    close(v.totalTax,sum(v.taxable)*v.tax)&&close(v.initialLoss-sum(v.used),v.endLoss),'loss carryforward');break;
+ }
+ return errors;
+}
+
 function walk(folder){
  if(!existsSync(folder))return [];
  return readdirSync(folder,{withFileTypes:true}).flatMap(x=>x.isDirectory()?walk(path.join(folder,x.name)):[path.join(folder,x.name)]);
@@ -122,7 +161,11 @@ export function preflight({seeds=24}={}){
     try{
      const ex=generateExercise(args);
      output.checkedExercises++;
-     const issues=[...validateExercise(ex),...validateDcfAudit(ex)];
+     const issues=[...validateExercise(ex),...validateDcfAudit(ex),...validateBusinessAudit(ex)];
+     if(seed===1){
+      const repeated=generateExercise(args);
+      if(JSON.stringify(ex)!==JSON.stringify(repeated))errors.push(issue('NON_DETERMINISTIC',t.id+' does not reproduce seed=1'));
+     }
      errors.push(...issues.map(x=>issue(x.code,t.id+' seed='+seed+' level='+level+': '+x.message)));
      for(const q of ex.questions||[]){
       if(q.type==='number'&&finite(q.answer)&&!checkAnswer(q,String(q.answer).replace('.',',')))
