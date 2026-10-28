@@ -2,8 +2,17 @@
 import {fmt as F,randomInt as I,oneOf as O,num as q,exercise as E} from '../helpers.js';
 const money=x=>F(x,2)+' млн ₽', pct=x=>F(x*100,2)+'%';
 const pv=(values,r,mid=false)=>values.reduce((s,x,i)=>s+x/(1+r)**(i+(mid?.5:1)),0);
+const FORMULAS={
+ 'dcf-fcff-ebitda-tax':'FCFF = EBIT × (1 − T) + D&A − CAPEX − ΔNWC',
+ 'dcf-fcfe-equity':'FCFE = FCFF − Проценты × (1 − T) + Чистое привлечение долга',
+ 'dcf-two-stage':'EV = Σ[t=1..n] FCFF_t / (1+WACC)^t + TV_n / (1+WACC)^n',
+ 'dcf-terminal-exit':'TV_n = EBITDA_n × EV/EBITDA_exit',
+ 'dcf-midyear':'PV = Σ[t=1..n] FCFF_t / (1+WACC)^(t−0,5)',
+ 'dcf-sensitivity':'EV = FCFF_0 × (1+g) / (WACC−g)',
+ 'dcf-income-capitalization':'EV = FCFF_1 / (WACC−g)'
+};
 const build=(self,l,title,story,questions,hint,steps,audit)=>({
- ...E(self.id,self.topic,title,story,questions,hint,steps,'МФТИ Лекция 5 «Введение в оценку DCF» (2026); оценка доходным подходом',l),audit
+ formula:FORMULAS[self.id], ...E(self.id,self.topic,title,story,questions,hint,steps,'МФТИ Лекция 5 «Введение в оценку DCF» (2026); оценка доходным подходом',l),audit
 });
 export const templates=[
  {id:'dcf-fcff-ebitda-tax',topic:'valuation',min:2,build(r,l,{tax}){
