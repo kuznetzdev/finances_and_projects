@@ -42,6 +42,7 @@ export function bindFilterSearch({input,results,options,onPick,minChars=3,escape
   if(ev.key==='ArrowDown'||ev.key==='ArrowUp'){ev.preventDefault();active=(active+(ev.key==='ArrowDown'?1:-1)+matches.length)%matches.length;highlight();}
   else if(ev.key==='Enter'&&active>=0){ev.preventDefault();choose(active);}
  });
+ results.addEventListener('pointerdown',ev=>{if(ev.target.closest?.('[data-option-id]'))ev.preventDefault();});
  results.addEventListener('click',ev=>{
   const button=ev.target.closest?.('[data-option-id]');
   if(!button)return;
