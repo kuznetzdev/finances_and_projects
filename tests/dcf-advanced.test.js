@@ -25,9 +25,16 @@ test('Independent DCF reconciliation for 200 seeds per template',()=>{
    close(v.fcff,v.ebit*(1-v.tax)+v.da-v.capex-v.nwc,'FCFF');
    close(get(e,'fcff'),v.fcff,'FCFF answer');
   }else if(template.id==='dcf-fcfe-equity'){
+   close(v.netBorrowing,0,'perpetual fixed debt cannot grow or amortize');
+   assert.ok(v.debt>0 && v.kd>0 && v.interest>0,'debt and rate are positive');
+   close(v.interest,v.debt*v.kd,'debt interest schedule');
    close(v.fcfe,v.fcff-v.interest*(1-v.tax)+v.netBorrowing,'FCFE');
    close(v.equity,v.fcfe/v.ke,'equity perpetuity');
+   close(v.ev,v.equity+v.debt,'enterprise-equity bridge');
+   close(v.wacc,(v.equity*v.ke+v.debt*v.kd*(1-v.tax))/v.ev,'derived WACC');
+   close(v.ev,v.fcff/v.wacc,'FCFF/FCFE reconciliation');
    close(get(e,'equity'),v.equity,'equity answer');
+   close(get(e,'implied-wacc'),v.wacc*100,'WACC answer in percent');
   }else if(template.id==='dcf-two-stage'){
    const pv=v.fcffs.reduce((s,cf,i)=>s+cf/(1+v.wacc)**(i+1),0);
    close(v.tv,v.fcffs.at(-1)*(1+v.g)/(v.wacc-v.g),'terminal');
