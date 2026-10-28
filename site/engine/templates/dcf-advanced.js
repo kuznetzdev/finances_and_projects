@@ -30,20 +30,23 @@ export const templates=[
    {ebitda,da,ebit,capex,nwc,tax:t,fcff,wacc,g});
  }},
  {id:'dcf-fcfe-equity',topic:'valuation',min:3,build(r,l,{tax}){
-  const t=tax.profitRate,fcff=I(r,10,19)*10,interest=I(r,1,4)*10,netBorrowing=I(r,-2,2)*10;
-  const ke=O(r,[.14,.16,.18]),fcfe=fcff-interest*(1-t)+netBorrowing;
-  // Constant FCFE perpetuity is a standalone equity cash-flow assumption, not a derived capital-structure optimization.
-  const equity=fcfe/ke,wacc=.11,g=0;
+  // A perpetuity with stable interest must have a constant debt principal and zero net borrowing.
+  const t=tax.profitRate,fcff=I(r,10,19)*10,debt=I(r,2,5)*100,kd=O(r,[.07,.08,.09]);
+  const interest=debt*kd,netBorrowing=0,ke=O(r,[.14,.16,.18]);
+  const fcfe=fcff-interest*(1-t),equity=fcfe/ke,ev=equity+debt;
+  const wacc=(equity*ke+debt*kd*(1-t))/ev,g=0;
   const questions=[q('interest-net','Процентные платежи после налога',interest*(1-t)),
    q('fcfe','FCFE, доступный акционерам',fcfe),q('equity','Equity Value при допущении о бессрочном неизменном FCFE',equity),
-   q('net-new-debt','Чистое привлечение долга (отрицательное при погашении)',netBorrowing)];
+   q('net-new-debt','Чистое привлечение долга (постоянная сумма долга)',netBorrowing),
+   q('implied-wacc','Согласованная ставка WACC по рыночным весам',wacc*100,'%')];
   return build(this,l,'Оценка собственного капитала через FCFE',
-   'Для отдельной упрощённой модели собственного капитала свободный поток компании FCFF в ближайшем году '+money(fcff)+'. Годовые процентные платежи '+money(interest)+', налог '+pct(t)+' и все проценты полностью уменьшают налогооблагаемую прибыль. Чистое привлечение долга (новые займы минус погашение основного долга) '+money(netBorrowing)+'. Для расчёта условно принимается, что FCFE после этих корректировок остаётся постоянным ежегодно бессрочно и выплачивается в конце года. Требуемая доходность собственного капитала Ke '+pct(ke)+', рост 0%, ограничений по распределению нет. Нельзя дисконтировать FCFE по WACC; WACC '+pct(wacc)+' здесь указан лишь для сравнения метода.',
-   questions,'Найдите поток акционерам вычитанием посленалоговых процентов из FCFF и прибавлением чистого привлечения долга. Дисконтируйте именно по Ke, а не WACC. Отрицательное чистое привлечение означает погашение.',
+   'Для отдельной упрощённой модели собственного капитала свободный поток компании FCFF в ближайшем году '+money(fcff)+'. Компания финансируется постоянным бессрочным долгом '+money(debt)+' под '+pct(kd)+' годовых. Процентные платежи '+money(interest)+' в год, налог '+pct(t)+' и все проценты полностью уменьшают налогооблагаемую прибыль. Компания не берёт новых займов и не погашает основную сумму долга; чистое привлечение долга всегда '+money(netBorrowing)+'. Для расчёта принимается, что FCFF и FCFE после этих корректировок остаются постоянными ежегодно бессрочно и выплачиваются в конце года. Требуемая доходность собственного капитала Ke '+pct(ke)+', рост 0%, ограничений по распределению нет. WACC рассчитывается из рыночных стоимостей E и D, а не задаётся произвольно; FCFE дисконтируется по Ke.',
+   questions,'Найдите поток акционерам вычитанием посленалоговых процентов из FCFF и прибавлением чистого привлечения долга. Дисконтируйте FCFE именно по Ke, а не WACC. Долг неизменен, поэтому чистое привлечение равно нулю. Из Equity и D восстановите EV и рыночные веса для WACC.',
    ['Проценты после налога = '+money(interest*(1-t))+'.','FCFE = FCFF − проценты × (1 − T) + чистое привлечение долга = '+money(fcfe)+'.',
     'Для постоянного ежегодного FCFE при нулевом росте Equity Value = FCFE / Ke = '+money(equity)+'.',
-    'Это отдельная иллюстрация FCFE. Стационарность потока уже принята в условии, а не доказана из его одногодовых компонентов.'],
-   {tax:t,fcff,interest,netBorrowing,fcfe,ke,equity,wacc,g});
+    'EV = Equity + D = '+money(ev)+'. WACC = E/EV × Ke + D/EV × Kd × (1 − T) = '+pct(wacc)+'. Проверка FCFF / WACC = '+money(fcff/wacc)+' = EV.',
+    'В этой учебной модели бессрочный долг остаётся постоянным, проценты не меняются, чистое привлечение равно нулю, а налоговая экономия используется полностью.'],
+   {tax:t,fcff,debt,kd,interest,netBorrowing,fcfe,ke,equity,ev,wacc,g});
  }},
  {id:'dcf-two-stage',topic:'valuation',min:3,build(r,l){
   const years=O(r,[3,4,5]),first=I(r,8,18)*10,growth=O(r,[.06,.08,.1]),wacc=O(r,[.12,.14,.16]),g=O(r,[.02,.03]);
