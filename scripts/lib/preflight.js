@@ -205,6 +205,14 @@ export function preflight({seeds=24}={}){
  }
  const assets=validateAssets();
  errors.push(...assets.errors);output.checkedFiles=assets.checkedFiles;
- // Warn about samples rather than guessing an accounting invariant from a label.
+ // Group repetitive seed warnings by template and code so the report stays actionable.
+ const warningGroups=new Map();
+ for(const w of warnings){
+  const match=w.message.match(/^([a-z0-9-]+) seed=/);
+  const key=w.code+'|'+(match?.[1]??w.message);
+  if(!warningGroups.has(key))warningGroups.set(key,{...w,occurrences:0});
+  warningGroups.get(key).occurrences++;
+ }
+ output.warnings=[...warningGroups.values()].map(w=>({...w,message:w.message+' (появлений: '+w.occurrences+')'}));
  return output;
 }
