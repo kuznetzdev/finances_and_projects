@@ -42,9 +42,13 @@ function syncPageNavigation(page) {
  });
  const labels={practice:'ЗАДАЧИ',quiz:'ТЕСТЫ',cards:'КАРТОЧКИ',paradoxes:'ПАРАДОКСЫ',glossary:'СЛОВАРЬ',progress:'ПРОГРЕСС'};
  $('#page-crumb').textContent=labels[page]||'ЗАДАЧИ';
+ $('#mobile-more-toggle')?.classList.toggle('selected',page==='cards'||page==='paradoxes');
 }
 function route(page) {
  if(page!=='paradoxes')resetParadoxesView();
+ const moreMenu=$('#mobile-more-menu'),moreToggle=$('#mobile-more-toggle');
+ if(moreMenu)moreMenu.hidden=true;
+ if(moreToggle)moreToggle.setAttribute('aria-expanded','false');
  app.page=page;
  syncPageNavigation(page);
  const u=new URL(location.href);
@@ -288,7 +292,15 @@ function renderProgress() {
  $('#reset-progress').onclick=()=>{if(confirm('Удалить весь личный прогресс в этом браузере?')){stats=baseline();save();renderProgress();refreshProgressSidebar();}};
  $('#export-progress').onclick=()=>{const blob=new Blob([JSON.stringify({version:5,exportedAt:new Date().toISOString(),stats},null,2)],{type:'application/json'});const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='finpraktika-progress.json';a.click();URL.revokeObjectURL(u);};
 }
-$$('[data-page]').forEach(b => b.onclick = () => route(b.dataset.page));
+$('[data-page]').forEach(b => b.onclick = () => route(b.dataset.page));
+$('#mobile-more-toggle').onclick=()=>{
+ const menu=$('#mobile-more-menu'),toggle=$('#mobile-more-toggle');
+ menu.hidden=!menu.hidden;
+ toggle.setAttribute('aria-expanded',String(!menu.hidden));
+ if(!menu.hidden)menu.querySelector('button')?.focus({preventScroll:true});
+};
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&!$('#mobile-more-menu').hidden){$('#mobile-more-menu').hidden=true;$('#mobile-more-toggle').setAttribute('aria-expanded','false');$('#mobile-more-toggle').focus();}});
+
 try { document.documentElement.dataset.theme = localStorage.getItem(THEME) === 'dark' ? 'dark' : 'light'; } catch { }
 $('#theme-toggle').onclick = () => { const mode = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = mode; try { localStorage.setItem(THEME, mode); } catch { } };
 // Register once on the stable container, never on replaceable tab elements.
