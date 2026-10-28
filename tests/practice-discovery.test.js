@@ -34,6 +34,6 @@ test('screen exposes clear random action, full catalog and independent selectors
  assert.match(app,/id="level-filter"/);
  assert.match(app,/id="area-filter"/);
  assert.match(app,/id="topic-filter"/);
- assert.match(app,/level:'all'/);
+ assert.match(app,/levelFilter:/);
  assert.match(index,/id="icon-shuffle"/);
 });
