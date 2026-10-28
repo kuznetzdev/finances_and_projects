@@ -5,7 +5,7 @@ import {formulaMarkup} from '../site/features/math-ui.js';
 import {generateExercise,TEMPLATE_CATALOG} from '../site/engine/index.js';
 const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 test('Preflight catches broken answers, duplicated keys, invalid choices and nonfinite values',()=>{
- const good={templateId:'sample',story:'Дано корректное описание проектной задачи с исходными данными.',questions:[{key:'v',label:'Выручка предприятия',answer:100,type:'number',unit:'млн ₽',tolerance:.02}],explanation:['Первый шаг','Второй шаг'],hint:'Сопоставьте данные',source:'Учебная задача'};
+ const good={templateId:'sample',title:'Тестовая задача с корректным ответом',story:'Дано корректное описание проектной задачи с исходными данными.',questions:[{key:'v',label:'Выручка предприятия',answer:100,type:'number',unit:'млн ₽',tolerance:.02}],explanation:['Первый шаг','Второй шаг'],hint:'Сопоставьте данные',source:'Учебная задача'};
  assert.deepEqual(validateExercise(good),[]);
  const broken={...good,questions:[{...good.questions[0],answer:NaN},{...good.questions[0]},{key:'k',label:'Выбор',type:'choice',answer:'Нет',choices:['Да','Да']}]};
  const codes=validateExercise(broken).map(x=>x.code);
