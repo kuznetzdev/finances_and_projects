@@ -27,7 +27,9 @@ test('the full generator catalog produces deterministic, verifiable and coherent
  assert.ok(variable>=Math.floor(TEMPLATE_CATALOG.length*.7),'too many static generators: '+variable);
 });
 test('seeded PRNG and integer picker cover endpoints without skew or off-by-one',()=>{
- assert.deepEqual(Array.from({length:20},(_,i)=>rng(7)()),Array.from({length:20},(_,i)=>rng(7)()));
+ const streamA=rng(7),streamB=rng(7),streamC=rng(8);
+ const seqA=Array.from({length:20},()=>streamA()),seqB=Array.from({length:20},()=>streamB()),seqC=Array.from({length:20},()=>streamC());
+ assert.deepEqual(seqA,seqB);assert.notDeepEqual(seqA,seqC);
  const r=rng(987654321),counts=Array(6).fill(0);
  for(let i=0;i<12000;i++){const x=randomInt(r,1,6);assert.ok(x>=1&&x<=6);counts[x-1]++;}
  assert.ok(counts.every(x=>x>1750&&x<2250),JSON.stringify(counts));
