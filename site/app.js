@@ -12,6 +12,7 @@ import { DEFAULT_TAX_POLICY } from './data/tax.js';
 import { rng, oneOf } from './engine/helpers.js';
 import { shuffle, chooseFresh, recordRecent, newDeck } from './engine/scheduler.js';
 import { STUDY_AREAS } from './data/curriculum.js';
+import {practicePool,choosePracticeLevel} from './features/practice-discovery.js';
 import { recordSkip, totalSkipped } from './engine/attempts.js';
 import { buildOperationQuiz, buildConceptQuiz, describeQuizAnswer, explainAlternative } from './engine/quiz-learning.js';
 import { abbreviationFor, abbreviationsIn } from './data/abbreviations.js';
