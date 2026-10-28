@@ -10,7 +10,7 @@ const ids=['capital-financing-match','capital-roa-debt-roe','capital-wacc-dynami
 
 test('Iteration 2 registers seven separate templates for deals, financing and risks',()=>{
  assert.deepEqual(templates.map(t=>t.id),ids);
- assert.equal(TEMPLATE_CATALOG.length,115);
+ assert.equal(TEMPLATE_CATALOG.length,122);
  for(let t of templates){let item=TEMPLATE_CATALOG.find(x=>x.id===t.id);assert.equal(item.area,'deals');assert.ok(item.skill);assert.ok(item.min>=2&&item.min<=4);}
 });
 
@@ -72,7 +72,7 @@ test('Seven capital generators use reproducible numbers and independent financia
 });
 
 test('Five independent cases supplement B13 and retain original source bank untouched',()=>{
- assert.equal(CASE_BANK.length,73);
+ assert.equal(CASE_BANK.length,74);
  for(let id of ['B02','B03','B04','B05','B14']){
   let c=CASE_BY_ID.get(id);assert.ok(c,id);
   assert.ok(c.conditionHtml.length>280,id);
@@ -89,7 +89,7 @@ test('Five independent cases supplement B13 and retain original source bank unto
 
 test('Fifteen unique capital-structure concepts extend the glossary',()=>{
  const ids=['capital-conservative-policy','capital-moderate-policy','capital-aggressive-policy','capital-maturity-matching','capital-target-structure','capital-mm-i','capital-mm-ii','capital-tradeoff-theory','capital-pecking-order','distress-direct-costs','distress-indirect-costs','capital-debt-tax-benefit','capital-cash-waterfall','capital-financing-deficit','capital-refinancing-risk'];
- assert.equal(CONCEPTS.length,231);
+ assert.equal(CONCEPTS.length,236);
  for(let id of ids){
   let matches=CONCEPTS.filter(v=>v.id===id);
   assert.equal(matches.length,1,id);assert.ok(matches[0].definition.length>=65,id);

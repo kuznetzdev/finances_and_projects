@@ -9,6 +9,13 @@ export const STUDY_AREAS=[
   {id:'taxes',name:'Налоги и налоговый учёт',short:'Налоги'}
 ];
 const explicit={
+ 'dcf-fcff-ebitda-tax':['value','FCFF из EBITDA и реинвестиций'],
+ 'dcf-fcfe-equity':['value','FCFE и оценка собственного капитала'],
+ 'dcf-two-stage':['value','Двухэтапная модель DCF'],
+ 'dcf-terminal-exit':['value','Терминал по мультипликатору выхода'],
+ 'dcf-midyear':['value','DCF с дисконтом на середину года'],
+ 'dcf-sensitivity':['value','Чувствительность WACC и роста'],
+ 'dcf-income-capitalization':['value','Капитализация стабильного дохода'],
  'capital-financing-match':['deals','Политика финансирования и соответствие сроков'],
  'capital-roa-debt-roe':['deals','Эффект финансового рычага: ROA, Kd, ROE'],
  'capital-wacc-dynamic':['deals','Оптимизация WACC при растущем риске'],

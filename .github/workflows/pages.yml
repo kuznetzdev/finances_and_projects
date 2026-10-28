@@ -26,6 +26,24 @@ jobs:
           node-version: '22'
       - name: Run all tests
         run: npm test
+      - name: Validate content and financial identities before deployment
+        run: npm run preflight
+      - name: Install browser test harness
+        run: npm install --no-save playwright-core@1.56.0
+      - name: Desktop/mobile browser checks
+        run: |
+          node scripts/smoke-paradoxes.mjs
+          node scripts/smoke-visual.mjs
+          node scripts/smoke-lecture-cases.mjs
+      - name: Attach preflight report and visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: predeploy-validation-evidence
+          path: |
+            artifacts/preflight-report.json
+            artifacts/*.png
+          if-no-files-found: ignore
 
   deploy:
     needs: test

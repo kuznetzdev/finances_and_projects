@@ -96,3 +96,17 @@
 | Приоритеты требований | `capital-waterfall` | B05 |
 
 B04 содержит подтверждённые исторические сведения SEC и U.S. Treasury. У всех новых задач явно указаны допущения. Подробный документ: [ITERATION_2.md](ITERATION_2.md).
+
+## Итерация 3. Доходный подход и углублённый DCF
+
+| Содержание | Генератор | Кейс |
+|---|---|---|
+| FCFF из EBITDA, EBIT и реинвестиций | `dcf-fcff-ebitda-tax` | B09 |
+| FCFE и оценка собственного капитала | `dcf-fcfe-equity` | B09 |
+| Двухэтапный DCF | `dcf-two-stage` | B09 |
+| Терминальная стоимость по EV/EBITDA | `dcf-terminal-exit` | Самостоятельная практика |
+| Mid-year convention | `dcf-midyear` | Самостоятельная практика |
+| Чувствительность к WACC и g | `dcf-sensitivity` | Самостоятельная практика |
+| Капитализация дохода | `dcf-income-capitalization` | B09 |
+
+Контроль данных и формул: [ITERATION_3.md](ITERATION_3.md). Деплой Pages ограничен финансовым pre-flight и браузерными тестами.
