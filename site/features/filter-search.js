@@ -61,7 +61,7 @@ export function searchFilterOptions(options,term,minChars=3){
   const terms=(item.examples||[]).map(normalizeSearch);
   const corpus=normalizeSearch([item.name,item.short,item.id,...(item.keywords||[])].join(' '));
   const tokens=corpus.split(' ');
-  const matches=words.every(word=>tokens.some(token=>token.startsWith(word))||corpus.includes(word));
+  const matches=words.every(word=>/^[a-z0-9]+$/.test(word)?tokens.some(token=>token.startsWith(word)):tokens.some(token=>token.includes(word)));
   if(!matches)return null;
   const rank=title===needle?0:short===needle?1:terms.some(t=>t===needle)?2:title.startsWith(needle)?3:title.includes(needle)?4:5;
   return {...item,rank,originalIndex:index};
