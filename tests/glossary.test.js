@@ -10,10 +10,10 @@ const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 const close=(actual,expected,eps=1e-9)=>assert.ok(Math.abs(actual-expected)<eps,`${actual} != ${expected}`);
 
 test('Glossary is large, has unique IDs, canonical terms and unambiguous aliases',()=>{
- assert.equal(CONCEPTS.length,216);
- assert.equal(GLOSSARY_ADDITIONS.length,112);
+ assert.equal(CONCEPTS.length,236);
+ assert.equal(GLOSSARY_ADDITIONS.length,132);
  assert.deepEqual(glossaryIntegrity(CONCEPTS),[]);
- assert.equal(new Set(CONCEPTS.map(x=>x.id)).size,216);
+ assert.equal(new Set(CONCEPTS.map(x=>x.id)).size,236);
  assert.ok(KNOWLEDGE_GROUPS.includes('Фонды и венчур'));
  assert.ok(CONCEPTS.filter(x=>x.formulas.length).length>=115);
  assert.ok(CONCEPTS.reduce((n,x)=>n+x.formulas.length,0)>=175);

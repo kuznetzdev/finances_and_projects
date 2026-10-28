@@ -9,6 +9,20 @@ export const STUDY_AREAS=[
   {id:'taxes',name:'Налоги и налоговый учёт',short:'Налоги'}
 ];
 const explicit={
+ 'dcf-fcff-ebitda-tax':['value','FCFF из EBITDA и реинвестиций'],
+ 'dcf-fcfe-equity':['value','FCFE и оценка собственного капитала'],
+ 'dcf-two-stage':['value','Двухэтапная модель DCF'],
+ 'dcf-terminal-exit':['value','Терминал по мультипликатору выхода'],
+ 'dcf-midyear':['value','DCF с дисконтом на середину года'],
+ 'dcf-sensitivity':['value','Чувствительность WACC и роста'],
+ 'dcf-income-capitalization':['value','Капитализация стабильного дохода'],
+ 'capital-financing-match':['deals','Политика финансирования и соответствие сроков'],
+ 'capital-roa-debt-roe':['deals','Эффект финансового рычага: ROA, Kd, ROE'],
+ 'capital-wacc-dynamic':['deals','Оптимизация WACC при растущем риске'],
+ 'capital-mm-tax':['deals','Модильяни–Миллер и налоговый щит'],
+ 'capital-tradeoff':['deals','Компромиссная теория структуры капитала'],
+ 'capital-pecking-order':['deals','Иерархия источников финансирования'],
+ 'capital-waterfall':['deals','Приоритеты старшего долга, мезонина и акций'],
  'tax-depreciation-method-comparison':['taxes','Амортизация: сравнение методов и налоговый щит'],
  'tax-temporary-differences':['taxes','Временные разницы и отложенный налог'],
  'tax-payments-schedule':['taxes','Налоговый платёжный календарь'],

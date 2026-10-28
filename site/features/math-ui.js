@@ -3,14 +3,18 @@
  * It changes presentation, never the mathematical source or the data used in calculations.
  * All user/content characters are escaped before entering HTML.
  */
-const SUB=/_([\p{L}\p{N}]+|\([^()]*\))/gu;
+const TOKENS=/Σ\[([A-Za-z])=(\d+)\.\.([A-Za-z0-9]+)\]|_([\p{L}\p{N}]+|\([^()]*\))/gu;
 function atom(text,escape){
  const s=String(text||'');
  let output='',last=0;
- for(const match of s.matchAll(SUB)){
+ for(const match of s.matchAll(TOKENS)){
   output+=escape(s.slice(last,match.index));
-  const sub=match[1].startsWith('(')?match[1].slice(1,-1):match[1];
-  output+='<sub>'+escape(sub)+'</sub>';
+  if(match[1]){
+   output+='<span class="math-sum"><span class="math-sum-glyph">∑</span><span class="math-limit-high">'+escape(match[3])+'</span><span class="math-limit-low">'+escape(match[1]+'='+match[2])+'</span></span>';
+  }else{
+   const raw=match[4],sub=raw.startsWith('(')?raw.slice(1,-1):raw;
+   output+='<sub>'+escape(sub)+'</sub>';
+  }
   last=match.index+match[0].length;
  }
  return output+escape(s.slice(last));
