@@ -7,7 +7,7 @@ const near=(a,b,t=.03)=>assert.ok(Math.abs(a-b)<=t,`Expected ${a} ≈ ${b}`);
 const ans=(x,id)=>{const q=x.questions.find(y=>y.key===id);assert.ok(q,`Missing ${id} in ${x.templateId}`);return q.answer;};
 
 test('All topics, templates and learning concepts have unique stable identifiers',()=>{
- assert.equal(TEMPLATE_CATALOG.length,108);
+ assert.equal(TEMPLATE_CATALOG.length,115);
  assert.equal(new Set(TEMPLATE_CATALOG.map(x=>x.id)).size,TEMPLATE_CATALOG.length);
  assert.equal(new Set(CONCEPTS.map(x=>x.id)).size,CONCEPTS.length);
  assert.ok(CONCEPTS.length>=40);
