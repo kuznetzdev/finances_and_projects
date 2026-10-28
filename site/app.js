@@ -77,7 +77,7 @@ function nextExercise(forceTemplate=null) {
  }
  const chosenPool=availableTemplates();
  const selected=forceTemplate&&chosenPool.some(t=>t.id===forceTemplate) ? chosenPool.find(t=>t.id===forceTemplate) : chooseFresh(chosenPool,stats.recentTemplates,Math.random);
- app.level=app.levelFilter==='all' ? choosePracticeLevel('all',selected.min) : choosePracticeLevel(app.levelFilter,selected.min);
+ app.level=app.levelFilter==='all' ? selected.min+Math.floor(Math.random()*(5-selected.min)) : choosePracticeLevel(app.levelFilter,selected.min);
  app.seed=randomSeed();app.templateId=selected.id;app.checked=false;app.hint=false;app.solution=false;
  ensureExercise();stats.recentTemplates=recordRecent(stats.recentTemplates,app.exercise.templateId);save();syncExerciseUrl();renderPractice();
 }
