@@ -593,7 +593,7 @@ h1,h2,h3,h4,.page-intro h1,.task-header h2,.mode-header h2,.term-item h3,
 .progress-legend,.progress-empty{font-size:12px;line-height:1.65;color:var(--muted)}
 .progress-empty{border-left:3px solid var(--forest2);padding:7px 12px;background:var(--paper2)}
 @media(max-width:780px){
- .mobile-navigation{padding:4px 8px calc(4px + env(safe-area-inset-bottom));justify-content:space-around;gap:2px}
+ .mobile-navigation{padding:4px 8px calc(4px + env(safe-area-inset-bottom));justify-content:space-around;gap:2px;overflow:visible}
  .mobile-navigation>button{flex:1;min-width:0;min-height:43px;padding:3px 4px;font-size:9px;gap:2px}
  .mobile-navigation>button span{font-size:18px}
  .mobile-navigation>button .ui-icon{width:20px;height:20px}
