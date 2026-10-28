@@ -44,7 +44,7 @@ try{
  assert.equal(new URL(page.url()).searchParams.get('area'),'capital');
  assert.equal(await page.locator('#area-filter').getAttribute('aria-expanded'),'false');
  await page.locator('#topic-filter').click();
- assert.equal(await page.locator('#topic-search-results [role="option"]').count(),8,'full topics before typing');
+ assert.equal(await page.locator('#topic-search-results [role="option"]').count(),9,'full topics before typing');
  await page.locator('#topic-search').fill('CAPM');
  assert.ok(await page.locator('#topic-search-results [data-option-id="valuation"]').count()>0,'CAPM must locate valuation topic');
  await page.locator('#topic-search').press('ArrowDown');
