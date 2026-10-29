@@ -169,13 +169,16 @@ if (!app.exercise) ensureExercise(); syncExerciseUrl(); const e = app.exercise, 
   $('#level-filter').onchange=ev=>{app.levelFilter=ev.target.value;app.templateId=null;nextExercise();};
   const goToRandomExercise=()=>{nextExercise();focusTaskHeader();};
    $('#random-exercise').onclick=goToRandomExercise;
-   const quickRandom=$('#quick-random-exercise'), topRandom=$('#random-exercise'), taskActions=$('#content .task-actions');
+   const quickRandom=$('#quick-random-exercise'), topRandom=$('#random-exercise'), bottomRandom=$('#random-task-bottom');
    quickRandom.onclick=goToRandomExercise;
-   $('#random-task-bottom').onclick=goToRandomExercise;
+   bottomRandom.onclick=goToRandomExercise;
    const updateQuickRandom=()=>{
      const pastTop=topRandom.getBoundingClientRect().bottom<0;
-     const actions=taskActions.getBoundingClientRect();
-     const actionVisible=actions.top<window.innerHeight && actions.bottom>0;
+     // A partially exposed footer is not yet a usable shortcut, especially behind mobile navigation.
+     const mobileNav=$('#mobile-navigation');
+     const visibleBottom=window.innerWidth<=780 && mobileNav ? mobileNav.getBoundingClientRect().top : window.innerHeight;
+     const action=bottomRandom.getBoundingClientRect();
+     const actionVisible=action.top<=visibleBottom-40 && action.bottom>=40;
      const fieldFocused=$('#exercise-form')?.contains(document.activeElement) && document.activeElement?.matches('input, select, textarea');
      quickRandom.hidden=!pastTop||actionVisible||fieldFocused;
    };
