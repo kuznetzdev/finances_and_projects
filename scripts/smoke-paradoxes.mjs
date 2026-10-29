@@ -75,6 +75,8 @@ try{
  });
  console.log('Desktop random shortcut visibility:',shortcutMetrics);
  assert.equal(await page.locator('#quick-random-exercise').isVisible(),true,'random shortcut should appear when reading a long task');
+ // Keep the bottom action genuinely out of view while the answer field has focus.
+ await page.locator('.fields').evaluate(el=>{el.style.paddingBottom='520px';});
  await page.locator('.field-group:not([hidden]) .answer-input').first().focus();
  await page.waitForTimeout(80);
  assert.equal(await page.locator('#quick-random-exercise').isVisible(),true,'desktop random shortcut must remain available while the answer input is focused');
