@@ -63,3 +63,17 @@ test('negative NPV, CFO and cash cycles are legitimate; unusual ratios are warni
  assert.deepEqual(report.errors,[]);
  assert.ok(report.warnings.some(w=>w.code==='IMPLAUSIBLE_RATE'));
 });
+
+
+test('a terminal monetary valuation is not mistaken for the exit multiple itself',()=>{
+ const ex=exercise('dcf-terminal-exit');
+ const tv=ex.questions.find(q=>q.key==='tv');
+ assert.ok(tv&&/млн/.test(tv.unit));
+ const altered=mutate(ex,'tv',1000000);
+ assert.ok(!validatePlausibility(altered).warnings.some(x=>x.code==='UNUSUAL_MULTIPLE'));
+ const fake={
+  templateId:'test-comparable-multiple',
+  questions:[{key:'pe',type:'number',label:'Мультипликатор P/E',answer:150,unit:'раз'}]
+ };
+ assert.ok(validatePlausibility(fake).warnings.some(x=>x.code==='UNUSUAL_MULTIPLE'));
+});
