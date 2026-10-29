@@ -45,6 +45,8 @@ try{
  assert.match(await page.locator('.paradox-question').innerText(),/рыночную премию/);
  await page.locator('#paradox-reveal').click();
  assert.equal(await page.locator('#paradox-done').isDisabled(),true);
+ assert.match(await page.locator('.paradox-validity').innerText(),/Допущения и проверка данных/);
+ assert.ok(await page.locator('.paradox-analysis p').count()>=2,'analysis should be split into readable paragraphs');
  await page.locator('#paradox-draft').fill('Нужно объяснить различие абсолютной и избыточной доходности. Бета умножается на премию за рыночный риск, а безрисковая ставка добавляется отдельно. Для актива с нулевой бетой ожидаемая доходность равна безрисковой, иначе возникло бы противоречие. Подстановка полной рыночной доходности неверно масштабирует вознаграждение за ожидание.');
  for(let i=0;i<3;i++)await page.locator('[data-check="'+i+'"]').check();
  assert.equal(await page.locator('#paradox-done').isEnabled(),true);
@@ -61,6 +63,15 @@ try{
  await page.locator('#desktop-navigation [data-page="practice"]').click();
  assert.equal(await page.locator('.paradox-detail').count(),0);
  assert.equal(await page.locator('#desktop-navigation [data-page="practice"].selected').count(),1);
+ assert.equal(await page.locator('#quick-random-exercise').count(),1);
+ assert.equal(await page.locator('#random-task-bottom').count(),1);
+ await page.setViewportSize({width:1440,height:380});
+ await page.locator('.task-header').evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));
+ await page.waitForTimeout(120);
+ assert.equal(await page.locator('#quick-random-exercise').isVisible(),true,'random shortcut should appear when reading a long task');
+ const oldSerial=await page.locator('.task-serial').innerText();
+ await page.locator('#quick-random-exercise').click();
+ assert.notEqual(await page.locator('.task-serial').innerText(),oldSerial,'random shortcut should open a different task');
  await context.close();
  const mobile=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true});
  const mobilePage=await mobile.newPage();
@@ -79,9 +90,19 @@ try{
  await mobilePage.screenshot({path:'artifacts/paradoxes-mobile-detail.png',fullPage:true});
  await mobilePage.locator('#paradox-reveal').click();
  assert.equal(await mobilePage.locator('.paradox-answer').isVisible(),true);
+ assert.equal(await mobilePage.locator('.paradox-validity').isVisible(),true);
+ await mobilePage.locator('.mobile-navigation > [data-page="practice"]').click();
+ assert.equal(await mobilePage.locator('#random-task-bottom').count(),1);
+ await mobilePage.setViewportSize({width:360,height:380});
+ await mobilePage.locator('.task-header').evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));
+ await mobilePage.waitForTimeout(120);
+ assert.equal(await mobilePage.locator('#quick-random-exercise').isVisible(),true,'mobile random shortcut should sit above bottom navigation');
+ const mobileSerial=await mobilePage.locator('.task-serial').innerText();
+ await mobilePage.locator('#quick-random-exercise').click();
+ assert.notEqual(await mobilePage.locator('.task-serial').innerText(),mobileSerial);
  await mobile.close();
  assert.deepEqual(errors,[],'uncaught browser errors');
- console.log('PASS: desktop/mobile, seminar filters, original question, live search, autosave, self-check, deep links, page navigation.');
+ console.log('PASS: paradox readability and data notes, random-task shortcuts, desktop/mobile, search, autosave and navigation.');
 }finally{
  await browser?.close();
  server.kill('SIGTERM');
