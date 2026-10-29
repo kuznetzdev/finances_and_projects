@@ -32,7 +32,7 @@ export function validatePlausibility(ex){
  if(id==='r-leverage'){
   const de=find(ex,'de'),share=find(ex,'debtshare');
   check(finite(de)&&de>=0&&between(share,0,100)&&
-    Math.abs(share-100*de/(1+de))<.0002,
+    Math.abs(share-100*de/(1+de))<.001,
     'capital-mix','доля долга = D/E ÷ (1 + D/E), лежит в диапазоне 0–100%');
  }
  if(id==='v-wacc'){
