@@ -14,6 +14,7 @@ import { shuffle, chooseFresh, recordRecent, newDeck } from './engine/scheduler.
 import { STUDY_AREAS } from './data/curriculum.js';
 import {practicePool,choosePracticeLevel} from './features/practice-discovery.js';
 import {bindFilterSearch,buildFilterOptions} from './features/filter-search.js';
+import {createInterfaceTour} from './features/interface-tour.js';
 import {recordPracticeResult,progressRows,nextRetry} from './features/progress-breakdown.js';
 import { recordSkip, totalSkipped } from './engine/attempts.js';
 import { buildOperationQuiz, buildConceptQuiz, describeQuizAnswer, explainAlternative } from './engine/quiz-learning.js';
@@ -121,7 +122,7 @@ function filterPickerMarkup(id,label,items,selected){
   <div class="embedded-filter" id="${id}-picker" data-selected="${escape(current.id)}">
    <button type="button" class="filter-trigger" id="${id}-filter" aria-labelledby="${id}-filter-label ${id}-filter-current" aria-haspopup="listbox" aria-expanded="false" aria-controls="${id}-filter-panel"><span class="filter-trigger-copy" id="${id}-filter-current">${escape(current.name)}</span>${uiIcon('chevron')}</button>
    <div class="filter-popover" id="${id}-filter-panel" hidden>
-    <div class="filter-search-header"><input type="search" id="${id}-search" class="filter-search-input" autocomplete="off" spellcheck="false" placeholder="Название, CAPM, CFF, FCFF…" role="combobox" aria-haspopup="listbox" aria-autocomplete="list" aria-expanded="false" aria-controls="${id}-search-results" aria-label="Поиск: ${escape(label)}">
+    <div class="filter-search-header"><input type="search" id="${id}-search" class="filter-search-input" autocomplete="off" spellcheck="false" placeholder="${id==='level'?'Уровень или название…':'Название, CAPM, CFF, FCFF…'}" role="combobox" aria-haspopup="listbox" aria-autocomplete="list" aria-expanded="false" aria-controls="${id}-search-results" aria-label="Поиск: ${escape(label)}">
       <span class="filter-search-status" data-filter-status aria-live="polite"></span></div>
     <div class="filter-search-results" id="${id}-search-results" role="listbox" aria-label="Варианты: ${escape(label)}"></div>
     <div class="filter-search-tip">До 3 символов показываются все варианты. Для выбора можно прокручивать список или использовать стрелки и Enter.</div>
@@ -145,7 +146,7 @@ if (!app.exercise) ensureExercise(); syncExerciseUrl(); const e = app.exercise, 
   <div class="discovery-selectors">
    ${filterPickerMarkup('area','Направление',STUDY_AREAS,app.area)}
    ${filterPickerMarkup('topic','Тема',TOPICS,app.topic)}
-   <label class="discovery-field"><span>Сложность</span><select id="level-filter" class="group-select"><option value="all" ${app.levelFilter==='all'?'selected':''}>Все уровни (1–4)</option>${LEVELS.map(l=>`<option value="${l.id}" ${String(l.id)===app.levelFilter?'selected':''}>До уровня ${l.id} · ${escape(l.title)}</option>`).join('')}</select></label>
+   ${filterPickerMarkup('level','Сложность',[{id:'all',name:'Все уровни (1–4)'},...LEVELS.map(l=>({id:String(l.id),name:'До уровня '+l.id+' · '+l.title}))],app.levelFilter)}
   </div>
   <div class="discovery-bottom"><span class="discovery-count" aria-live="polite">Доступно ${availableTemplates().length} из ${TEMPLATE_CATALOG.length} типов задач</span><button type="button" class="button secondary" id="reset-practice-filters">Сбросить фильтры</button></div>
   <details class="discovery-catalog"><summary>Каталог заданий: выбрать конкретный тип</summary><label for="template-picker" class="discovery-field"><span>Тип задания</span><select id="template-picker" class="group-select"><option value="">Выберите задачу из списка</option>${STUDY_AREAS.filter(a=>a.id!=='all').map(a=>{const items=availableTemplates().filter(t=>t.area===a.id);return items.length?`<optgroup label="${escape(a.name)}">${items.map(t=>`<option value="${escape(t.id)}" ${app.templateId===t.id?'selected':''}>${escape(t.skill||t.id)} · уровень ${t.min}+</option>`).join('')}</optgroup>`:''}).join('')}</select></label><p class="discovery-note">Выбирайте любой тип задачи. При уровне «Все» доступны задания любой сложности, а при выборе уровня N доступны задачи с минимальным уровнем до N включительно.</p></details>
@@ -176,8 +177,11 @@ if (!app.exercise) ensureExercise(); syncExerciseUrl(); const e = app.exercise, 
     if(!practicePool(TEMPLATE_CATALOG,{area:app.area,topic:app.topic,level:app.levelFilter}).length)app.area='all';
     app.templateId=null;nextExercise();
   }});
-  disposePracticeFilters=()=>{areaPicker.dispose();topicPicker.dispose();disposeQuickNavigation();};
-  $('#level-filter').onchange=ev=>{app.levelFilter=ev.target.value;app.templateId=null;nextExercise();};
+  const levelOptions=[{id:'all',name:'Все уровни (1–4)'},...LEVELS.map(l=>({id:String(l.id),name:'До уровня '+l.id+' · '+l.title}))].map(item=>({...item,count:practicePool(TEMPLATE_CATALOG,{area:app.area,topic:app.topic,level:item.id}).length}));
+  const levelPicker=bindFilterSearch({root:$('#level-picker'),trigger:$('#level-filter'),panel:$('#level-filter-panel'),input:$('#level-search'),list:$('#level-search-results'),options:levelOptions,escape,onPick:id=>{
+    app.levelFilter=id;app.templateId=null;nextExercise();
+  }});
+  disposePracticeFilters=()=>{areaPicker.dispose();topicPicker.dispose();levelPicker.dispose();disposeQuickNavigation();};
   const goToRandomExercise=()=>{nextExercise();focusTaskHeader();};
    $('#random-exercise').onclick=goToRandomExercise;
    const quickRandom=$('#quick-random-exercise'), topRandom=$('#random-exercise'), bottomRandom=$('#random-task-bottom');
@@ -190,17 +194,21 @@ if (!app.exercise) ensureExercise(); syncExerciseUrl(); const e = app.exercise, 
      const visibleBottom=window.innerWidth<=780 && mobileNav ? mobileNav.getBoundingClientRect().top : window.innerHeight;
      const action=bottomRandom.getBoundingClientRect();
      const actionVisible=action.top<=visibleBottom-40 && action.bottom>=40;
-     const fieldFocused=$('#exercise-form')?.contains(document.activeElement) && document.activeElement?.matches('input, select, textarea');
-     quickRandom.hidden=!pastTop||actionVisible||fieldFocused;
+     // Show this shortcut while answering on desktop, but do not cover the mobile keyboard.
+     const editing=$('#exercise-form')?.contains(document.activeElement) && document.activeElement?.matches('input, select, textarea');
+     const keyboardOpen=window.innerWidth<=780 && editing && window.visualViewport && window.visualViewport.height<window.innerHeight*.7;
+     quickRandom.hidden=!pastTop||actionVisible||Boolean(keyboardOpen);
    };
    const delayedUpdate=()=>requestAnimationFrame(updateQuickRandom);
    window.addEventListener('scroll',updateQuickRandom,{passive:true});
    window.addEventListener('resize',updateQuickRandom);
+   window.visualViewport?.addEventListener('resize',updateQuickRandom);
    $('#exercise-form').addEventListener('focusin',delayedUpdate);
    $('#exercise-form').addEventListener('focusout',delayedUpdate);
    const disposeQuickNavigation=()=>{
      window.removeEventListener('scroll',updateQuickRandom);
      window.removeEventListener('resize',updateQuickRandom);
+     window.visualViewport?.removeEventListener('resize',updateQuickRandom);
    };
    updateQuickRandom();
   $('#reset-practice-filters').onclick=()=>{app.area='all';app.topic='all';app.levelFilter='all';nextExercise();};
@@ -362,6 +370,12 @@ $('#mobile-more-toggle').onclick=()=>{
 document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&!$('#mobile-more-menu').hidden){$('#mobile-more-menu').hidden=true;$('#mobile-more-toggle').setAttribute('aria-expanded','false');$('#mobile-more-toggle').focus();}});
 
 try { document.documentElement.dataset.theme = localStorage.getItem(THEME) === 'dark' ? 'dark' : 'light'; } catch { }
+const interfaceTour=createInterfaceTour({trigger:$('#tour-toggle')});
+$('#tour-toggle').onclick=()=>{
+ if(app.page!=='practice')route('practice');
+ if(app.practiceMode!=='generator')changePracticeMode('generator');
+ interfaceTour.start();
+};
 $('#theme-toggle').onclick = () => { const mode = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = mode; try { localStorage.setItem(THEME, mode); } catch { } };
 // Register once on the stable container, never on replaceable tab elements.
 bindPracticeModes($('#content'), changePracticeMode);
