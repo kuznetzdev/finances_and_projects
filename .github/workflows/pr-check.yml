@@ -26,6 +26,8 @@ jobs:
         run: npm test
       - name: Financial and content preflight (blocks bad data)
         run: npm run preflight
+      - name: Generate full financial verification matrix
+        run: npm run coverage:finance
       - name: Install browser harness
         run: npm install --no-save playwright-core@1.56.0
       - name: Browser smoke test (desktop and mobile)
@@ -41,6 +43,8 @@ jobs:
           name: application-preflight-evidence
           path: |
             artifacts/preflight-report.json
+            artifacts/finance-coverage.md
+            artifacts/finance-coverage.json
             artifacts/paradoxes-*.png
             artifacts/visual-*.png
             artifacts/lecture-*.png
