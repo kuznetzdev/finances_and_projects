@@ -65,6 +65,7 @@ try{
  assert.equal(await page.locator('#desktop-navigation [data-page="practice"].selected').count(),1);
  assert.equal(await page.locator('#quick-random-exercise').count(),1);
  assert.equal(await page.locator('#random-task-bottom').count(),1);
+ await page.goto(HOST+'?page=practice&topic=valuation&level=4&template=dcf-two-stage&seed=123',{waitUntil:'networkidle'});
  await page.setViewportSize({width:1440,height:260});
  await page.locator('.task-header').evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));
  await page.waitForTimeout(120);
@@ -101,6 +102,7 @@ try{
  assert.equal(await mobilePage.locator('.paradox-validity').isVisible(),true);
  await mobilePage.locator('.mobile-navigation > [data-page="practice"]').click();
  assert.equal(await mobilePage.locator('#random-task-bottom').count(),1);
+ await mobilePage.goto(HOST+'?page=practice&topic=valuation&level=4&template=dcf-two-stage&seed=123',{waitUntil:'networkidle'});
  await mobilePage.setViewportSize({width:360,height:260});
  await mobilePage.locator('.task-header').evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));
  await mobilePage.waitForTimeout(120);

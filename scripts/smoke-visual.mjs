@@ -22,6 +22,19 @@ try{
  page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text());});
  await page.goto(origin+'?page=practice',{waitUntil:'networkidle'});
  assert.ok(await page.locator('#random-exercise .ui-icon').count()===1,'shuffle icon missing');
+ // Functional hierarchy: the active assignment belongs on the first desktop screen.
+ assert.equal(await page.locator('.hero-index').count(),0,'decorative hero index must not consume workspace');
+ assert.equal(await page.locator('.page-intro h1').innerText(),'Финансовые задачи');
+ assert.equal(await page.locator('#side-accuracy').innerText(),'Нет данных','no completed answers must not be displayed as 0% accuracy');
+ assert.equal(await page.locator('.assist-overview .assist-empty').isVisible(),true);
+ assert.ok((await page.locator('.task-header').boundingBox()).y<850,'task must be reachable without lengthy scrolling');
+ assert.equal(await page.locator('.task-story-heading').innerText(),'Условие');
+ const simpleHeader=await page.locator('.task-header').evaluate(el=>({background:getComputedStyle(el).backgroundColor,decoration:getComputedStyle(el,'::after').display}));
+ assert.equal(simpleHeader.decoration,'none','task header should not contain decorative bubbles');
+ assert.equal(await page.locator('.skip-link').count(),1);
+ await page.locator('.skip-link').focus();
+ assert.equal(await page.locator('.skip-link').evaluate(el=>document.activeElement===el),true);
+ await page.screenshot({path:'artifacts/workbench-practice-desktop.png',fullPage:true});
  assert.equal(await page.locator('#area-filter').evaluate(el=>el.tagName),'BUTTON','area picker must not use native select');
  assert.equal(await page.locator('#topic-filter').evaluate(el=>el.tagName),'BUTTON','topic picker must not use native select');
  await page.locator('#area-filter').click();
@@ -88,6 +101,7 @@ try{
  assert.equal(await page.locator('.hint-heading .ui-icon').count(),1);
  await page.screenshot({path:'artifacts/visual-practice-hint.png',fullPage:true});
  await page.locator('[data-page="quiz"]').first().click();
+ assert.equal(await page.locator('.quiz-option').first().evaluate(el=>getComputedStyle(el).borderRadius),'0px','answer choices must read as list rows');
  await page.locator('#quiz-hint-toggle').click();
  assert.equal(await page.locator('#quiz-hint-details').isVisible(),true);
  await page.screenshot({path:'artifacts/visual-quiz-hint.png',fullPage:true});
@@ -164,6 +178,10 @@ try{
  assert.equal(await mob.locator('#mobile-more-menu').isVisible(),false);
  assert.ok((await mob.locator('#content').innerText()).includes('Карточки'));
  await mob.locator('#mobile-navigation [data-page="practice"]').click();
+ assert.equal(await mob.locator('#side-accuracy').isVisible(),false,'sidebar is hidden on mobile');
+ assert.ok((await mob.locator('.task-header').boundingBox()).y<780,'mobile task title should be visible on first screen');
+ assert.equal(await mob.locator('.task-story-heading').count(),1);
+ await mob.screenshot({path:'artifacts/workbench-practice-mobile.png',fullPage:true});
  await mob.locator('#area-filter').click();
  assert.equal(await mob.locator('#area-filter-panel').isVisible(),true);
  assert.ok(await mob.locator('#area-search-results [role="option"]').count()>0);
@@ -188,5 +206,5 @@ try{
  await mob.screenshot({path:'artifacts/visual-dcf-mobile.png',fullPage:true});
  await mobile.close();
  assert.deepEqual(errors,[],'browser errors');
- console.log('PASS: coherent SVG icons, accessible financial math, hints, typography, dark mode, mobile widths');
+ console.log('PASS: task-first hierarchy, honest metrics, accessible focus, list-style answers, math, dark mode, mobile widths');
 }finally{await browser?.close();server.kill('SIGTERM');}

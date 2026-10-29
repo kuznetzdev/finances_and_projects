@@ -133,13 +133,13 @@ export function renderParadoxes(root,intro){
   const results=root.querySelector('#paradox-list-results');
   root.querySelector('#paradox-seminar').addEventListener('change',e=>{state.seminar=e.target.value;results.innerHTML=rows();});
   root.querySelector('#paradox-search').addEventListener('input',e=>{state.query=e.target.value;results.innerHTML=rows();});
-  results.addEventListener('click',e=>{const btn=e.target.closest('[data-paradox]');if(!btn)return;state.selected=btn.dataset.paradox;state.showAnswer=false;syncSelection();renderParadoxes(root,intro);root.querySelector('#paradox-back')?.focus({preventScroll:true});});
+  results.addEventListener('click',e=>{const btn=e.target.closest('[data-paradox]');if(!btn)return;state.selected=btn.dataset.paradox;state.showAnswer=false;syncSelection();renderParadoxes(root,intro);root.querySelector('#paradox-back')?.scrollIntoView({block:'start',behavior:'instant'});root.querySelector('#paradox-back')?.focus({preventScroll:true});});
   return;
  }
  const answer=root.querySelector('#paradox-draft');
  const length=root.querySelector('#paradox-length'),indicator=root.querySelector('#paradox-save-indicator');
  const checkButton=()=>{const b=root.querySelector('#paradox-done');if(b)b.disabled=!canMarkReviewed(selected,record(selected.id));};
- const open=id=>{flush();state.selected=id;state.showAnswer=false;syncSelection();renderParadoxes(root,intro);root.querySelector('#paradox-back')?.focus({preventScroll:true});};
+ const open=id=>{flush();state.selected=id;state.showAnswer=false;syncSelection();renderParadoxes(root,intro);const target=root.querySelector('#paradox-back')||root.querySelector('#paradox-seminar');target?.scrollIntoView({block:'start',behavior:'instant'});target?.focus({preventScroll:true});};
  answer.addEventListener('input',()=>{
   const previous=record(selected.id);
   if(previous.draft===answer.value)return;

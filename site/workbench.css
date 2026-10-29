@@ -1,0 +1,320 @@
+/*
+ * FINPRAKTIKA / WORKBENCH
+ * Functional reading hierarchy rather than decorative "dashboard" chrome.
+ * One main surface for active work; lists and tables for collections;
+ * color reserved for controls, selection and feedback.
+ */
+:root {
+  --work-width: 1160px;
+  --work-reading: 74ch;
+}
+html { scroll-padding-top: 16px; }
+body { font-family: var(--font-ui); }
+.skip-link {
+  position:fixed;top:10px;left:12px;z-index:100;
+  transform:translateY(-160%);padding:12px 16px;
+  background:var(--paper);color:var(--ink);border:2px solid var(--forest2);
+  border-radius:8px;font-weight:700;
+}
+.skip-link:focus { transform:none; }
+button:focus-visible, input:focus-visible, select:focus-visible,
+textarea:focus-visible, summary:focus-visible, a:focus-visible,
+[tabindex="-1"]:focus-visible {
+  outline:3px solid var(--accent);outline-offset:3px;
+}
+textarea { color:var(--ink);font:inherit; }
+button[disabled] { cursor:not-allowed; }
+.shell { grid-template-columns:224px minmax(0,1fr); }
+.sidebar { padding:25px 13px 18px; }
+.brand { margin-bottom:35px;padding:0 6px; }
+.brand-name small { letter-spacing:.7px;font-size:9px; }
+.side-divider { margin:27px 8px 20px; }
+.nav-items { gap:2px; }
+.nav-button { min-height:44px;border-radius:8px;padding:10px 12px; }
+.nav-button.selected { box-shadow:none; }
+.side-metrics { gap:10px; }
+.side-metrics strong { font-size:16px;letter-spacing:0; }
+.sidebar-bottom { color:#c2d0c8; }
+.topbar { height:58px;padding:0 clamp(20px,3vw,40px); }
+.breadcrumbs { letter-spacing:.25px;font-size:12px; }
+.bc-separator { margin:0 8px; }
+.topbar-right { gap:12px; }
+.icon-action { border-radius:8px;min-height:40px;min-width:40px; }
+main#content {
+  max-width:var(--work-width);
+  padding:23px clamp(20px,3vw,40px) 76px;
+}
+.page-intro {
+  display:block;margin:0 0 18px;
+}
+.page-intro h1 {
+  font:750 clamp(25px,2.6vw,34px)/1.22 var(--font-ui);
+  letter-spacing:-.65px;max-width:none;margin:0 0 5px;
+}
+.page-intro p {
+  max-width:var(--work-reading);
+  font-size:13px;line-height:1.55;color:var(--muted);
+}
+.hero-index { display:none; }
+.eyebrow { font-size:11px;letter-spacing:.65px; }
+.eyebrow::before { width:14px; }
+.button { border-radius:9px;min-height:44px; }
+.button.secondary {
+  background:transparent;
+  border-color:var(--line);
+}
+.button.secondary:hover:not(:disabled),
+.button.ghost:hover:not(:disabled) { background:var(--paper2); }
+.control-strip, .aux-panel, .task-paper, .case-statement,
+.case-workpad, .paradox-detail, .term-detail {
+  box-shadow:none;
+}
+.practice-mode-tabs { margin-bottom:13px; }
+.practice-discovery {
+  padding:17px 20px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  box-shadow:none;
+  background:var(--paper);
+  margin-bottom:17px;
+}
+.discovery-heading { gap:14px;margin-bottom:12px;align-items:center; }
+.discovery-heading h2 {
+  font:730 16px/1.35 var(--font-ui);margin:0 0 3px;
+}
+.discovery-heading p { font-size:12px;line-height:1.45; }
+.discovery-selectors { gap:11px; }
+.discovery-field { gap:5px; }
+.discovery-field > span { font-size:12px; }
+.discovery-field .group-select { min-height:44px; }
+.discovery-bottom { padding-top:12px;margin-top:4px;border-top:1px solid var(--line); }
+.discovery-count { color:var(--muted);font-size:12px;font-weight:550; }
+.discovery-catalog { margin-top:10px;padding-top:9px; }
+.discovery-catalog summary { font-size:12px; }
+.random-exercise { min-height:44px;border-radius:9px; }
+.workspace { grid-template-columns:minmax(0,1fr) 180px;gap:25px; }
+.task-paper {
+  border:1px solid var(--line);
+  background:var(--paper);border-radius:12px;
+}
+.task-header {
+  background:var(--paper);color:var(--ink);
+  padding:23px 27px 19px;
+  border-bottom:1px solid var(--line);
+}
+.task-header::after { display:none;content:none; }
+.task-kicker { color:var(--forest2);font-size:11px;letter-spacing:.5px; }
+.task-serial {
+  background:transparent;border:0;padding:0;color:var(--muted);
+  border-radius:0;font-size:11px;letter-spacing:0;
+}
+.task-header h2 {
+  max-width:var(--work-reading);
+  font:740 clamp(20px,2.2vw,27px)/1.35 var(--font-ui);
+  letter-spacing:-.3px;margin:10px 0;
+}
+.task-meta { color:var(--muted);font-size:12px;gap:9px; }
+.task-meta i { background:var(--muted); }
+.task-body { padding:23px 27px 20px; }
+.task-story-heading {
+  margin:0 0 9px;font:730 13px/1.45 var(--font-ui);
+  color:var(--ink);
+}
+.task-story, .task-story-long {
+  font-size:15px;line-height:1.7;max-width:var(--work-reading);
+}
+.task-story-long p { max-width:var(--work-reading); }
+.sub-heading {
+  font-size:12px;letter-spacing:.25px;color:var(--ink);
+  margin:21px 0 13px;
+}
+.field-label { font-size:14px; }
+.field-no { color:var(--muted); }
+.answer-input,.answer-select {
+  background:var(--paper);color:var(--ink);
+  border:1px solid var(--line);height:47px;
+}
+.answer-input:focus,.answer-select:focus {
+  border-color:var(--forest2);
+}
+.task-actions { background:var(--paper);border-radius:0;box-shadow:none; }
+.task-source { padding:13px 27px;font-size:11px;line-height:1.6; }
+.assist-column { display:block; }
+.assist-overview {
+  border:0;border-left:1px solid var(--line);background:transparent;
+  border-radius:0;padding:4px 0 4px 17px;box-shadow:none;
+}
+.assist-overview h3 {
+  font-size:12px;letter-spacing:0;text-transform:none;
+  color:var(--ink);margin:0 0 14px;
+}
+.assist-overview .assist-list { gap:11px; }
+.assist-overview .assist-list div {
+  display:flex;align-items:baseline;justify-content:space-between;
+  gap:6px;font-size:12px;line-height:1.4;
+}
+.assist-overview .assist-list b { text-align:right; }
+.assist-empty {
+  font-size:12px;line-height:1.55;color:var(--muted);
+  margin:13px 0 0;
+}
+.result-summary { border-radius:8px;box-shadow:none; }
+#content[data-page="quiz"] .quiz-card {
+  max-width:860px;padding:22px 27px;
+  border-radius:12px;border-color:var(--line);background:var(--paper);
+}
+#content[data-page="quiz"] .mode-header { margin-bottom:12px; }
+#content[data-page="quiz"] .mode-header h2 { font-size:17px;font-weight:700; }
+#content[data-page="quiz"] .mode-header p { font-size:12px; }
+#content[data-page="quiz"] .quiz-toolbar { margin:9px 0 20px; }
+#content[data-page="quiz"] .quiz-scenario { max-width:var(--work-reading); }
+#content[data-page="quiz"] .quiz-question {
+  font-size:clamp(17px,1.65vw,22px);font-weight:720;
+  line-height:1.45;max-width:var(--work-reading);
+}
+#content[data-page="quiz"] .quiz-options { gap:0;border-top:1px solid var(--line); }
+#content[data-page="quiz"] .quiz-option {
+  border:0;border-bottom:1px solid var(--line);border-radius:0;
+  background:transparent;padding:13px 11px;min-height:54px;
+  text-align:left;font-size:14px;
+}
+#content[data-page="quiz"] .quiz-option:hover:not(:disabled) { background:var(--paper2); }
+#content[data-page="quiz"] .quiz-option:disabled { opacity:1;cursor:default; }
+#content[data-page="quiz"] .quiz-option.correct {
+  background:color-mix(in srgb,var(--ok) 9%,var(--paper));
+  box-shadow:inset 3px 0 0 var(--ok);
+}
+#content[data-page="quiz"] .quiz-option.wrong {
+  background:color-mix(in srgb,var(--danger) 7%,var(--paper));
+  box-shadow:inset 3px 0 0 var(--danger);
+}
+#content[data-page="quiz"] .quiz-option span {
+  border-radius:5px;min-width:28px;
+}
+#content[data-page="glossary"] .term-list {
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  column-gap:25px;row-gap:0;
+  border-top:1px solid var(--line);
+}
+#content[data-page="glossary"] .term-item {
+  min-height:0;border:0;border-bottom:1px solid var(--line);
+  background:transparent;border-radius:0;box-shadow:none;
+  padding:18px 7px 19px;text-align:left;
+}
+#content[data-page="glossary"] .term-item:hover { background:var(--paper2); }
+#content[data-page="glossary"] .term-item h3 {
+  font:720 17px/1.4 var(--font-ui);margin:0;
+}
+#content[data-page="glossary"] .term-item p {
+  font-size:12px;line-height:1.65;max-width:58ch;
+}
+#content[data-page="glossary"] .term-card-top {
+  color:var(--muted);font-size:11px;
+}
+#content[data-page="glossary"] .term-formula-pill {
+  background:transparent;border:0;
+}
+#content[data-page="glossary"] .term-detail {
+  background:var(--paper);padding:23px;
+  border-radius:10px;
+}
+#content[data-page="glossary"] .glossary-formula-card { box-shadow:none; }
+#content[data-page="paradoxes"] .paradox-summary {
+  background:transparent;border:0;padding:0;margin:0 0 18px;
+}
+#content[data-page="paradoxes"] .paradox-toolbar { margin:12px 0 18px; }
+#content[data-page="paradoxes"] .paradox-group { margin:22px 0 25px; }
+#content[data-page="paradoxes"] .paradox-list {
+  display:block;margin-bottom:0;
+  border-top:1px solid var(--line);
+}
+#content[data-page="paradoxes"] .paradox-row {
+  min-height:67px;border:0;border-bottom:1px solid var(--line);
+  border-radius:0;background:transparent;transition:background .12s;
+  padding:12px 9px;gap:12px;
+}
+#content[data-page="paradoxes"] .paradox-row:hover { background:var(--paper2); }
+#content[data-page="paradoxes"] .paradox-row-text strong { font-size:14px;line-height:1.4; }
+#content[data-page="paradoxes"] .paradox-row-text small { font-size:12px; }
+#content[data-page="paradoxes"] .paradox-detail {
+  padding:24px 28px;margin-top:14px;border-radius:10px;
+}
+#content[data-page="paradoxes"] .paradox-question {
+  border-left:3px solid var(--forest2);
+  background:var(--paper2);border-radius:0 8px 8px 0;
+}
+#content[data-page="paradoxes"] .paradox-validity {
+  background:transparent;border:0;border-top:1px solid var(--line);
+  border-radius:0;padding:14px 0 0;
+}
+#content[data-page="progress"] .stat-grid { gap:0; }
+#content[data-page="progress"] .stat-tile {
+  padding:12px 20px;border:0;border-right:1px solid var(--line);
+  background:transparent;border-radius:0;
+}
+#content[data-page="progress"] .stat-tile:first-child { padding-left:0; }
+#content[data-page="progress"] .stat-tile:last-child { border-right:0; }
+#content[data-page="progress"] .stat-tile strong {
+  font:740 clamp(28px,3vw,39px)/1.2 var(--font-ui);
+}
+#content[data-page="progress"] .data-list { border-radius:8px; }
+#content[data-page="progress"] .data-row { background:transparent; }
+.empty-state {
+  text-align:left;background:var(--paper2);border:1px solid var(--line);
+  border-radius:9px;padding:23px;font-size:14px;
+}
+.quick-random-exercise { box-shadow:0 4px 15px rgba(0,0,0,.14); }
+@media(max-width:1050px) {
+  .shell { grid-template-columns:200px minmax(0,1fr); }
+  .workspace { grid-template-columns:minmax(0,1fr);gap:12px; }
+  .assist-overview { border:0;border-top:1px solid var(--line);padding:14px 0 0; }
+  .assist-overview .assist-list { display:flex;flex-wrap:wrap;gap:10px 24px; }
+  .assist-overview .assist-list div { gap:10px; }
+}
+@media(max-width:780px) {
+  .shell { display:block; }
+  .topbar { height:56px;padding:0 16px; }
+  main#content { padding:17px 16px calc(110px + env(safe-area-inset-bottom)); }
+  .page-intro { margin-bottom:13px; }
+  .page-intro h1 { font-size:26px; }
+  .page-intro p { font-size:12px; }
+  .practice-discovery { padding:14px 15px;margin-bottom:13px; }
+  .discovery-heading { align-items:stretch; }
+  .discovery-heading h2 { font-size:15px; }
+  .discovery-heading p { font-size:12px; }
+  .discovery-heading .random-exercise { width:auto; }
+  .task-header { padding:19px 19px 17px; }
+  .task-header h2 { font-size:22px;line-height:1.35; }
+  .task-body { padding:20px 18px; }
+  .task-story { font-size:15px;line-height:1.7; }
+  .task-source { padding:13px 18px; }
+  #content[data-page="quiz"] .quiz-card { padding:17px; }
+  #content[data-page="glossary"] .term-list { grid-template-columns:1fr; }
+  #content[data-page="paradoxes"] .paradox-detail { padding:18px 16px; }
+  #content[data-page="progress"] .stat-tile { padding:9px 12px; }
+  #content[data-page="paradoxes"] .paradox-row-text strong { font-size:14px; }
+  .task-story-heading { font-size:13px; }
+  .mobile-navigation { box-shadow:none; }
+}
+@media(max-width:600px) {
+  .discovery-heading { flex-direction:column; }
+  .discovery-heading .random-exercise { width:100%; }
+  .assist-overview .assist-list { display:grid;grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .assist-overview .assist-list div { display:block; }
+  .assist-overview .assist-list b { display:block;margin-top:3px;text-align:left; }
+  #content[data-page="progress"] .stat-tile strong { font-size:26px; }
+  #content[data-page="progress"] .stat-tile span { font-size:11px; }
+}
+@media(max-width:360px) {
+  .assist-overview .assist-list { grid-template-columns:1fr 1fr; }
+  #content[data-page="paradoxes"] .paradox-row { gap:7px; }
+  #content[data-page="paradoxes"] .paradox-state { white-space:normal; }
+}
+@media(prefers-reduced-motion:reduce){
+  html {scroll-behavior:auto;}
+  .nav-button,.paradox-row,.term-item,.button {transition:none;}
+}
+
+/* The absence of attempts is a status, not a numerical zero. */
+#content[data-page="progress"] .stat-no-data {font-size:clamp(13px,1.55vw,19px);line-height:1.5;letter-spacing:0;white-space:normal;}
+.flip-surface::after {display:none;content:none;}
