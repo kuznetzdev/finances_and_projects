@@ -5,7 +5,7 @@ import {bindPracticeModes} from './features/practice-modes.js';
 import { TOPICS, LEVELS, TEMPLATE_CATALOG, generateExercise, checkAnswer, formatAnswer } from './engine/index.js';
 import { CONCEPTS, KNOWLEDGE_GROUPS, OPERATIONS, OPERATION_CATEGORIES } from './data/knowledge.js';
 import { searchConcepts } from './data/glossary-engine.js';
-import { formulaVariantsMarkup, glossaryMetaMarkup, glossaryCardMarkup, symbolLegendMarkup } from './features/glossary-ui.js';
+import { formulaVariantsMarkup, glossaryMetaMarkup, glossaryCardMarkup, symbolLegendMarkup, pnlWorkedExampleMarkup } from './features/glossary-ui.js';
 import { symbolsForHint, symbolsForFormula } from './data/formula-notation.js';
 import { formulaMarkup } from './features/math-ui.js';
 import { DEFAULT_TAX_POLICY } from './data/tax.js';
@@ -288,7 +288,7 @@ function renderGlossary() {
  const countFormula=CONCEPTS.filter(x=>x.formulas?.length).length;
  $('#content').innerHTML=`${pageIntro('05 / БАЗА ЗНАНИЙ','Финансовый словарь','Термины, синонимы и варианты финансовых формул с пояснениями.', '05')}
  <section class="glossary-controls"><input type="search" class="search-input" id="glossary-search" placeholder="Название, аббревиатура или формула…" value="${escape(app.glossaryQuery)}" aria-label="Поиск термина"><select class="group-select" id="glossary-group" aria-label="Категория"><option value="Все">Все темы</option>${KNOWLEDGE_GROUPS.map(x=>`<option value="${escape(x)}" ${x===app.glossaryGroup?'selected':''}>${escape(x)}</option>`).join('')}</select></section>
- ${sel?`<section class="term-detail" aria-labelledby="selected-term-title"><div class="eyebrow">${escape(sel.group)}</div><h2 id="selected-term-title" style="margin:13px 0">${escape(sel.term)}</h2><p>${escape(sel.definition)}</p><p><strong>Чем отличается:</strong> ${escape(sel.contrast)}</p>${glossaryMetaMarkup(sel,escape)}${abbreviationFor(sel.term)?`<div class="glossary-expansion">${abbreviationLine(abbreviationFor(sel.term))}</div>`:''}${formulaVariantsMarkup(sel,escape)}<small>${escape(sel.source)}</small><div style="margin-top:14px"><button type="button" class="button ghost" id="close-term">Закрыть ↑</button></div></section>`:''}
+ ${sel?`<section class="term-detail" aria-labelledby="selected-term-title"><div class="eyebrow">${escape(sel.group)}</div><h2 id="selected-term-title" style="margin:13px 0">${escape(sel.term)}</h2><p>${escape(sel.definition)}</p><p><strong>Чем отличается:</strong> ${escape(sel.contrast)}</p>${glossaryMetaMarkup(sel,escape)}${abbreviationFor(sel.term)?`<div class="glossary-expansion">${abbreviationLine(abbreviationFor(sel.term))}</div>`:''}${formulaVariantsMarkup(sel,escape)}${pnlWorkedExampleMarkup(sel,escape)}<small>${escape(sel.source)}</small><div style="margin-top:14px"><button type="button" class="button ghost" id="close-term">Закрыть ↑</button></div></section>`:''}
  <div class="micro" style="margin-bottom:12px">НАЙДЕНО: ${arr.length} · ВСЕГО ПОНЯТИЙ: ${CONCEPTS.length} · С ФОРМУЛАМИ: ${countFormula}</div>
  <section class="term-list" aria-label="Термины словаря">${arr.map(x=>glossaryCardMarkup(x,escape)).join('')}</section>
  ${!arr.length?'<div class="empty-state">Ничего не найдено. Попробуйте другой термин или категорию.</div>':''}`;

@@ -636,6 +636,26 @@ h1,h2,h3,h4,.page-intro h1,.task-header h2,.mode-header h2,.term-item h3,
 }
 
 
+/* Worked P&L example shares one numeric source across related glossary entries. */
+.glossary-pnl-example{margin:23px 0 16px;padding:19px;border:1px solid var(--line);border-radius:14px;background:var(--paper)}
+.glossary-pnl-example h3{margin:0 0 12px;color:var(--ink);font-size:19px;line-height:1.3;font-weight:760}
+.glossary-pnl-example>p{font-size:13px;line-height:1.65;color:var(--ink);margin:0 0 14px}
+.glossary-pnl-table-scroll{width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:11px;background:var(--paper);scrollbar-width:thin}
+.glossary-pnl-table{border-collapse:collapse;width:100%;min-width:420px;font-variant-numeric:tabular-nums;font-size:13px}
+.glossary-pnl-table th,.glossary-pnl-table td{text-align:left;padding:11px 12px;vertical-align:middle;border-bottom:1px solid var(--line);line-height:1.4}
+.glossary-pnl-table thead th{color:var(--muted);font-size:11px;font-weight:750;background:var(--paper2)}
+.glossary-pnl-table tbody th{font-weight:530}
+.glossary-pnl-table td:last-child,.glossary-pnl-table th:last-child{text-align:right;white-space:nowrap}
+.glossary-pnl-table tbody tr:last-child th,.glossary-pnl-table tbody tr:last-child td{border-bottom:0}
+.glossary-pnl-table tr.is-result th,.glossary-pnl-table tr.is-result td{font-weight:800}
+.glossary-pnl-table tr.is-highlighted th,.glossary-pnl-table tr.is-highlighted td{background:var(--paper2);color:var(--forest2);font-weight:800}
+.glossary-pnl-bridge{margin-top:13px;display:grid;gap:7px;padding:15px;background:var(--paper2);border-radius:10px;font-size:13px;line-height:1.6;color:var(--ink)}
+.glossary-pnl-bridge.is-highlighted{border:1px solid var(--forest2)}
+.glossary-pnl-bridge>strong{font-size:14px}
+.glossary-pnl-example .glossary-pnl-warning{margin:14px 0 0;padding:12px 13px;border-left:3px solid var(--forest2);background:var(--paper2);font-size:12px;line-height:1.65}
+@media(max-width:600px){.glossary-pnl-example{padding:13px;margin:16px 0}.glossary-pnl-example h3{font-size:17px}.glossary-pnl-example>p{font-size:12px}.glossary-pnl-table{font-size:12px}.glossary-pnl-table th,.glossary-pnl-table td{padding:9px 10px}.glossary-pnl-bridge{padding:12px;font-size:12px}}
+
+
 /* Contextual shortcut appears only after the top random control leaves the viewport.
    Keep it above mobile navigation, out of the way of exercise action buttons. */
 .quick-random-exercise{
