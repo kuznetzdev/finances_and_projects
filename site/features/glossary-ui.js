@@ -1,5 +1,6 @@
 import { formulaMarkup } from './math-ui.js';
 import { symbolsForFormula } from '../data/formula-notation.js';
+import {calculatePnlExample,PNL_EXAMPLE_CONCEPTS} from '../data/pnl-example.js';
 /** Render glossary's structured formula and synonym metadata. Pure and DOM-independent. */
 export function formulaVariantsMarkup(entry, escape) {
   const variants=entry?.formulas||[];
@@ -18,6 +19,38 @@ export function formulaVariantsMarkup(entry, escape) {
 export function glossaryMetaMarkup(entry,escape) {
   if(!entry)return '';
   return `${entry.aliases?.length?`<p class="glossary-synonyms"><strong>Другие названия:</strong> ${escape(entry.aliases.join(' · '))}</p>`:''}${entry.note?`<div class="glossary-note"><strong>Обратите внимание:</strong> ${escape(entry.note)}</div>`:''}`;
+}
+/** A single consistent teaching example for the connected P&L terms, not seven isolated stories. */
+export function pnlWorkedExampleMarkup(entry,escape){
+ if(!PNL_EXAMPLE_CONCEPTS.includes(entry?.id))return '';
+ const p=calculatePnlExample();
+ const fmt=x=>x<0?'−'+Math.abs(x).toLocaleString('ru-RU'):Number(x).toLocaleString('ru-RU');
+ const rows=[
+  ['revenue','Выручка',p.revenue],
+  ['cogs','Себестоимость продаж (включая амортизацию 70)',-p.cogs],
+  ['gross','Валовая прибыль',p.gross],
+  ['selling','Коммерческие и управленческие расходы (включая амортизацию 30)',-p.sellingAndAdministrative],
+  ['ebit','EBIT',p.ebit],
+  ['interest','Проценты к уплате',-p.interest],
+  ['ebt','Прибыль до налога',p.profitBeforeTax],
+  ['tax','Налог на прибыль (20% в примере)',-p.profitTax],
+  ['netprofit','Чистая прибыль',p.netprofit]
+ ];
+ const active=entry.id;
+ return `<section class="glossary-pnl-example" aria-label="Сквозной пример отчёта о финансовых результатах">
+  <h3>На одних цифрах: от выручки до EBITDA</h3>
+  <p>Суммы в млн ₽. В себестоимость продаж уже входит 70 амортизации производственных активов. В коммерческие и управленческие расходы входит ещё 30. Обе суммы уже уменьшили EBIT.</p>
+  <div class="glossary-pnl-table-scroll"><table class="glossary-pnl-table">
+   <thead><tr><th scope="col">Статья ОФР</th><th scope="col">млн ₽</th></tr></thead>
+   <tbody>${rows.map(([id,label,value])=>`<tr class="${id===active?'is-highlighted':''} ${['gross','ebit','netprofit'].includes(id)?'is-result':''}" data-pnl-step="${id}"><th scope="row">${escape(label)}</th><td>${fmt(value)}</td></tr>`).join('')}</tbody>
+  </table></div>
+  <div class="glossary-pnl-bridge ${active==='ebitda'||active==='depreciation'?'is-highlighted':''}">
+    <strong>Вся амортизация в EBIT: 70 + 30 = ${fmt(p.depreciationTotal)} млн ₽.</strong>
+    <span>EBITDA = EBIT + вся учтённая амортизация = ${fmt(p.ebit)} + ${fmt(p.depreciationTotal)} = <strong>${fmt(p.ebitda)} млн ₽</strong>.</span>
+    <span>Валовая маржа: ${fmt(p.grossMargin)}%; маржа EBITDA: ${fmt(p.ebitdaMargin)}%; чистая рентабельность продаж: ${fmt(p.netMargin)}%.</span>
+  </div>
+  <p class="glossary-pnl-warning"><strong>Важно:</strong> амортизацию нельзя вычитать из валовой прибыли ещё раз: производственная часть уже сидит в себестоимости. При переходе от EBIT к EBITDA всю ранее вычтенную амортизацию добавляют обратно. Налог 20% приведён только как допущение учебного примера, а не как текущая общая ставка для РФ.</p>
+ </section>`;
 }
 export function glossaryCardMarkup(entry,escape){
   return `<button type="button" class="term-item" data-term="${escape(entry.id)}" aria-label="Открыть термин ${escape(entry.term)}">
