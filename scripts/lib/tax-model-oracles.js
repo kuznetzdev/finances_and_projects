@@ -121,7 +121,7 @@ function storyEvidence(id,v){
     'НДС '+v.vatRate*100+'%'];
   case 't-ndfl':return [fmt(v.annual/1e6)+' млн ₽', 'пятиступенчатой базе зарплат'];
   case 't-insurance':return [fmt(v.salary/1e6)+' млн ₽',fmt(v.threshold/1e6,3)+' млн ₽',
-    fmt(v.baseRate*100,1)+'%',fmt(v.overRate*100,1)+'%'];
+    String(v.baseRate*100)+'%',String(v.overRate*100)+'%'];
   case 't-book-vs-tax':return [String(v.book)+' млн ₽',
     String(v.nondeductible)+' млн ₽','ставка '+v.profitRate*100+'%'];
   case 't-tax-payment':return [String(v.accrued)+' млн ₽',String(v.paid)+' млн ₽'];
