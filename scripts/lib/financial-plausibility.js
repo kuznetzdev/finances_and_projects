@@ -66,7 +66,8 @@ export function validatePlausibility(ex){
    // Some returns and leverage effects legitimately exceed 100%; never fatal.
    warnings.push(problem('UNUSUAL_FINANCIAL_RATIO',id+'/'+q.key+': '+q.answer+' '+unit));
   }
-  if(/мультипликатор|P\/E|EV\/EBITDA/i.test(label)&&
+  if((/мультипликатор|P\/E|EV\/EBITDA/i.test(label))&&
+    (/^(раз(?:\/год)?|x|×)$/i.test(unit.trim()))&&
     (q.answer<0||q.answer>100)){
    // Negative valuation multiples may be meaningful or explicitly invalid;
    // without denominators there is no universal safe cutoff.
