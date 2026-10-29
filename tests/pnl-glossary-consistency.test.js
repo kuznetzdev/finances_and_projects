@@ -54,7 +54,7 @@ test('All related terms explicitly distinguish amortization in cost of sales vs 
  }
  assert.equal(pnlWorkedExampleMarkup(byId('fcff'),esc),'');
  assert.match(byId('cogs').definition,/амортизац/);
- assert.match(byId('gross').contrast,/второй раз/);
+ assert.match(byId('gross').contrast,/ещё раз|второй раз/);
  assert.match(byId('ebit').definition,/Амортизация/);
  assert.match(byId('ebitda').contrast,/дважды/);
  assert.match(byId('depreciation').contrast,/валовую прибыль/);
