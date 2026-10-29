@@ -149,6 +149,7 @@ if (!app.exercise) ensureExercise(); syncExerciseUrl(); const e = app.exercise, 
   <div class="discovery-bottom"><span class="discovery-count" aria-live="polite">Доступно ${availableTemplates().length} из ${TEMPLATE_CATALOG.length} типов задач</span><button type="button" class="button secondary" id="reset-practice-filters">Сбросить фильтры</button></div>
   <details class="discovery-catalog"><summary>Каталог заданий: выбрать конкретный тип</summary><label for="template-picker" class="discovery-field"><span>Тип задания</span><select id="template-picker" class="group-select"><option value="">Выберите задачу из списка</option>${STUDY_AREAS.filter(a=>a.id!=='all').map(a=>{const items=availableTemplates().filter(t=>t.area===a.id);return items.length?`<optgroup label="${escape(a.name)}">${items.map(t=>`<option value="${escape(t.id)}" ${app.templateId===t.id?'selected':''}>${escape(t.skill||t.id)} · уровень ${t.min}+</option>`).join('')}</optgroup>`:''}).join('')}</select></label><p class="discovery-note">Выбирайте любой тип задачи. При уровне «Все» доступны задания любой сложности, а при выборе уровня N доступны задачи с минимальным уровнем до N включительно.</p></details>
  </section>
+ <button type="button" class="button primary random-exercise quick-random-exercise" id="quick-random-exercise" aria-label="Открыть следующую случайную задачу по текущим фильтрам" title="Следующая случайная задача · текущие фильтры" hidden>${uiIcon('shuffle')} <span>Случайная задача</span></button>
  <section class="workspace"><div class="task-paper"><div class="task-header" tabindex="-1"><div class="task-topline"><span class="task-kicker">ЗАДАНИЕ · ${escape(t?.short || 'ФИНАНСЫ')}</span><span class="task-serial">#${String(app.seed).slice(-6).padStart(6, '0')}</span></div><h2>${escape(e.title)}</h2><div class="task-meta"><span>Уровень ${app.level}</span><i></i><span>${e.questions.length} ${e.questions.length === 1 ? 'вопрос' : e.questions.length < 5 ? 'вопроса' : 'вопросов'}</span><i></i><span>${escape(e.skill || 'Финансы')}</span></div></div><form id="exercise-form" class="task-body">${storyHtml(e.story)}<div class="sub-heading">ВАШЕ РЕШЕНИЕ</div>${guided ? `<div class="guided-head" id="guided-head"><div><strong id="guided-title">Этап 1 из ${e.questions.length}</strong><span id="guided-detail">Ответы сохраняются при переходе между этапами</span></div><button type="button" class="guided-toggle" id="show-all-steps">Показать все этапы</button></div><div class="guided-track" id="guided-track" aria-hidden="true"><span id="guided-progress"></span></div>` : ''}<div class="fields">${fields}</div><div id="exercise-result" aria-live="polite"></div><div id="hint-place"></div><div id="solution-place"></div><div class="action-row task-actions" role="group" aria-label="Действия с задачей"><div class="task-actions-aux"><button type="button" class="button ghost" id="hint-btn" aria-expanded="${app.hint}">${uiIcon('bulb')} Подсказка</button><button type="button" class="button ghost" id="share-btn">${uiIcon('share')} Поделиться</button></div><div class="task-actions-main">${guided ? `<div class="guided-nav" id="guided-nav"><button type="button" class="button secondary" id="step-prev">← Назад</button><button type="button" class="button secondary" id="step-next">Далее →</button></div>` : ''}<button type="button" class="button secondary" id="skip-task">Пропустить</button><button type="submit" class="button primary" id="check-btn">Проверить →</button></div></div></form><div class="task-source">ТЕМА: ${escape(e.areaName || 'Финансы')} · МАТЕРИАЛ: ${escape(e.source || 'Учебные материалы')} ${e.taxPolicy ? '· ставки по ' + escape(e.taxPolicy) : ''}</div></div>
  <aside class="assist-column"><div class="assist-card"><h3>ТОЧНОСТЬ РЕШЕНИЙ</h3><div class="assist-stat">${total}%</div><div class="assist-copy">Доля правильных ответов за всё время</div><div class="progress-track"><span style="width:${total}%"></span></div></div><div class="assist-card"><h3>ТВОЯ СТАТИСТИКА</h3><div class="assist-list"><div>Задач решено <b>${stats.solved}</b></div><div>Без ошибок <b>${stats.perfect}</b></div><div>Серия <b>${stats.streak}</b></div><div>На повторение <b>${stats.retry.length}</b></div></div></div><div class="assist-card assist-note"><h3>КАК РЕШАТЬ</h3><p>Проверь условие, выбери формулу и введи ответы. Пояснение можно открыть после проверки.</p></div></aside></section>`;
   $('#content').querySelector('.control-strip').insertAdjacentHTML('beforebegin',practiceTabs());
@@ -164,9 +165,29 @@ if (!app.exercise) ensureExercise(); syncExerciseUrl(); const e = app.exercise, 
     if(!practicePool(TEMPLATE_CATALOG,{area:app.area,topic:app.topic,level:app.levelFilter}).length)app.area='all';
     app.templateId=null;nextExercise();
   }});
-  disposePracticeFilters=()=>{areaPicker.dispose();topicPicker.dispose();};
+  disposePracticeFilters=()=>{areaPicker.dispose();topicPicker.dispose();disposeQuickNavigation();};
   $('#level-filter').onchange=ev=>{app.levelFilter=ev.target.value;app.templateId=null;nextExercise();};
-  $('#random-exercise').onclick=()=>{nextExercise();focusTaskHeader();};
+  const goToRandomExercise=()=>{nextExercise();focusTaskHeader();};
+   $('#random-exercise').onclick=goToRandomExercise;
+   const quickRandom=$('#quick-random-exercise'), topRandom=$('#random-exercise'), taskActions=$('#content .task-actions');
+   quickRandom.onclick=goToRandomExercise;
+   const updateQuickRandom=()=>{
+     const pastTop=topRandom.getBoundingClientRect().bottom<0;
+     const actions=taskActions.getBoundingClientRect();
+     const actionVisible=actions.top<window.innerHeight && actions.bottom>0;
+     const fieldFocused=$('#exercise-form')?.contains(document.activeElement) && document.activeElement?.matches('input, select, textarea');
+     quickRandom.hidden=!pastTop||actionVisible||fieldFocused;
+   };
+   const delayedUpdate=()=>requestAnimationFrame(updateQuickRandom);
+   window.addEventListener('scroll',updateQuickRandom,{passive:true});
+   window.addEventListener('resize',updateQuickRandom);
+   $('#exercise-form').addEventListener('focusin',delayedUpdate);
+   $('#exercise-form').addEventListener('focusout',delayedUpdate);
+   const disposeQuickNavigation=()=>{
+     window.removeEventListener('scroll',updateQuickRandom);
+     window.removeEventListener('resize',updateQuickRandom);
+   };
+   updateQuickRandom();
   $('#reset-practice-filters').onclick=()=>{app.area='all';app.topic='all';app.levelFilter='all';nextExercise();};
   $('#template-picker').onchange=ev=>{if(ev.target.value)nextExercise(ev.target.value);}; $('#exercise-form').onsubmit = ev => { ev.preventDefault(); if (app.checked) {nextExercise();focusTaskHeader();} else if (guided && $('#check-btn').hidden) {$('#step-next')?.click();} else checkExercise(); }; $('#skip-task').onclick=skipExercise; $('#hint-btn').onclick = () => { app.hint = !app.hint; $('#hint-place').innerHTML = app.hint ? exerciseHintHtml(e) : ''; $('#hint-btn').innerHTML = `${uiIcon('bulb')} ${app.hint?'Скрыть подсказку':'Подсказка'}`; $('#hint-btn').setAttribute('aria-expanded',String(app.hint)); }; $('#share-btn').onclick = async () => { syncExerciseUrl(); try { await navigator.clipboard.writeText(location.href); notice('Ссылка на задачу скопирована'); } catch { const a = document.createElement('textarea'); a.value = location.href; document.body.append(a); a.select(); document.execCommand('copy'); a.remove(); notice('Ссылка на задачу скопирована'); } };
   if(guided) setupGuidedSteps(e.questions.length);
