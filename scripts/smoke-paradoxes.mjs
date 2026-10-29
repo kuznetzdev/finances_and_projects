@@ -81,6 +81,12 @@ try{
  // Focus may scroll back to the start; simulate a reader scrolling down while keeping that focus.
  await page.locator('.task-header').evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));
  await page.waitForTimeout(100);
+ const focusedMetrics=await page.evaluate(()=>{
+  const top=document.querySelector('#random-exercise').getBoundingClientRect();
+  const bottom=document.querySelector('#random-task-bottom').getBoundingClientRect();
+  return {topBottom:top.bottom,bottomTop:bottom.top,bottomBottom:bottom.bottom,viewHeight:innerHeight,scrollY,active:document.activeElement?.id,hidden:document.querySelector('#quick-random-exercise').hidden};
+ });
+ console.log('Desktop focused random shortcut:',focusedMetrics);
  assert.equal(await page.locator('#quick-random-exercise').isVisible(),true,'desktop random shortcut must remain available while the answer input is focused');
  const oldSerial=await page.locator('.task-serial').innerText();
  await page.locator('#quick-random-exercise').click();
