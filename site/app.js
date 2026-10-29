@@ -57,6 +57,7 @@ function route(page) {
  history.replaceState({},'',u);
  render();
  window.scrollTo({top:0,behavior:'instant'});
+ $('#content .page-intro h1')?.focus({preventScroll:true});
 }
 function refreshProgressSidebar() { $('#side-solved').textContent = stats.solved; $('#side-accuracy').textContent = stats.total ? Math.round(stats.correct / stats.total * 100) + '%' : 'Нет данных'; }
 function availableTemplates() { return practicePool(TEMPLATE_CATALOG,{topic:app.topic,area:app.area,level:app.levelFilter}); }
@@ -96,7 +97,7 @@ function storyHtml(value){
  const pairs=[];for(let i=0;i<sentences.length;i+=2)pairs.push(sentences.slice(i,i+2).join(' '));
  return `<div class="task-story task-story-long">${pairs.map(x=>`<p>${escape(x)}</p>`).join('')}</div>`;
 }
-function pageIntro(label, title, description, number) { return `<header class="page-intro"><h1>${escape(title)}</h1><p>${escape(description)}</p></header>`; }
+function pageIntro(label, title, description, number) { return `<header class="page-intro"><h1 tabindex="-1">${escape(title)}</h1><p>${escape(description)}</p></header>`; }
 let disposePracticeFilters=()=>{};
 function render() { disposePracticeFilters(); disposePracticeFilters=()=>{}; $('#content').dataset.page = app.page; refreshProgressSidebar(); if (app.page === 'practice') (app.practiceMode==='bank'?renderBankMode():renderPractice()); else if (app.page === 'quiz') renderQuiz(); else if (app.page === 'cards') renderCards(); else if (app.page === 'glossary') renderGlossary(); else if (app.page === 'paradoxes') renderParadoxes($('#content'),pageIntro); else renderProgress(); }
 function practiceTabs() { return `<div class="practice-mode-tabs" role="group" aria-label="Режим решения"><button type="button" data-practice-mode="generator" class="${app.practiceMode==='generator'?'active':''}" aria-pressed="${app.practiceMode==='generator'}">Генератор задач</button><button type="button" data-practice-mode="bank" class="${app.practiceMode==='bank'?'active':''}" aria-pressed="${app.practiceMode==='bank'}">Банк задач · ${CASE_BANK.length} кейсов</button></div>`; }
