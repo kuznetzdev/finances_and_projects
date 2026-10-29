@@ -314,3 +314,7 @@ main#content {
   html {scroll-behavior:auto;}
   .nav-button,.paradox-row,.term-item,.button {transition:none;}
 }
+
+/* The absence of attempts is a status, not a numerical zero. */
+#content[data-page="progress"] .stat-no-data {font-size:clamp(13px,1.55vw,19px);line-height:1.5;letter-spacing:0;white-space:normal;}
+.flip-surface::after {display:none;content:none;}
