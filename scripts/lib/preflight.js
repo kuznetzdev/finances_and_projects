@@ -4,6 +4,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {TEMPLATE_CATALOG,generateExercise,checkAnswer} from '../../site/engine/index.js';
 import {ORACLE_TEMPLATES,validateFinanceOracle} from './finance-oracles.js';
+import {CONTROL_WORK_REFERENCES,validateControlWorkReferences} from './control-work-oracles.js';
 import {CASE_BANK,CASE_CHECKPOINTS,verifyCheckpoint} from '../../site/engine/casebook.js';
 import {CONCEPTS} from '../../site/data/knowledge.js';
 import {glossaryIntegrity} from '../../site/data/glossary-engine.js';
@@ -153,7 +154,7 @@ function validateAssets(){
 }
 export function preflight({seeds=24}={}){
  const errors=validateCatalog(TEMPLATE_CATALOG),warnings=[];
- const output={errors,warnings,checkedTemplates:TEMPLATE_CATALOG.length,checkedExercises:0,checkedOracleAnswers:0,checkedOracleTemplates:ORACLE_TEMPLATES.length,checkedCases:0,checkedConcepts:0,checkedFormulas:0,checkedFiles:0};
+ const output={errors,warnings,checkedTemplates:TEMPLATE_CATALOG.length,checkedExercises:0,checkedOracleAnswers:0,checkedOracleTemplates:ORACLE_TEMPLATES.length,checkedControlWorkAnswers:0,checkedCases:0,checkedConcepts:0,checkedFormulas:0,checkedFiles:0};
  const maxSeed=Number(seeds);
  if(!Number.isInteger(maxSeed)||maxSeed<1||maxSeed>500)throw Error('seeds must be 1..500');
  for(const t of TEMPLATE_CATALOG){
@@ -184,6 +185,8 @@ export function preflight({seeds=24}={}){
   }
  }
  output.checkedCases=CASE_BANK.length;
+ output.checkedControlWorkAnswers=Object.values(CONTROL_WORK_REFERENCES).reduce((total,steps)=>total+Object.keys(steps).length,0);
+ errors.push(...validateControlWorkReferences(CASE_BANK,CASE_CHECKPOINTS));
  const ids=new Set();
  for(const c of CASE_BANK){
   if(!c.id||ids.has(c.id))errors.push(issue('CASE_ID','пустой или повторный id '+c.id));
