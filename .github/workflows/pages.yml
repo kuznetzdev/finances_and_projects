@@ -28,6 +28,8 @@ jobs:
         run: npm test
       - name: Validate content and financial identities before deployment
         run: npm run preflight
+      - name: Generate full financial verification matrix
+        run: npm run coverage:finance
       - name: Install browser test harness
         run: npm install --no-save playwright-core@1.56.0
       - name: Desktop/mobile browser checks
@@ -42,6 +44,8 @@ jobs:
           name: predeploy-validation-evidence
           path: |
             artifacts/preflight-report.json
+            artifacts/finance-coverage.md
+            artifacts/finance-coverage.json
             artifacts/*.png
           if-no-files-found: ignore
 
