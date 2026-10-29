@@ -116,6 +116,10 @@ main#content {
 .task-meta { color:var(--muted);font-size:12px;gap:9px; }
 .task-meta i { background:var(--muted); }
 .task-body { padding:23px 27px 20px; }
+.task-story-heading {
+  margin:0 0 9px;font:730 13px/1.45 var(--font-ui);
+  color:var(--ink);
+}
 .task-story, .task-story-long {
   font-size:15px;line-height:1.7;max-width:var(--work-reading);
 }
@@ -175,6 +179,7 @@ main#content {
   text-align:left;font-size:14px;
 }
 #content[data-page="quiz"] .quiz-option:hover:not(:disabled) { background:var(--paper2); }
+#content[data-page="quiz"] .quiz-option:disabled { opacity:1;cursor:default; }
 #content[data-page="quiz"] .quiz-option.correct {
   background:color-mix(in srgb,var(--ok) 9%,var(--paper));
   box-shadow:inset 3px 0 0 var(--ok);
@@ -287,6 +292,8 @@ main#content {
   #content[data-page="glossary"] .term-list { grid-template-columns:1fr; }
   #content[data-page="paradoxes"] .paradox-detail { padding:18px 16px; }
   #content[data-page="progress"] .stat-tile { padding:9px 12px; }
+  #content[data-page="paradoxes"] .paradox-row-text strong { font-size:14px; }
+  .task-story-heading { font-size:13px; }
   .mobile-navigation { box-shadow:none; }
 }
 @media(max-width:600px) {
