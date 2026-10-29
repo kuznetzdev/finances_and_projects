@@ -31,7 +31,9 @@ test('screen exposes clear random action, full catalog and independent selectors
  const index=fs.readFileSync(new URL('../site/index.html',import.meta.url),'utf8');
  assert.match(app,/id="random-exercise"/);
  assert.match(app,/id="template-picker"/);
- assert.match(app,/id="level-filter"/);
+ assert.match(app,/filterPickerMarkup\('level'/);
+ assert.match(app,/const levelPicker=bindFilterSearch/);
+ assert.doesNotMatch(app,/<select id="level-filter"/);
  assert.match(app,/filterPickerMarkup\('area'/);
  assert.match(app,/filterPickerMarkup\('topic'/);
  assert.match(app,/id="\$\{id\}-filter"/);
