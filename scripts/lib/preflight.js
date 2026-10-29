@@ -3,6 +3,7 @@ import {readdirSync,readFileSync,existsSync,statSync} from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {TEMPLATE_CATALOG,generateExercise,checkAnswer} from '../../site/engine/index.js';
+import {ORACLE_TEMPLATES,validateFinanceOracle} from './finance-oracles.js';
 import {CASE_BANK,CASE_CHECKPOINTS,verifyCheckpoint} from '../../site/engine/casebook.js';
 import {CONCEPTS} from '../../site/data/knowledge.js';
 import {glossaryIntegrity} from '../../site/data/glossary-engine.js';
@@ -152,7 +153,7 @@ function validateAssets(){
 }
 export function preflight({seeds=24}={}){
  const errors=validateCatalog(TEMPLATE_CATALOG),warnings=[];
- const output={errors,warnings,checkedTemplates:TEMPLATE_CATALOG.length,checkedExercises:0,checkedCases:0,checkedConcepts:0,checkedFormulas:0,checkedFiles:0};
+ const output={errors,warnings,checkedTemplates:TEMPLATE_CATALOG.length,checkedExercises:0,checkedOracleAnswers:0,checkedOracleTemplates:ORACLE_TEMPLATES.length,checkedCases:0,checkedConcepts:0,checkedFormulas:0,checkedFiles:0};
  const maxSeed=Number(seeds);
  if(!Number.isInteger(maxSeed)||maxSeed<1||maxSeed>500)throw Error('seeds must be 1..500');
  for(const t of TEMPLATE_CATALOG){
@@ -163,7 +164,8 @@ export function preflight({seeds=24}={}){
     try{
      const ex=generateExercise(args);
      output.checkedExercises++;
-     const issues=[...validateExercise(ex),...validateDcfAudit(ex),...validateBusinessAudit(ex)];
+     const issues=[...validateExercise(ex),...validateDcfAudit(ex),...validateBusinessAudit(ex),...validateFinanceOracle(ex)];
+     if(ORACLE_TEMPLATES.includes(t.id))output.checkedOracleAnswers+=ex.questions.filter(q=>q.type==='number').length;
      if(seed===1){
       const repeated=generateExercise(args);
       if(JSON.stringify(ex)!==JSON.stringify(repeated))errors.push(issue('NON_DETERMINISTIC',t.id+' does not reproduce seed=1'));
@@ -172,7 +174,7 @@ export function preflight({seeds=24}={}){
      for(const q of ex.questions||[]){
       if(q.type==='number'&&finite(q.answer)&&!checkAnswer(q,String(q.answer).replace('.',',')))
        errors.push(issue('GRADING',t.id+' seed='+seed+' '+q.key+' правильный ответ отвергнут'));
-      if(q.type==='number'&&q.unit==='%'&&Math.abs(q.answer)>1000)
+      if(q.type==='number'&&typeof q.unit==='string'&&q.unit.includes('%')&&Math.abs(q.answer)>1000)
        warnings.push(issue('SUSPICIOUS_PERCENT',t.id+' seed='+seed+' '+q.key+' = '+q.answer+'%'));
      }
      if(typeof ex.story==='string'&&ex.story.length<65)warnings.push(issue('SHORT_STORY',t.id+' seed='+seed+' подозрительно короткое условие'));
