@@ -40,3 +40,12 @@ test('runAudit checks both earliest and maximum difficulty for known high-cardin
  assert.deepEqual(report.errors,[]);
  for(const r of report.rows)assert.ok(r.unique>=12,r.templateId);
 });
+
+
+test('deep samples flag a six-scenario enumerated generator for review without failing release',()=>{
+ const outcomes=Array.from({length:1000},(_,i)=>mock(i+1,'scenario '+(i%6),i%6));
+ const report=analyzeDistribution(outcomes,{templateId:'fixed-enumeration',level:4});
+ assert.equal(report.unique,6);
+ assert.deepEqual(report.errors,[]);
+ assert.ok(report.warnings.some(e=>e.code==='LOW_DIVERSITY'));
+});
