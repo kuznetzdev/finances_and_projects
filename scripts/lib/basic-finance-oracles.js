@@ -111,7 +111,7 @@ function inputEvidence(id,v){
     'активы = '+v.assets+' млн ₽','капитал = '+v.equity+' млн ₽'];
   case 'r-dso':return ['Выручка за год '+v.sales+' млн ₽',
     'задолженность '+fmt(v.ar)+' млн ₽',
-    '360 дням'];
+    v.yearDays+' дням'];
   case 'r-cash-cycle':return [v.dio+' дней (DIO)',
     v.dso+' дней (DSO)',v.dpo+' дней (DPO)'];
   case 'r-leverage':return ['долг '+v.debt+' млн ₽','капитал '+v.equity+' млн ₽'];
