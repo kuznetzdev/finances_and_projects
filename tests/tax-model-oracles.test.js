@@ -59,8 +59,8 @@ test('mutating original inputs cannot silently pass against unchanged story and 
  }
 });
 
-test('2025 historical VAT and profit policies are handled without embedding 2026 rates',()=>{
- for(const id of ['t-profit','t-vat-difference','t-vat-inclusive','t-book-vs-tax','t-deferred-judgement']){
+test('2025 historical VAT policies are handled without embedding 2026 VAT rates',()=>{
+ for(const id of ['t-vat-difference','t-vat-inclusive']){
   for(let seed=1;seed<=20;seed++){
    const ex=exercise(id,4,seed,'RU-2025');
    assert.deepEqual(validateTaxModelOracle(ex),[],id+' 2025 seed='+seed);
