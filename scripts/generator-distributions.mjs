@@ -61,8 +61,8 @@ export function analyzeDistribution(samples,{templateId,level,contract=DIVERSITY
    code:'REPEAT_CONCENTRATION',message:templateId+' level='+level+
    ' dominant share '+ratio.toFixed(3)+' exceeds '+contract.maxDominantRate
   });
- }else if(unique===1&&count>=40){
-  warnings.push({code:'LOW_DIVERSITY',message:templateId+' level='+level+' identical output for '+count+' seeds; inspect whether intended'});
+ }else if(count>=40&&unique<=Math.max(1,Math.ceil(count*.02))){
+  warnings.push({code:'LOW_DIVERSITY',message:templateId+' level='+level+' only '+unique+'/'+count+' distinct outputs; verify whether the small finite scenario set is intended'});
  }
  const metrics={};
  for(const [key,vals] of numeric){
