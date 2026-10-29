@@ -78,7 +78,9 @@ try{
  // Keep the bottom action genuinely out of view while the answer field has focus.
  await page.locator('.fields').evaluate(el=>{el.style.paddingBottom='520px';});
  await page.locator('.field-group:not([hidden]) .answer-input').first().focus();
- await page.waitForTimeout(80);
+ // Focus may scroll back to the start; simulate a reader scrolling down while keeping that focus.
+ await page.locator('.task-header').evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));
+ await page.waitForTimeout(100);
  assert.equal(await page.locator('#quick-random-exercise').isVisible(),true,'desktop random shortcut must remain available while the answer input is focused');
  const oldSerial=await page.locator('.task-serial').innerText();
  await page.locator('#quick-random-exercise').click();
