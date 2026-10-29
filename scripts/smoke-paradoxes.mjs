@@ -65,9 +65,14 @@ try{
  assert.equal(await page.locator('#desktop-navigation [data-page="practice"].selected').count(),1);
  assert.equal(await page.locator('#quick-random-exercise').count(),1);
  assert.equal(await page.locator('#random-task-bottom').count(),1);
- await page.setViewportSize({width:1440,height:380});
+ await page.setViewportSize({width:1440,height:260});
  await page.locator('.task-header').evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));
  await page.waitForTimeout(120);
+ const shortcutMetrics=await page.evaluate(()=>{
+  const rect=selector=>{const r=document.querySelector(selector).getBoundingClientRect();return {top:Math.round(r.top),bottom:Math.round(r.bottom)};};
+  return {top:rect('#random-exercise'),actions:rect('.task-actions'),header:rect('.task-header'),scrollY,innerHeight,quickHidden:document.querySelector('#quick-random-exercise').hidden};
+ });
+ console.log('Desktop random shortcut visibility:',shortcutMetrics);
  assert.equal(await page.locator('#quick-random-exercise').isVisible(),true,'random shortcut should appear when reading a long task');
  const oldSerial=await page.locator('.task-serial').innerText();
  await page.locator('#quick-random-exercise').click();
@@ -93,7 +98,7 @@ try{
  assert.equal(await mobilePage.locator('.paradox-validity').isVisible(),true);
  await mobilePage.locator('.mobile-navigation > [data-page="practice"]').click();
  assert.equal(await mobilePage.locator('#random-task-bottom').count(),1);
- await mobilePage.setViewportSize({width:360,height:380});
+ await mobilePage.setViewportSize({width:360,height:260});
  await mobilePage.locator('.task-header').evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));
  await mobilePage.waitForTimeout(120);
  assert.equal(await mobilePage.locator('#quick-random-exercise').isVisible(),true,'mobile random shortcut should sit above bottom navigation');
