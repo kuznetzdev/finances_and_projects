@@ -694,3 +694,9 @@ h1,h2,h3,h4,.page-intro h1,.task-header h2,.mode-header h2,.term-item h3,
   .paradox-row-text small{font-size:12px}
   .paradox-detail .paradox-source{overflow-wrap:anywhere}
 }
+
+/* Keep the ordinary bottom action available when the floating shortcut hides. */
+#random-task-bottom .ui-icon{width:17px;height:17px;flex:none}
+@media(max-width:520px){
+ .task-actions-main #random-task-bottom{grid-column:1/-1;min-width:0;white-space:normal;min-height:46px}
+}
