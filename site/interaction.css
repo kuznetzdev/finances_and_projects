@@ -654,3 +654,70 @@ h1,h2,h3,h4,.page-intro h1,.task-header h2,.mode-header h2,.term-item h3,
 .glossary-pnl-bridge>strong{font-size:14px}
 .glossary-pnl-example .glossary-pnl-warning{margin:14px 0 0;padding:12px 13px;border-left:3px solid var(--forest2);background:var(--paper2);font-size:12px;line-height:1.65}
 @media(max-width:600px){.glossary-pnl-example{padding:13px;margin:16px 0}.glossary-pnl-example h3{font-size:17px}.glossary-pnl-example>p{font-size:12px}.glossary-pnl-table{font-size:12px}.glossary-pnl-table th,.glossary-pnl-table td{padding:9px 10px}.glossary-pnl-bridge{padding:12px;font-size:12px}}
+
+
+/* Contextual shortcut appears only after the top random control leaves the viewport.
+   Keep it above mobile navigation, out of the way of exercise action buttons. */
+.quick-random-exercise{
+  position:fixed;
+  right:clamp(16px,3vw,36px);
+  bottom:24px;
+  z-index:12;
+  width:max-content;
+  min-height:48px;
+  padding:0 18px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  box-shadow:0 8px 28px rgba(6,34,29,.24);
+}
+.quick-random-exercise .ui-icon{width:20px;height:20px;flex:none}
+.quick-random-exercise:focus-visible{outline:3px solid var(--accent);outline-offset:4px}
+@media(max-width:780px){
+  .quick-random-exercise{
+    right:14px;
+    bottom:calc(74px + env(safe-area-inset-bottom));
+    min-height:46px;
+    max-width:calc(100vw - 28px);
+    padding:0 15px;
+    font-size:12px;
+  }
+}
+@media(max-width:380px){.quick-random-exercise{font-size:11px;padding:0 13px}}
+
+/* Paradoxes: editorial reading surface, readable source questions and audit notes. */
+#content[data-page="paradoxes"] .paradox-detail{max-width:980px}
+#content[data-page="paradoxes"] .paradox-detail h2{max-width:29ch;line-height:1.22}
+#content[data-page="paradoxes"] .paradox-question{display:grid;gap:18px;padding:clamp(17px,2.5vw,27px);margin-bottom:26px}
+.paradox-scenario,.paradox-questions{min-width:0;max-width:76ch}
+.paradox-question .paradox-scenario h3,.paradox-question .paradox-questions h3{margin:0 0 9px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--forest2)}
+.paradox-question .paradox-scenario p{font-size:15px;line-height:1.75;white-space:normal;margin:0}
+.paradox-question .paradox-questions p{font-size:clamp(16px,1.45vw,18px);font-weight:640;line-height:1.65;white-space:normal;margin:0 0 12px}
+.paradox-question .paradox-questions p:last-child{margin-bottom:0}
+.paradox-scenario+.paradox-questions{border-top:1px solid var(--line);padding-top:16px}
+.paradox-row-text small{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;line-height:1.6}
+.paradox-answer .paradox-thesis{font-size:17px;line-height:1.65;max-width:76ch;margin:8px 0 22px}
+.paradox-analysis,.paradox-trap,.paradox-validity{max-width:80ch}
+.paradox-analysis h4,.paradox-trap h4,.paradox-validity h4{font-size:15px;line-height:1.4;margin:18px 0 10px;color:var(--ink)}
+.paradox-analysis p,.paradox-trap p,.paradox-validity p{font-size:15px;line-height:1.75;margin:0 0 13px;max-width:76ch}
+.paradox-trap{border-top:1px solid var(--line);padding-top:3px;margin-top:22px}
+.paradox-validity{background:var(--paper2);border:1px solid var(--line);border-radius:13px;padding:17px 20px;margin-top:22px}
+.paradox-validity h4{margin-top:0}
+.paradox-validity p{margin-bottom:0}
+.paradox-source{border-top:1px solid var(--line);padding-top:16px}
+.paradox-source summary{cursor:pointer;font-weight:650;color:var(--ink);font-size:13px;line-height:1.6}
+.paradox-source p{font-size:12px;line-height:1.65;max-width:78ch}
+#content[data-page="paradoxes"] .paradox-detail textarea{font-size:16px;line-height:1.7}
+@media(max-width:650px){
+  .paradox-question .paradox-scenario p{font-size:14px}
+  .paradox-question .paradox-questions p{font-size:16px}
+  .paradox-analysis p,.paradox-trap p,.paradox-validity p{font-size:14px;line-height:1.7}
+  .paradox-validity{padding:15px}
+  .paradox-row-text small{font-size:12px}
+  .paradox-detail .paradox-source{overflow-wrap:anywhere}
+}
+
+/* Keep the ordinary bottom action available when the floating shortcut hides. */
+#random-task-bottom .ui-icon{width:17px;height:17px;flex:none}
+@media(max-width:520px){
+ .task-actions-main #random-task-bottom{grid-column:1/-1;min-width:0;white-space:normal;min-height:46px}
+}

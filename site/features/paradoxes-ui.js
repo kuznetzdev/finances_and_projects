@@ -1,4 +1,5 @@
 import {SEMINARS, PARADOXES} from '../data/paradoxes.js';
+import {PARADOX_CAVEATS} from '../data/paradox-audit.js';
 import {MIN_ANSWER_LENGTH, promptFor, filterParadoxes, normalizeRecord, canMarkReviewed, countReviewed} from '../engine/paradoxes.js';
 
 const STORAGE_KEY='finpraktika.paradoxes.v1';
@@ -40,6 +41,23 @@ function syncSelection(){
  else url.searchParams.delete('paradox');
  history.replaceState({},'',url);
 }
+// Separate the original scenario from its questions without rewriting the source.
+function questionMarkup(p){
+ const source=promptFor(p);
+ const marker=source.indexOf('Вопрос:');
+ const scenario=marker>=0?source.slice(0,marker).trim():'';
+ const questions=(marker>=0?source.slice(marker+'Вопрос:'.length):source).trim()
+   .split(/(?<=\?)\s+(?=[А-ЯЁ])/u).filter(Boolean);
+ return `${scenario?`<div class="paradox-scenario"><h3>Ситуация</h3><p>${escape(scenario)}</p></div>`:''}
+   <div class="paradox-questions"><h3>${scenario?'Вопросы для разбора':'Вопрос семинара'}</h3>
+   ${questions.map(q=>`<p>${escape(q)}</p>`).join('')}</div>`;
+}
+function analysisMarkup(analysis){
+ const sentences=analysis.trim().split(/(?<=[.!?])\s+(?=[А-ЯЁ])/u);
+ const blocks=[];
+ for(let i=0;i<sentences.length;i+=2)blocks.push(`<p>${escape(sentences.slice(i,i+2).join(' '))}</p>`);
+ return blocks.join('');
+}
 function progress(){const done=countReviewed(records);
  return `<div class="paradox-summary" aria-label="Прогресс разбора"><strong>${done} из ${PARADOXES.length}</strong><span>разобрано самостоятельно</span><div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="${PARADOXES.length}" aria-valuenow="${done}" aria-label="Изученные парадоксы"><span style="width:${Math.round(done/PARADOXES.length*100)}%"></span></div></div>`;
 }
@@ -64,7 +82,7 @@ function rows(){
     const status=r.status==='done'?'Разобран':r.draft.trim()?'Черновик':'Открыть';
     return `<button type="button" class="paradox-row" data-paradox="${p.id}">
       <span class="paradox-number">${p.seminar}.${String(p.number).padStart(2,'0')}</span>
-      <span class="paradox-row-text"><strong>${escape(p.title)}</strong><small>${escape(promptFor(p).slice(0,115))}${promptFor(p).length>115?'…':''}</small></span>
+      <span class="paradox-row-text"><strong>${escape(p.title)}</strong><small>${escape(p.question)}</small></span>
       <span class="paradox-state ${r.status==='done'?'paradox-done-state':''}">${status} →</span>
      </button>`;
    }).join('')}</div></section>`;
@@ -82,15 +100,17 @@ function detail(p){
  <article class="paradox-detail">
  <div class="eyebrow">СЕМИНАР ${p.seminar} · ПАРАДОКС ${p.number} ИЗ 10</div>
  <h2>${escape(p.title)}</h2>
- <div class="paradox-question"><h3>Вопрос семинара</h3><p>${escape(promptFor(p))}</p></div>
+ <div class="paradox-question">${questionMarkup(p)}</div>
  <label class="paradox-label" for="paradox-draft">ТВОЙ РАЗВЁРНУТЫЙ ОТВЕТ</label>
  <p class="paradox-help">Сформулируй вывод, обоснуй причинно-следственные связи, проверь ограничения. Ответ сохраняется в этом браузере.</p>
  <textarea id="paradox-draft" rows="7" spellcheck="true" placeholder="Тезис → аргументы → пример → исключения → вывод…">${escape(r.draft)}</textarea>
  <div class="paradox-answer-meta" aria-live="polite"><span id="paradox-length">${r.draft.trim().length} / ${MIN_ANSWER_LENGTH} символов для завершения</span><span id="paradox-save-indicator">Черновик хранится локально</span></div>
  <div class="paradox-actions"><button type="button" id="paradox-save" class="button secondary">Сохранить ответ</button><button type="button" id="paradox-reveal" class="button primary" aria-expanded="${state.showAnswer}">${state.showAnswer?'Скрыть разбор':'Посмотреть разбор'}</button></div>
  ${state.showAnswer?`<section class="paradox-answer" aria-label="Разбор"><h3>Развёрнутый разбор</h3>
- <p class="paradox-thesis"><strong>Вывод.</strong> ${escape(p.thesis)}</p><p>${escape(p.analysis)}</p>
- <h3>Где ошибается интуиция</h3><p>${escape(p.trap)}</p></section>
+ <p class="paradox-thesis"><strong>Главный вывод.</strong> ${escape(p.thesis)}</p>
+  <div class="paradox-analysis"><h4>Почему это работает</h4>${analysisMarkup(p.analysis)}</div>
+  <div class="paradox-trap"><h4>Где ошибается интуиция</h4><p>${escape(p.trap)}</p></div>
+  <aside class="paradox-validity" aria-label="Проверка условий и чисел"><h4>Допущения и проверка данных</h4><p>${escape(PARADOX_CAVEATS[p.id])}</p></aside></section>
  <section class="paradox-check" aria-label="Самопроверка логики">
  <h3>Проверь логику своего решения</h3>
  <p>Сопоставь свой текст с эталонным разбором. Эта проверка выполняется тобой, а не алгоритмом оценки смысла.</p>
@@ -99,7 +119,7 @@ function detail(p){
  <div class="paradox-actions"><button type="button" id="paradox-done" class="button primary" ${canMarkReviewed(p,r)?'':'disabled'}>${completed?'✓ Разобран':'Отметить как разобранный'}</button>
  <button type="button" id="paradox-revise" class="button secondary">На повторение</button></div>
  <p class="paradox-help">Для отметки нужен собственный ответ от ${MIN_ANSWER_LENGTH} символов и все три подтверждённых критерия.</p></section>`:''}
- <div class="paradox-source">Источник: ${escape(SEMINARS[p.seminar-1].source)} · семинар ${p.seminar}, вопрос ${p.number}. Формулировка вопроса сохранена из исходного материала.</div>
+ <details class="paradox-source"><summary>Происхождение вопроса</summary><p>Источник, указанный в каталоге: ${escape(SEMINARS[p.seminar-1].source)} · семинар ${p.seminar}, вопрос ${p.number}. Формулировка взята из банка вопросов приложения. Сверка с оригинальным PDF этого семинара не проводилась.</p><p>Числа и ставки в условиях используются как учебные допущения, а не как подтверждённые рыночные данные.</p></details>
  <nav class="paradox-pagination" aria-label="Переходы между парадоксами">
  <button type="button" class="button ghost" data-neighbor="${index>0?siblings[index-1].id:''}" ${index===0?'disabled':''}>← Предыдущий</button>
  <button type="button" class="button secondary" data-neighbor="${index<siblings.length-1?siblings[index+1].id:''}" ${index===siblings.length-1?'disabled':''}>Следующий →</button></nav>
@@ -108,7 +128,7 @@ function detail(p){
 export function renderParadoxes(root,intro){
  if(!root)return;
  const selected=PARADOXES.find(x=>x.id===state.selected);
- root.innerHTML=`${intro('04 / ПАРАДОКСЫ','Парадоксы','30 семинарских вопросов: сначала своё решение, затем аргументированный разбор и самопроверка.','04')}${selected?detail(selected):list()}`;
+ root.innerHTML=`${intro('04 / ПАРАДОКСЫ','Парадоксы','30 семинарских вопросов: разбор по шагам, проверка допущений и самостоятельный ответ.','04')}${selected?detail(selected):list()}`;
  if(!selected){
   const results=root.querySelector('#paradox-list-results');
   root.querySelector('#paradox-seminar').addEventListener('change',e=>{state.seminar=e.target.value;results.innerHTML=rows();});
