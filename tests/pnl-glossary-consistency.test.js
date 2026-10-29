@@ -81,9 +81,10 @@ test('P&L formula variants name the correct expense scope and keep symbol legend
 
 test('The displayed example is accessible, numeric, and warns that 20% is not the Russian headline tax rate',()=>{
  const html=pnlWorkedExampleMarkup(byId('gross'),esc);
+ const normalizedHtml=html.replace(/[\u00a0\u202f]/g,' ');
  for(const [name,number] of [['Выручка','2 000'],['Себестоимость продаж','1 300'],['Валовая прибыль','700'],['EBIT','350'],['Чистая прибыль','240']]){
   assert.ok(html.includes(name),name);
-  assert.ok(html.includes(number.replace(' ',' '))||html.includes(number),number);
+  assert.ok(normalizedHtml.includes(number.replace(' ',' ')),number);
  }
  assert.match(html,/aria-label="Сквозной пример/);
  assert.match(html,/70 \+ 30/);
