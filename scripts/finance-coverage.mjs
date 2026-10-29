@@ -8,8 +8,9 @@ import {mkdirSync,writeFileSync} from 'node:fs';
 import {TEMPLATE_CATALOG,generateExercise} from '../site/engine/index.js';
 import {ORACLE_TEMPLATES} from './lib/finance-oracles.js';
 import {BASIC_ORACLE_TEMPLATES} from './lib/basic-finance-oracles.js';
+import {TAX_MODEL_ORACLE_TEMPLATES} from './lib/tax-model-oracles.js';
 
-const oracle=new Set([...ORACLE_TEMPLATES,...BASIC_ORACLE_TEMPLATES]);
+const oracle=new Set([...ORACLE_TEMPLATES,...BASIC_ORACLE_TEMPLATES,...TAX_MODEL_ORACLE_TEMPLATES]);
 const domainIds=new Set([
   ...ORACLE_TEMPLATES,
   'capital-financing-match','capital-roa-debt-roe','capital-wacc-dynamic',
@@ -56,7 +57,7 @@ for(const t of TEMPLATE_CATALOG){
 }
 if(new Set(rows.map(r=>r.id)).size!==TEMPLATE_CATALOG.length)throw Error('Duplicate or lost template in coverage matrix');
 for(const id of oracle)if(!rows.some(r=>r.id===id))throw Error('Orphan finance oracle '+id);
-if(oracle.size!==ORACLE_TEMPLATES.length+BASIC_ORACLE_TEMPLATES.length)throw Error('Oracle template IDs overlap');
+if(oracle.size!==ORACLE_TEMPLATES.length+BASIC_ORACLE_TEMPLATES.length+TAX_MODEL_ORACLE_TEMPLATES.length)throw Error('Oracle template IDs overlap');
 
 const counts=Object.fromEntries([...new Set(rows.map(r=>r.status))].sort().map(
   s=>[s,rows.filter(r=>r.status===s).length]
