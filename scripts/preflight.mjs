@@ -8,7 +8,7 @@ try{
  report=preflight({seeds});
  mkdirSync('artifacts',{recursive:true});
  writeFileSync('artifacts/preflight-report.json',JSON.stringify({date:new Date().toISOString(),seeds,...report},null,2)+'\n');
- const checked=['checkedTemplates','checkedExercises','checkedCases','checkedConcepts','checkedFormulas','checkedFiles'].map(k=>k+': '+report[k]).join('; ');
+ const checked=['checkedTemplates','checkedExercises','checkedOracleAnswers','checkedOracleTemplates','checkedCases','checkedConcepts','checkedFormulas','checkedFiles'].map(k=>k+': '+report[k]).join('; ');
  console.log('PRE-FLIGHT '+checked);
  console.log('Warnings: '+report.warnings.length+'; errors: '+report.errors.length);
  for(const warning of report.warnings.slice(0,12))console.warn('WARNING ['+warning.code+'] '+warning.message);
