@@ -1,0 +1,31 @@
+/* Short, opt-in guided tour. Only the active control receives visual emphasis. */
+.tour-toggle .ui-icon{width:19px;height:19px}
+.tour-shield{position:fixed;inset:0;z-index:80;background:transparent}
+.tour-spotlight{
+ position:fixed;z-index:81;pointer-events:none;
+ border:2px solid var(--accent);border-radius:11px;
+ box-shadow:0 0 0 200vmax rgba(5,18,18,.54);
+ transition:left .12s,top .12s,width .12s,height .12s;
+}
+.tour-dialog{
+ position:fixed;z-index:82;width:min(360px,calc(100vw - 18px));
+ max-height:calc(100dvh - 16px);overflow-y:auto;
+ padding:18px 19px 17px;background:var(--paper);color:var(--ink);
+ border:1px solid var(--line);border-radius:12px;
+ box-shadow:0 14px 45px rgba(0,0,0,.25);
+}
+.tour-heading,.tour-actions{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#tour-position{color:var(--muted);font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+#tour-close{color:var(--muted);background:transparent;border:0;padding:8px 3px;font-size:12px}
+.tour-dialog h2{font:740 20px/1.3 var(--font-ui);margin:13px 0 9px}
+.tour-dialog p{font-size:14px;line-height:1.65;margin:0 0 19px;max-width:45ch}
+.tour-actions{justify-content:flex-end}
+.tour-actions .button{min-height:42px}
+#tour-back:disabled{opacity:.35}
+@media(max-width:780px){
+ .topbar-right{gap:7px}
+ .tour-dialog{padding:14px 15px 15px}
+ .tour-dialog h2{font-size:18px}
+ .tour-dialog p{font-size:13px}
+}
+@media(prefers-reduced-motion:reduce){.tour-spotlight{transition:none}}
