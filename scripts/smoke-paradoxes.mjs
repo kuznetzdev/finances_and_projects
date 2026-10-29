@@ -75,6 +75,17 @@ try{
  });
  console.log('Desktop random shortcut visibility:',shortcutMetrics);
  assert.equal(await page.locator('#quick-random-exercise').isVisible(),true,'random shortcut should appear when reading a long task');
+ // Focus should not itself scroll the page to the footer, where the ordinary button is already available.
+ await page.locator('.field-group:not([hidden]) .answer-input').first().evaluate(el=>el.focus({preventScroll:true}));
+ await page.waitForTimeout(80);
+ const focusedMetrics=await page.evaluate(()=>{
+  const top=document.querySelector('#random-exercise').getBoundingClientRect();
+  const bottom=document.querySelector('#random-task-bottom').getBoundingClientRect();
+  return {topBottom:top.bottom,bottomTop:bottom.top,viewHeight:innerHeight,active:document.activeElement?.tagName};
+ });
+ assert.equal(focusedMetrics.active,'INPUT');
+ assert.ok(focusedMetrics.topBottom<0&&focusedMetrics.bottomTop>focusedMetrics.viewHeight-40,'verify both in-document shortcuts are not yet reachable '+JSON.stringify(focusedMetrics));
+ assert.equal(await page.locator('#quick-random-exercise').isVisible(),true,'desktop random shortcut must remain available with focused answer field');
  const oldSerial=await page.locator('.task-serial').innerText();
  await page.locator('#quick-random-exercise').click();
  assert.notEqual(await page.locator('.task-serial').innerText(),oldSerial,'random shortcut should open a different task');

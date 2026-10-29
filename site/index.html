@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./interaction.css">
   <link rel="stylesheet" href="./workbench.css">
+  <link rel="stylesheet" href="./features/interface-tour.css">
   <title>ФинПрактика · тренажёр по корпоративным финансам</title>
 </head>
 <body>
@@ -29,6 +30,7 @@
     <symbol id="icon-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></symbol>
     <symbol id="icon-shuffle" viewBox="0 0 24 24"><path d="M4 7h3c5 0 6 10 11 10h2"/><path d="m16 13 4 4-4 4"/><path d="M4 17h3c2.7 0 4.2-3 5.5-5"/><path d="M15 7h5m-4-4 4 4-4 4"/></symbol>
     <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14-5L4 8"/><path d="M4 3v5h5"/><path d="M4 13a8 8 0 0 0 14 5l2-2"/><path d="M15 16h5v5"/></symbol>
+    <symbol id="icon-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 4.2 1.8c-1.1.9-1.7 1.2-1.7 2.6"/><path d="M12 17h.01" stroke-linecap="round" stroke-width="2.5"/></symbol>
     <symbol id="icon-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6"/></symbol>
   </svg>
   <div class="shell">
@@ -55,7 +57,7 @@
       <header class="topbar">
         <div class="mobile-brand"><span class="mobile-mark"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-finance"></use></svg></span><strong>ФинПрактика</strong></div>
         <div class="breadcrumbs">КОРПОРАТИВНЫЕ ФИНАНСЫ <span class="bc-separator">/</span> <span id="page-crumb">ЗАДАЧИ</span></div>
-        <div class="topbar-right"><button type="button" id="theme-toggle" class="icon-action" aria-label="Сменить цветовую тему" title="Сменить тему"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-theme"></use></svg></button></div>
+        <div class="topbar-right"><button type="button" id="tour-toggle" class="icon-action tour-toggle" aria-label="Экскурсия по интерфейсу" title="Экскурсия по интерфейсу" aria-expanded="false" aria-haspopup="dialog"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-help"></use></svg></button><button type="button" id="theme-toggle" class="icon-action" aria-label="Сменить цветовую тему" title="Сменить тему"><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-theme"></use></svg></button></div>
       </header>
       <main id="content" tabindex="-1"></main>
       <footer class="footer">Практические задачи, финансовые формулы и объяснения. <span>Учебные примеры · не бухгалтерская консультация</span></footer>
