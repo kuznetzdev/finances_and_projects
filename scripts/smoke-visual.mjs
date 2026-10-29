@@ -34,6 +34,19 @@ try{
  assert.equal(await page.locator('.skip-link').count(),1);
  await page.locator('.skip-link').focus();
  assert.equal(await page.locator('.skip-link').evaluate(el=>document.activeElement===el),true);
+ // Opt-in tour highlights real controls, returns focus, and closes with Escape.
+ assert.equal(await page.locator('#tour-toggle').getAttribute('aria-expanded'),'false');
+ await page.locator('#tour-toggle').click();
+ assert.equal(await page.locator('.tour-dialog').isVisible(),true);
+ assert.match(await page.locator('#tour-position').innerText(),/Шаг 1 из 9/);
+ assert.equal(await page.locator('.tour-dialog').getAttribute('aria-modal'),'true');
+ await page.locator('#tour-next').click();
+ assert.match(await page.locator('#tour-title').innerText(),/Направление и тема/);
+ await page.locator('#tour-back').click();
+ assert.match(await page.locator('#tour-title').innerText(),/Разделы обучения/);
+ await page.keyboard.press('Escape');
+ assert.equal(await page.locator('.tour-dialog').count(),0);
+ assert.equal(await page.locator('#tour-toggle').getAttribute('aria-expanded'),'false');
  await page.screenshot({path:'artifacts/workbench-practice-desktop.png',fullPage:true});
  assert.equal(await page.locator('#area-filter').evaluate(el=>el.tagName),'BUTTON','area picker must not use native select');
  assert.equal(await page.locator('#topic-filter').evaluate(el=>el.tagName),'BUTTON','topic picker must not use native select');
@@ -72,7 +85,19 @@ try{
  assert.ok(await page.locator('#topic-search-results [data-option-id="valuation"]').count()>0);
  await page.locator('#topic-search').press('Escape');
  assert.equal(await page.locator('#topic-filter-panel').isVisible(),false);
- await page.locator('#level-filter').selectOption('all');
+ assert.equal(await page.locator('#level-filter').evaluate(el=>el.tagName),'BUTTON','difficulty must not use an OS picker');
+ await page.locator('#level-filter').click();
+ assert.equal(await page.locator('#level-filter-panel').isVisible(),true);
+ assert.equal(await page.locator('#level-search-results [role="option"]').count(),5);
+ await page.locator('#level-search-results [data-option-id="2"]').click();
+ assert.equal(new URL(page.url()).searchParams.get('level'),'2');
+ assert.match(await page.locator('#level-filter-current').innerText(),/До уровня 2/);
+ await page.locator('#level-filter').click();
+ await page.locator('#level-search').press('Escape');
+ assert.equal(await page.locator('#level-filter-panel').isVisible(),false);
+ await page.locator('#level-filter').click();
+ await page.locator('#level-search-results [data-option-id="all"]').click();
+ assert.equal(new URL(page.url()).searchParams.get('level'),'all');
  assert.ok((await page.locator('.discovery-count').innerText()).includes('Доступно'));
  const beforeSeed=new URL(page.url()).searchParams.get('seed');
  await page.locator('#random-exercise').click();
@@ -178,6 +203,20 @@ try{
  assert.equal(await mob.locator('#mobile-more-menu').isVisible(),false);
  assert.ok((await mob.locator('#content').innerText()).includes('Карточки'));
  await mob.locator('#mobile-navigation [data-page="practice"]').click();
+ await mob.locator('#tour-toggle').click();
+ assert.ok(await mob.locator('.tour-dialog').isVisible());
+ const tourFit=await mob.locator('.tour-dialog').evaluate(el=>({right:el.getBoundingClientRect().right,left:el.getBoundingClientRect().left,width:innerWidth}));
+ assert.ok(tourFit.left>=0&&tourFit.right<=tourFit.width,'mobile tour exceeds viewport '+JSON.stringify(tourFit));
+ for(let i=0;i<8;i++)await mob.locator('#tour-next').click();
+ assert.equal(await mob.locator('#tour-next').innerText(),'Завершить');
+ await mob.locator('#tour-next').click();
+ assert.equal(await mob.locator('.tour-dialog').count(),0);
+ assert.equal(await mob.locator('#level-filter').evaluate(el=>el.tagName),'BUTTON');
+ await mob.locator('#level-filter').click();
+ assert.equal(await mob.locator('#level-search-results [role="option"]').count(),5);
+ await mob.locator('#level-search').press('ArrowDown');
+ await mob.locator('#level-search').press('Enter');
+ assert.equal(await mob.locator('#level-filter-panel').isVisible(),false);
  assert.equal(await mob.locator('#side-accuracy').isVisible(),false,'sidebar is hidden on mobile');
  assert.ok((await mob.locator('.task-header').boundingBox()).y<780,'mobile task title should be visible on first screen');
  assert.equal(await mob.locator('.task-story-heading').count(),1);
@@ -206,5 +245,5 @@ try{
  await mob.screenshot({path:'artifacts/visual-dcf-mobile.png',fullPage:true});
  await mobile.close();
  assert.deepEqual(errors,[],'browser errors');
- console.log('PASS: task-first hierarchy, honest metrics, accessible focus, list-style answers, math, dark mode, mobile widths');
+ console.log('PASS: task-first hierarchy, guided interface tour, custom difficulty, accessible focus, math, dark mode, mobile widths');
 }finally{await browser?.close();server.kill('SIGTERM');}
