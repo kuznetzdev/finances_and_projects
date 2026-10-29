@@ -32,7 +32,7 @@ try{
  await page.locator('#bank-step-hint').click();
  assert.equal(await page.locator('.case-hint-panel').count(),0);
 
- assert.match(await page.locator('.case-counter').innerText(),/87 разобранных задач/);
+ assert.match(await page.locator('.case-counter').innerText(),/97 разобранных задач/);
  assert.match(await page.locator('.case-condition').innerText(),/500 млн/);
  await page.locator('#bank-answer').fill('150');
  await page.locator('#bank-answer-form button[type="submit"]').click();
@@ -131,6 +131,23 @@ try{
  assert.equal(await page.locator('#bank-random').isEnabled(),true);
 
  await page.screenshot({path:'artifacts/lecture-options-desktop.png',fullPage:true});
+ // New fixed-source control assignments share the bank's numeric grading and search UI.
+ await page.goto(base+'?page=practice&mode=bank&case=CW-F03',{waitUntil:'networkidle'});
+ assert.equal(await page.locator('.case-code').innerText(),'CW-F03');
+ assert.equal(await page.locator('#bank-group').inputValue(),'Контрольные · Финансовая отчётность');
+ assert.match(await page.locator('.case-condition').innerText(),/1 000 тыс/);
+ await page.locator('#bank-answer').fill('800');
+ await page.locator('#bank-answer-form button[type="submit"]').click();
+ assert.match(await page.locator('#bank-feedback').innerText(),/Верно/);
+ await page.goto(base+'?page=practice&mode=bank&case=CW-V06',{waitUntil:'networkidle'});
+ assert.equal(await page.locator('.case-code').innerText(),'CW-V06');
+ assert.equal(await page.locator('#bank-group').inputValue(),'Контрольные · Оценка бизнеса');
+ assert.match(await page.locator('.case-condition').innerText(),/2022/);
+ await page.locator('#bank-answer').fill('-100');
+ await page.locator('#bank-answer-form button[type="submit"]').click();
+ assert.match(await page.locator('#bank-feedback').innerText(),/Верно/);
+ await page.locator('#bank-solution-toggle').click();
+ assert.match(await page.locator('.case-full-solution').innerText(),/570/);
  await page.locator('[data-page="glossary"]').first().click();
  await page.locator('#glossary-search').fill('pro-rata');
  assert.ok(await page.locator('.term-item').count()>=1);
@@ -146,6 +163,12 @@ try{
  await mob.screenshot({path:'artifacts/lecture-venture-mobile.png',fullPage:true});
  const widths=await mob.evaluate(()=>({document:document.documentElement.scrollWidth,viewport:innerWidth}));
  assert.ok(widths.document<=widths.viewport+5,JSON.stringify(widths));
+ await mob.goto(base+'?page=practice&mode=bank&case=CW-V05',{waitUntil:'networkidle'});
+ assert.equal(await mob.locator('.case-code').innerText(),'CW-V05');
+ assert.ok(await mob.locator('.case-caution').isVisible());
+ assert.equal(await mob.locator('#bank-answer').count(),1);
+ const controlWidths=await mob.evaluate(()=>({document:document.documentElement.scrollWidth,viewport:innerWidth}));
+ assert.ok(controlWidths.document<=controlWidths.viewport+5,'control valuation mobile overflow: '+JSON.stringify(controlWidths));
  await mobile.close();
  assert.deepEqual(errors,[]);
  console.log('PASS: valid saved answers, corrupt-state invalidation, formula hints, indexed search, filter reset, numeric/reasoned tasks and mobile styling.');

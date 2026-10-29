@@ -9,8 +9,8 @@ const checkpoint=(id,index)=>LECTURE_CHECKPOINTS[id][index].answer;
 
 test('Ten new lecture-specific assignments supplement but never mutate the 57-case source bank',()=>{
  assert.equal(LECTURE_CASES.length,10);
- assert.equal(CASE_BANK.length,87);
- assert.equal(new Set(CASE_BANK.map(x=>x.id)).size,87);
+ assert.equal(CASE_BANK.length,97);
+ assert.equal(new Set(CASE_BANK.map(x=>x.id)).size,97);
  assert.deepEqual(LECTURE_CASES.map(x=>x.id),[
   'LC01','LC02','LC03','VC01','VC02','VC03','VC04','RO01','RO02','RO03'
  ]);
