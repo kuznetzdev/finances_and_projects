@@ -93,6 +93,7 @@ export function analyzeDistribution(samples,{templateId,level,contract=DIVERSITY
 export function runAudit({samples=96,catalog=TEMPLATE_CATALOG}={}){
  if(!Number.isInteger(samples)||samples<40||samples>2000)throw Error('samples must be between 40 and 2000');
  const rows=[],errors=[],warnings=[];
+ const unusual=new Map();
  for(const t of catalog){
   for(const level of new Set([Math.max(t.min??1,1),4])){
    const generated=[];
@@ -103,7 +104,12 @@ export function runAudit({samples=96,catalog=TEMPLATE_CATALOG}={}){
     // without confusing those checks with outlier-based warnings.
     const plausibility=validatePlausibility(ex);
     errors.push(...plausibility.errors.map(x=>({...x,message:'seed='+seed+' level='+level+' '+x.message})));
-    if(seed<=4)warnings.push(...plausibility.warnings.map(x=>({...x,message:'seed='+seed+' level='+level+' '+x.message})));
+    for(const warning of plausibility.warnings){
+     const key=[t.id,level,warning.code,warning.message.split(':')[0]].join('|');
+     const previous=unusual.get(key);
+     if(previous)previous.occurrences++;
+     else unusual.set(key,{code:warning.code,message:'seed='+seed+' level='+level+' '+warning.message,occurrences:1});
+    }
    }
    const row=analyzeDistribution(generated,{templateId:t.id,level});
    rows.push(row);
@@ -111,6 +117,7 @@ export function runAudit({samples=96,catalog=TEMPLATE_CATALOG}={}){
    warnings.push(...row.warnings);
   }
  }
+ warnings.push(...[...unusual.values()].map(x=>({...x,message:x.message+' (occurrences: '+x.occurrences+')'})));
  return {
   sampledTemplates:catalog.length,sampledLevels:rows.length,
   checkedExercises:rows.reduce((sum,row)=>sum+row.samples,0),
