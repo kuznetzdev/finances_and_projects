@@ -32,6 +32,8 @@ jobs:
         run: npm run coverage:finance
       - name: Distribution and plausibility smoke audit
         run: npm run audit:distributions
+      - name: Deep distribution audit (1000 seeds per tier)
+        run: npm run audit:distributions:deep
       - name: Install browser test harness
         run: npm install --no-save playwright-core@1.56.0
       - name: Desktop/mobile browser checks
