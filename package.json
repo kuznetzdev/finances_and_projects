@@ -9,6 +9,8 @@
     "start": "python3 -m http.server 8000 -d site",
     "check": "npm test && npm run preflight",
     "preflight": "node scripts/preflight.mjs",
-    "coverage:finance": "node scripts/finance-coverage.mjs"
+    "coverage:finance": "node scripts/finance-coverage.mjs",
+    "audit:distributions": "node scripts/generator-distributions.mjs --samples=96",
+    "audit:distributions:deep": "node scripts/generator-distributions.mjs --samples=1000"
   }
 }
