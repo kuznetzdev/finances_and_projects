@@ -662,3 +662,35 @@ h1,h2,h3,h4,.page-intro h1,.task-header h2,.mode-header h2,.term-item h3,
   }
 }
 @media(max-width:380px){.quick-random-exercise{font-size:11px;padding:0 13px}}
+
+/* Paradoxes: editorial reading surface, readable source questions and audit notes. */
+#content[data-page="paradoxes"] .paradox-detail{max-width:980px}
+#content[data-page="paradoxes"] .paradox-detail h2{max-width:29ch;line-height:1.22}
+#content[data-page="paradoxes"] .paradox-question{display:grid;gap:18px;padding:clamp(17px,2.5vw,27px);margin-bottom:26px}
+.paradox-scenario,.paradox-questions{min-width:0;max-width:76ch}
+.paradox-question .paradox-scenario h3,.paradox-question .paradox-questions h3{margin:0 0 9px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--forest2)}
+.paradox-question .paradox-scenario p{font-size:15px;line-height:1.75;white-space:normal;margin:0}
+.paradox-question .paradox-questions p{font-size:clamp(16px,1.45vw,18px);font-weight:640;line-height:1.65;white-space:normal;margin:0 0 12px}
+.paradox-question .paradox-questions p:last-child{margin-bottom:0}
+.paradox-scenario+.paradox-questions{border-top:1px solid var(--line);padding-top:16px}
+.paradox-row-text small{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;line-height:1.6}
+.paradox-answer .paradox-thesis{font-size:17px;line-height:1.65;max-width:76ch;margin:8px 0 22px}
+.paradox-analysis,.paradox-trap,.paradox-validity{max-width:80ch}
+.paradox-analysis h4,.paradox-trap h4,.paradox-validity h4{font-size:15px;line-height:1.4;margin:18px 0 10px;color:var(--ink)}
+.paradox-analysis p,.paradox-trap p,.paradox-validity p{font-size:15px;line-height:1.75;margin:0 0 13px;max-width:76ch}
+.paradox-trap{border-top:1px solid var(--line);padding-top:3px;margin-top:22px}
+.paradox-validity{background:var(--paper2);border:1px solid var(--line);border-radius:13px;padding:17px 20px;margin-top:22px}
+.paradox-validity h4{margin-top:0}
+.paradox-validity p{margin-bottom:0}
+.paradox-source{border-top:1px solid var(--line);padding-top:16px}
+.paradox-source summary{cursor:pointer;font-weight:650;color:var(--ink);font-size:13px;line-height:1.6}
+.paradox-source p{font-size:12px;line-height:1.65;max-width:78ch}
+#content[data-page="paradoxes"] .paradox-detail textarea{font-size:16px;line-height:1.7}
+@media(max-width:650px){
+  .paradox-question .paradox-scenario p{font-size:14px}
+  .paradox-question .paradox-questions p{font-size:16px}
+  .paradox-analysis p,.paradox-trap p,.paradox-validity p{font-size:14px;line-height:1.7}
+  .paradox-validity{padding:15px}
+  .paradox-row-text small{font-size:12px}
+  .paradox-detail .paradox-source{overflow-wrap:anywhere}
+}
