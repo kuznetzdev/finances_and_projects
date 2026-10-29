@@ -77,6 +77,9 @@ try{
  const oldSerial=await page.locator('.task-serial').innerText();
  await page.locator('#quick-random-exercise').click();
  assert.notEqual(await page.locator('.task-serial').innerText(),oldSerial,'random shortcut should open a different task');
+ await page.locator('#random-task-bottom').evaluate(el=>el.scrollIntoView({block:'center',behavior:'instant'}));
+ await page.waitForTimeout(100);
+ assert.equal(await page.locator('#quick-random-exercise').isVisible(),false,'float should hide when the footer shortcut is reachable');
  await context.close();
  const mobile=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true});
  const mobilePage=await mobile.newPage();
@@ -110,6 +113,9 @@ try{
  const mobileSerial=await mobilePage.locator('.task-serial').innerText();
  await mobilePage.locator('#quick-random-exercise').click();
  assert.notEqual(await mobilePage.locator('.task-serial').innerText(),mobileSerial);
+ await mobilePage.locator('#random-task-bottom').evaluate(el=>el.scrollIntoView({block:'center',behavior:'instant'}));
+ await mobilePage.waitForTimeout(100);
+ assert.equal(await mobilePage.locator('#quick-random-exercise').isVisible(),false,'floating shortcut should hide when mobile footer action is reachable');
  await mobile.close();
  assert.deepEqual(errors,[],'uncaught browser errors');
  console.log('PASS: paradox readability and data notes, random-task shortcuts, desktop/mobile, search, autosave and navigation.');
