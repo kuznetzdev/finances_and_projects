@@ -634,3 +634,31 @@ h1,h2,h3,h4,.page-intro h1,.task-header h2,.mode-header h2,.term-item h3,
  .filter-popover .filter-search-results{max-height:min(300px,38vh)}
  .filter-search-tip{font-size:10px}
 }
+
+
+/* Contextual shortcut appears only after the top random control leaves the viewport.
+   Keep it above mobile navigation, out of the way of exercise action buttons. */
+.quick-random-exercise{
+  position:fixed;
+  right:clamp(16px,3vw,36px);
+  bottom:24px;
+  z-index:12;
+  min-height:48px;
+  padding:0 18px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  box-shadow:0 8px 28px rgba(6,34,29,.24);
+}
+.quick-random-exercise .ui-icon{width:20px;height:20px;flex:none}
+.quick-random-exercise:focus-visible{outline:3px solid var(--accent);outline-offset:4px}
+@media(max-width:780px){
+  .quick-random-exercise{
+    right:14px;
+    bottom:calc(74px + env(safe-area-inset-bottom));
+    min-height:46px;
+    max-width:calc(100vw - 28px);
+    padding:0 15px;
+    font-size:12px;
+  }
+}
+@media(max-width:380px){.quick-random-exercise{font-size:11px;padding:0 13px}}
