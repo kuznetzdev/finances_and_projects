@@ -643,6 +643,7 @@ h1,h2,h3,h4,.page-intro h1,.task-header h2,.mode-header h2,.term-item h3,
   right:clamp(16px,3vw,36px);
   bottom:24px;
   z-index:12;
+  width:max-content;
   min-height:48px;
   padding:0 18px;
   border:1px solid var(--line);
