@@ -36,5 +36,5 @@ test('Quiz feedback remains legible and long content works at small widths',()=>
  assert.match(css,/\.quiz-option:disabled\s*\{\s*opacity:1/);
  assert.match(css,/@media\(max-width:780px\)/);
  assert.match(css,/@media\(max-width:600px\)/);
- assert.match(css,/\.glossary.*\.term-list\s*\{\s*grid-template-columns:1fr/);
+ assert.match(css,/#content\[data-page="glossary"\] \.term-list\s*\{\s*grid-template-columns:1fr/);
 });
