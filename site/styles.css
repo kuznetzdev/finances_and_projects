@@ -136,3 +136,21 @@
 .paradox-detail .paradox-answer p,.paradox-detail .paradox-check p{max-width:78ch}
 .paradox-detail .paradox-actions .button{min-height:44px}
 @media(max-width:650px){.paradox-row{align-items:flex-start}.paradox-row-text small{font-size:11px}.paradox-state{align-self:center}.paradox-group-heading{align-items:start}.paradox-group-heading>span{font-size:11px}.paradox-detail{padding:19px 16px}.paradox-pagination .button{padding-left:10px;padding-right:10px}}
+
+
+/* Seminar 4: source-backed learning route, intentionally collapsed by default. */
+.section4-path{margin:12px 0 20px;border:1px solid var(--line);background:var(--paper);border-radius:14px;min-width:0;overflow:hidden}
+.section4-path>summary{cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:17px 20px;font-weight:700;line-height:1.5}
+.section4-path>summary span{font-weight:400;font-size:12px;color:var(--muted)}
+.section4-path>summary:focus-visible,.section4-path-link:focus-visible{outline:3px solid var(--ok);outline-offset:2px}
+.section4-path-intro{margin:0 20px 15px;line-height:1.7;font-size:13px;color:var(--muted)}
+.section4-path-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:0 18px 18px}
+.section4-path-topic{min-width:0;border:1px solid var(--line);border-radius:11px;padding:17px;overflow-wrap:anywhere}
+.section4-path-topic h3{font-size:15px;margin:0 0 11px;line-height:1.45}
+.section4-path-topic p{font-size:13px;line-height:1.65;margin:0 0 11px}
+.section4-path-topic small{display:block;margin-top:14px;color:var(--muted);line-height:1.5}
+.section4-path-links{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:9px}
+.section4-path-links>strong{flex:0 0 100%;font-size:11px;letter-spacing:.03em}
+.section4-path-link{display:inline-block;max-width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:9px;font-size:12px;line-height:1.45;color:var(--forest2);overflow-wrap:anywhere;text-decoration:none}
+.section4-path-link:hover{text-decoration:underline}
+@media(max-width:700px){.section4-path-grid{grid-template-columns:minmax(0,1fr);padding:0 12px 12px}.section4-path>summary{padding:14px;flex-wrap:wrap}.section4-path-topic{padding:14px}.section4-path-intro{margin:0 14px 12px}}
