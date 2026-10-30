@@ -52,7 +52,7 @@ function reference(id,a,level){
    const answers={'q1-accrued':accrual[0],'q2-paid':paid[1]};
    if(level>=3)Object.assign(answers,{'accrued-total':add(accrual),'cash-paid':add(paid)});
    if(level>=4)Object.assign(answers,{'end-payable':accrual[3],'q4-tax-cash':-paid[3]});
-   return {answers,story:[pct(a.tax),...a.quarterlyProfit.map(x=>fmt(x)+' млн ₽')]};
+   return {answers,story:[pct(a.tax),a.quarterlyProfit.map(fmt).join(' / ')+' млн ₽']};
   }
   case 'tax-loss-carryforward':{
    if(!valid(a,'tax','initialLoss','capFraction')||!values(a,'profits',3)||
