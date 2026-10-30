@@ -13,8 +13,8 @@ const close=(got,expected,name)=>assert.ok(Math.abs(got-expected)<1e-9,name+': '
 test('ten distinct valuation control problems supplement 13 reporting cases, originals remain',()=>{
  assert.equal(VALUATION_CONTROL_CASES.length,10);
  assert.equal(REPORTING_CONTROL_CASES.length,13);
- assert.equal(CASE_BANK.length,107);
- assert.equal(new Set(CASE_BANK.map(c=>c.id)).size,107);
+ assert.equal(CASE_BANK.length,111);
+ assert.equal(new Set(CASE_BANK.map(c=>c.id)).size,111);
  assert.equal(availableCases('Контрольные · Оценка бизнеса').length,10);
  assert.equal(availableCases('Контрольные · Финансовая отчётность').length,13);
  for(const item of VALUATION_CONTROL_CASES){
