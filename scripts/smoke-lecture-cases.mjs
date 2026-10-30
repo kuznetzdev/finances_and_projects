@@ -35,7 +35,7 @@ try{
  await page.locator('#bank-step-hint').click();
  assert.equal(await page.locator('.case-hint-panel').count(),0);
 
- assert.match(await page.locator('.case-counter').innerText(),/107 разобранных задач/);
+ assert.match(await page.locator('.case-counter').innerText(),/111 разобранных задач/);
  assert.match(await page.locator('.case-condition').innerText(),/500 млн/);
  await page.locator('#bank-answer').fill('150');
  await page.locator('#bank-answer-form button[type="submit"]').click();
@@ -154,6 +154,44 @@ try{
  await page.locator('#bank-solution-toggle').click();
  assert.match(await page.locator('.case-full-solution').innerText(),/без добавленных условий/);
  await page.screenshot({path:'artifacts/section4-novatech-desktop.png',fullPage:true});
+ // New bond and option cases, source notes and five-topic route.
+ await page.goto(base+'?page=practice&mode=bank&case=I01',{waitUntil:'networkidle'});
+ assert.equal(await page.locator('.case-code').innerText(),'I01');
+ assert.equal(await page.locator('#bank-group').inputValue(),'Облигации и опционы · углублённые кейсы');
+ await page.locator('#instruments-learning-path summary').click();
+ assert.equal(await page.locator('#instruments-learning-path .section4-path-topic').count(),5);
+ assert.ok(await page.locator('#instruments-learning-path a[href*="case=I02"]').count()>=1);
+ assert.ok(await page.locator('#instruments-learning-path a[href*="case=I03"]').count()>=1);
+ await page.locator('#bank-step-hint').click();
+ assert.equal(await page.locator('.case-hint-panel .financial-formula').count(),0);
+ await page.locator('#bank-step-hint').click();
+ assert.ok(await page.locator('.case-hint-panel .financial-formula').isVisible());
+ for(const [i,v] of ['950,263','2,7774','2,5249','-2,5249','-2,4808'].entries()){
+  await page.locator('#bank-answer').fill(v);
+  await page.locator('#bank-answer-form button[type="submit"]').click();
+  assert.match(await page.locator('#bank-feedback').innerText(),/Верно/,'I01 step '+i);
+  if(i<4)await page.locator('#bank-next').click();
+ }
+ assert.equal(await page.locator('#bank-complete').isEnabled(),true);
+ await page.locator('#bank-solution-toggle').click();
+ assert.match(await page.locator('.case-full-solution').innerText(),/модифицированную дюрацию/);
+ await page.goto(base+'?page=practice&mode=bank&case=I03',{waitUntil:'networkidle'});
+ assert.match(await page.locator('.case-condition').innerText(),/Авторский пример/);
+ for(const [i,v] of ['20','12','108','20','14','94'].entries()){
+  await page.locator('#bank-answer').fill(v);
+  await page.locator('#bank-answer-form button[type="submit"]').click();
+  assert.match(await page.locator('#bank-feedback').innerText(),/Верно/,'I03 step '+i);
+  if(i<5)await page.locator('#bank-next').click();
+ }
+ assert.equal(await page.locator('#bank-complete').isEnabled(),true);
+ await page.goto(base+'?page=practice&mode=bank&case=I04',{waitUntil:'networkidle'});
+ for(const [i,v] of ['-25','20','-13','13','108'].entries()){
+  await page.locator('#bank-answer').fill(v);
+  await page.locator('#bank-answer-form button[type="submit"]').click();
+  assert.match(await page.locator('#bank-feedback').innerText(),/Верно/,'I04 step '+i);
+  if(i<4)await page.locator('#bank-next').click();
+ }
+ await page.screenshot({path:'artifacts/instruments-protective-put.png',fullPage:true});
  await page.goto(base+'?page=practice&mode=bank&case=VC03',{waitUntil:'networkidle'});
  assert.equal(await page.locator('.case-code').innerText(),'VC03');
  assert.match(await page.locator('.case-condition').innerText(),/500 млн/);
@@ -254,7 +292,12 @@ try{
  assert.equal(await mob.locator('.section4-path-topic').count(),12);
  const section4Widths=await mob.evaluate(()=>({document:document.documentElement.scrollWidth,viewport:innerWidth}));
  assert.ok(section4Widths.document<=section4Widths.viewport+5,'seminar 4 route mobile overflow: '+JSON.stringify(section4Widths));
+ await mob.goto(base+'?page=practice&mode=bank&case=I01',{waitUntil:'networkidle'});
+ await mob.locator('#instruments-learning-path summary').click();
+ assert.equal(await mob.locator('#instruments-learning-path .section4-path-topic').count(),5);
+ const instrumentWidths=await mob.evaluate(()=>({doc:document.documentElement.scrollWidth,viewport:innerWidth}));
+ assert.ok(instrumentWidths.doc<=instrumentWidths.viewport+5,'bond/option mobile overflow '+JSON.stringify(instrumentWidths));
  await mobile.close();
  assert.deepEqual(errors,[]);
- console.log('PASS: 107 cases, section 4 linked guide, eight PDF solutions, three-stage hints, advanced LBO, fixed MM/Pecking numeric checks, persistence and mobile styling.');
+ console.log('PASS: 111 cases, section 4 linked guide, eight PDF solutions, three-stage hints, advanced LBO, fixed MM/Pecking numeric checks, persistence and mobile styling.');
 }finally{await browser?.close();server.kill('SIGTERM');}
