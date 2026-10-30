@@ -10,7 +10,7 @@ const eligible=(ex,key)=>ex.questions.some(q=>q.key===key);
 test('New variant registry contains 14 distinct templates mapped to course themes',()=>{
  assert.equal(templates.length,14);
  assert.equal(new Set(templates.map(x=>x.id)).size,templates.length);
- assert.equal(TEMPLATE_CATALOG.length,122);
+ assert.equal(TEMPLATE_CATALOG.length,126);
  for(const t of templates){const entry=TEMPLATE_CATALOG.find(x=>x.id===t.id);assert.ok(entry?.skill && entry.area!=='all',t.id);}
 });
 
