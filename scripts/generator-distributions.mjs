@@ -13,6 +13,7 @@ import {mkdirSync,writeFileSync} from 'node:fs';
 import {pathToFileURL} from 'node:url';
 import {TEMPLATE_CATALOG,generateExercise} from '../site/engine/index.js';
 import {validatePlausibility} from './lib/financial-plausibility.js';
+import {reviewDistributionFlags} from './lib/distribution-review.js';
 
 export const DIVERSITY_CONTRACTS=Object.freeze({
  'v-pv':{minUniqueRate:.20,maxDominantRate:.25},
@@ -118,10 +119,13 @@ export function runAudit({samples=96,catalog=TEMPLATE_CATALOG}={}){
   }
  }
  warnings.push(...[...unusual.values()].map(x=>({...x,message:x.message+' (occurrences: '+x.occurrences+')'})));
+ const review=reviewDistributionFlags(warnings,rows,{samples});
+ errors.push(...review.errors);
  return {
   sampledTemplates:catalog.length,sampledLevels:rows.length,
   checkedExercises:rows.reduce((sum,row)=>sum+row.samples,0),
-  contracts:Object.keys(DIVERSITY_CONTRACTS),rows,errors,warnings
+  contracts:Object.keys(DIVERSITY_CONTRACTS),rows,errors,warnings,
+  reviewedFlags:review.reviewed.length,unreviewedFlags:review.unreviewed
  };
 }
 
@@ -142,6 +146,8 @@ function execute(){
   'Блокирующие контракты разнообразия заданы для: '+out.contracts.join(', ')+'.',
   'Выбросы определяются правилом 3×IQR; сами по себе они не являются финансовой ошибкой.',
   'Финансовые тождества и некорректная арифметика проверяются отдельными модулями.',
+  'Известные статистические сигналы разрешены лишь в рамках явно проверяемой политики scripts/lib/distribution-review.js.',
+  'Разобрано сигналов: '+out.reviewedFlags+'; неразобранных: '+out.unreviewedFlags.length+'.',
   '',
   '| Шаблон | Уровень | Сценариев | Уникальных | Частота наиболее частого | Предупреждения |',
   '| --- | ---: | ---: | ---: | ---: | ---: |',
@@ -154,10 +160,11 @@ function execute(){
  ].join('\n');
  writeFileSync('artifacts/generator-distributions.md',md+'\n');
  console.log('Distribution audit: '+out.checkedExercises+' generated examples; '+out.sampledTemplates+
-   ' templates; '+out.errors.length+' errors; '+out.warnings.length+' review flags');
+   ' templates; '+out.errors.length+' errors; '+out.warnings.length+' review flags; '+out.unreviewedFlags.length+' unreviewed');
  for(const e of out.errors.slice(0,25))console.error('ERROR ['+e.code+'] '+e.message);
  // Keep diagnostics observable in CI logs, rather than only in a zipped artifact.
  for(const w of out.warnings.slice(0,45))console.warn('REVIEW ['+w.code+'] '+w.message);
+ console.log('Distribution review gate: '+out.reviewedFlags+' reviewed, '+out.unreviewedFlags.length+' unreviewed');
  if(out.errors.length)process.exitCode=1;
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href)execute();
