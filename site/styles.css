@@ -103,6 +103,13 @@
 .paradox-detail h3{font-size:17px;margin:0 0 12px}
 .paradox-detail p{line-height:1.72}
 .paradox-question{background:var(--paper2);border-radius:12px;padding:20px 22px;margin-bottom:26px}
+.paradox-focus{border-top:1px solid var(--line);margin-top:16px;padding-top:13px}
+.paradox-focus h3{font-size:13px;margin:0 0 7px;color:var(--forest2)}
+.paradox-focus p{font-size:13px;line-height:1.6}
+.paradox-analysis p{line-height:1.8;margin:0 0 16px;overflow-wrap:anywhere}
+.paradox-analysis p strong{font-weight:650;color:var(--ink)}
+.paradox-source a{color:var(--forest2);text-underline-offset:3px;overflow-wrap:anywhere}
+.paradox-source li{margin:7px 0}
 .paradox-question p{margin:0}.paradox-help{font-size:13px;color:var(--muted)}
 .paradox-detail textarea{min-height:170px;resize:vertical;line-height:1.65;margin-bottom:12px}
 .paradox-actions{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
