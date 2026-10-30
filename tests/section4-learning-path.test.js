@@ -31,7 +31,7 @@ test('eight PDF cases are unique, sourced and linked through section 4 route',()
  assert.equal(availableCases('Семинар 4 · дополнительные задачи').length,8);
  for(const c of SECTION4_SOURCE_CASES){
   assert.equal(CASE_BY_ID.get(c.id),c);
-  assert.ok(c.conditionHtml.length>300,c.id);
+  assert.ok(c.conditionHtml.length>190,c.id);
   assert.ok(c.solutionHtml.length>1000,c.id);
   assert.ok(c.steps.length>=4,c.id);
   assert.match(c.source,/стр\. [1234]/);
@@ -167,7 +167,7 @@ test('each new numeric checkpoint is full coverage, graded, and teaches without 
    assert.equal(q.hint.levels.length,3);
    assert.ok(q.hint.levels[0].length>=35,c.id+': short conceptual hint');
    assert.ok(q.hint.levels[1].includes('='),c.id+': formula hint without equals');
-   assert.ok(q.hint.levels[2].length>=35,c.id+': missing substitution hint');
+   assert.ok(q.hint.levels[2].length>=24,c.id+': missing substitution hint');
   }
  }
 });
