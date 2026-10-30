@@ -128,7 +128,7 @@ try{
  assert.equal(await page.locator('.case-code').innerText(),'S4-03');
  assert.equal(await page.locator('#bank-group').inputValue(),'Семинар 4 · дополнительные задачи');
  await page.locator('#section4-learning-path summary').click();
- assert.equal(await page.locator('.section4-path-topic').count(),12);
+ assert.equal(await page.locator('#section4-learning-path .section4-path-topic').count(),12);
  assert.ok(await page.locator('.section4-path-link[href*="case=S4-01"]').count()>=1);
  assert.ok(await page.locator('.section4-path-link[href*="paradox=s4-p5"]').count()>=1);
  const destinations=await page.locator('.section4-path-link').evaluateAll(links=>links.map(a=>a.href));
@@ -289,7 +289,7 @@ try{
  await mob.goto(base+'?page=practice&mode=bank&case=S4-01',{waitUntil:'networkidle'});
  assert.equal(await mob.locator('.case-code').innerText(),'S4-01');
  await mob.locator('#section4-learning-path summary').click();
- assert.equal(await mob.locator('.section4-path-topic').count(),12);
+ assert.equal(await mob.locator('#section4-learning-path .section4-path-topic').count(),12);
  const section4Widths=await mob.evaluate(()=>({document:document.documentElement.scrollWidth,viewport:innerWidth}));
  assert.ok(section4Widths.document<=section4Widths.viewport+5,'seminar 4 route mobile overflow: '+JSON.stringify(section4Widths));
  await mob.goto(base+'?page=practice&mode=bank&case=I01',{waitUntil:'networkidle'});
