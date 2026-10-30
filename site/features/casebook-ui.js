@@ -2,7 +2,7 @@ import {formulaMarkup} from './math-ui.js';
 import {CASE_BANK, CASE_CHECKPOINTS, CASE_GROUPS, availableCases, nextCase, recordRecent, verifyCheckpoint, CASE_BY_ID} from '../engine/casebook.js';
 import {recordSkip} from '../engine/attempts.js';
 
-const state={group:'Все направления',id:null,index:0,showReference:false,search:'',revealedStep:null,revealedHint:null};
+const state={group:'Все направления',id:null,index:0,showReference:false,search:'',revealedStep:null,revealedHint:null,hintLevel:0};
 const MIN_REASONING_LENGTH=80;
 let deps, pendingSave=null;
 function flushDraft(){if(pendingSave!==null){clearTimeout(pendingSave);pendingSave=null;}deps?.save();}
@@ -40,12 +40,23 @@ function render(){
   const current=d.answers[idx]??'', feedback=d.checked[idx]===true&&verifyCheckpoint(step,current)!==true?null:d.checked[idx];
   const label=deps.escape(step.label);
   const hintExpanded=state.revealedHint===`${item.id}:${idx}`;
+  const hintLevels=Array.isArray(step.hint?.levels)?step.hint.levels:null;
+  const hintDepth=hintExpanded?Math.max(1,Math.min(state.hintLevel,hintLevels?.length??1)):0;
+  const hintTitle=hintLevels?
+   (!hintExpanded?'Подсказка 1 из '+hintLevels.length:
+    hintDepth<hintLevels.length?'Следующая подсказка '+(hintDepth+1)+' из '+hintLevels.length:'Скрыть подсказки'):
+   (hintExpanded?'Скрыть подсказку':'Подсказка к расчёту');
+  const hintBody=hintLevels?
+   `<p>${deps.escape(hintLevels[0])}</p>
+    ${hintDepth>=2?`<div class="glossary-formula-equation">${formulaMarkup(hintLevels[1],deps.escape)}</div>`:''}
+    ${hintDepth>=3?`<p class="case-hint-last">${deps.escape(hintLevels[2])}</p>`:''}`:
+   `<p>${deps.escape(step.hint?.guide??'')}</p><div class="glossary-formula-equation">${formulaMarkup(step.hint?.formula??'',deps.escape)}</div>`;
   const hint=step.hint? `<div class="case-step-help">
    <button type="button" id="bank-step-hint" class="case-hint-toggle" aria-expanded="${hintExpanded}" aria-controls="bank-step-hint-content">
      <svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-bulb"></use></svg>
-     ${hintExpanded?'Скрыть подсказку':'Подсказка к расчёту'}
+     ${hintTitle}
    </button>
-   ${hintExpanded?`<div class="case-hint-panel" id="bank-step-hint-content" role="region" aria-label="Подсказка к расчёту"><p>${deps.escape(step.hint.guide)}</p><div class="glossary-formula-equation">${formulaMarkup(step.hint.formula,deps.escape)}</div></div>`:''}
+   ${hintExpanded?`<div class="case-hint-panel" id="bank-step-hint-content" role="region" aria-label="Подсказка к расчёту">${hintBody}</div>`:''}
   </div>`:'';
   activity=`<div class="case-step-heading"><span>ШАГ ${idx+1} / ${count}</span><h3>${label}</h3><p>Ответ в ${deps.escape(step.unit)}. Дробные числа можно вводить через запятую или точку.</p></div><form id="bank-answer-form" class="case-answer-form"><label for="bank-answer">Ваш расчёт</label><div class="case-number-wrap"><input id="bank-answer" type="text" inputmode="decimal" autocomplete="off" value="${deps.escape(current)}" placeholder="Введите число"><span>${deps.escape(step.unit)}</span></div><div id="bank-feedback" class="case-feedback" aria-live="polite">${feedback===true?'<strong class="case-ok">Верно.</strong>':feedback===false?'<strong class="case-bad">Ответ пока не совпадает. Проверь единицы и промежуточные расчёты.</strong>':''}</div><button class="button primary" type="submit">Проверить шаг</button>${hint}</form>`;
  }else{
@@ -70,7 +81,15 @@ function render(){
  $('#bank-repeat').onclick=()=>{deps.stats.caseReview??=[];if(!deps.stats.caseReview.includes(item.id))deps.stats.caseReview.unshift(item.id);deps.save();deps.notice('Задача добавлена на повторение');};
  $('#bank-complete').onclick=()=>{if(stepSolved(checkpoints,d,count)!==count){deps.notice('Сначала завершите все этапы');return;}deps.stats.caseCompleted??={};deps.stats.caseCompleted[item.id]=new Date().toISOString().slice(0,10);deps.stats.caseReview=(deps.stats.caseReview??[]).filter(x=>x!==item.id);deps.save();deps.notice('Задача отмечена как изученная');render();};
  if(numerical){
-  if(step.hint)$('#bank-step-hint').onclick=()=>{state.revealedHint=state.revealedHint===`${item.id}:${idx}`?null:`${item.id}:${idx}`;render();$('#bank-step-hint')?.focus({preventScroll:true});};
+  if(step.hint)$('#bank-step-hint').onclick=()=>{
+   const key=`${item.id}:${idx}`,levels=step.hint.levels;
+   if(Array.isArray(levels)&&levels.length>0){
+    if(state.revealedHint!==key){state.revealedHint=key;state.hintLevel=1;}
+    else if(state.hintLevel<levels.length)state.hintLevel++;
+    else{state.revealedHint=null;state.hintLevel=0;}
+   }else{state.revealedHint=state.revealedHint===key?null:key;}
+   render();$('#bank-step-hint')?.focus({preventScroll:true});
+  };
   $('#bank-answer').oninput=ev=>{if(d.answers[idx]===ev.target.value)return;d.answers[idx]=ev.target.value;delete d.checked[idx];invalidateCompletion(item);const feedback=$('#bank-feedback');feedback.textContent='Ответ изменён. Проверьте расчёт повторно.';updateProgressUI(checkpoints,d,count);saveDraftSoon();};
   $('#bank-answer-form').onsubmit=ev=>{ev.preventDefault();const result=verifyCheckpoint(step,d.answers[idx]);if(result===null){deps.notice('Введите ответ');return;}d.checked[idx]=result;deps.save();render();if(result===true&&idx<count-1){deps.notice('Верно. Можно переходить дальше.');}};
  }else{
