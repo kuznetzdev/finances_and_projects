@@ -72,7 +72,7 @@ test('Seven capital generators use reproducible numbers and independent financia
 });
 
 test('Five independent cases supplement B13 and retain original source bank untouched',()=>{
- assert.equal(CASE_BANK.length,97);
+ assert.equal(CASE_BANK.length,99);
  for(let id of ['B02','B03','B04','B05','B14']){
   let c=CASE_BY_ID.get(id);assert.ok(c,id);
   assert.ok(c.conditionHtml.length>280,id);
