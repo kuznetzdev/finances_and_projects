@@ -24,8 +24,8 @@ function loanSchedule(principal,annualRate,fcf,years,mezz=0,mezzRate=0){
 
 test('eight PDF cases are unique, sourced and linked through section 4 route',()=>{
  assert.equal(SECTION4_SOURCE_CASES.length,8);
- assert.equal(CASE_BANK.length,107);
- assert.equal(new Set(CASE_BANK.map(x=>x.id)).size,107);
+ assert.equal(CASE_BANK.length,111);
+ assert.equal(new Set(CASE_BANK.map(x=>x.id)).size,111);
  assert.deepEqual(SECTION4_SOURCE_CASES.map(x=>x.id),
   Array.from({length:8},(_,i)=>'S4-0'+(i+1)));
  assert.equal(availableCases('Семинар 4 · дополнительные задачи').length,8);

@@ -9,10 +9,11 @@ import {TEMPLATE_CATALOG,generateExercise} from '../site/engine/index.js';
 import {ORACLE_TEMPLATES} from './lib/finance-oracles.js';
 import {BASIC_ORACLE_TEMPLATES} from './lib/basic-finance-oracles.js';
 import {TAX_MODEL_ORACLE_TEMPLATES} from './lib/tax-model-oracles.js';
+import {INSTRUMENT_ORACLE_TEMPLATES} from './lib/instrument-oracles.js';
 
-const oracle=new Set([...ORACLE_TEMPLATES,...BASIC_ORACLE_TEMPLATES,...TAX_MODEL_ORACLE_TEMPLATES]);
+const oracle=new Set([...ORACLE_TEMPLATES,...BASIC_ORACLE_TEMPLATES,...TAX_MODEL_ORACLE_TEMPLATES,...INSTRUMENT_ORACLE_TEMPLATES]);
 const domainIds=new Set([
-  ...ORACLE_TEMPLATES,
+  ...ORACLE_TEMPLATES,...INSTRUMENT_ORACLE_TEMPLATES,
   'capital-financing-match','capital-roa-debt-roe','capital-wacc-dynamic',
   'capital-mm-tax','capital-tradeoff','capital-pecking-order','capital-waterfall',
   'tax-depreciation-method-comparison','tax-temporary-differences',
@@ -21,7 +22,7 @@ const domainIds=new Set([
 const moduleFor=id=>{
   if(/^(pl-|cash-|balance-|links-|valuation-)/.test(id))return 'legacy.js';
   const prefixes=[
-    ['dcf-','dcf-advanced.js'],['capital-','capital-structure.js'],
+    ['bond-','instruments.js'],['option-','instruments.js'],['dcf-','dcf-advanced.js'],['capital-','capital-structure.js'],
     ['tax-','tax-advanced.js'],['x-','practice-variants.js'],
     ['bank-','bank-derived.js'],['logic-','reasoning.js'],
     ['v-','valuation.js'],['t-','taxes.js'],['r-','ratios.js'],
@@ -57,7 +58,7 @@ for(const t of TEMPLATE_CATALOG){
 }
 if(new Set(rows.map(r=>r.id)).size!==TEMPLATE_CATALOG.length)throw Error('Duplicate or lost template in coverage matrix');
 for(const id of oracle)if(!rows.some(r=>r.id===id))throw Error('Orphan finance oracle '+id);
-if(oracle.size!==ORACLE_TEMPLATES.length+BASIC_ORACLE_TEMPLATES.length+TAX_MODEL_ORACLE_TEMPLATES.length)throw Error('Oracle template IDs overlap');
+if(oracle.size!==ORACLE_TEMPLATES.length+BASIC_ORACLE_TEMPLATES.length+TAX_MODEL_ORACLE_TEMPLATES.length+INSTRUMENT_ORACLE_TEMPLATES.length)throw Error('Oracle template IDs overlap');
 
 const counts=Object.fromEntries([...new Set(rows.map(r=>r.status))].sort().map(
   s=>[s,rows.filter(r=>r.status===s).length]

@@ -13,7 +13,7 @@ const pv=(items,r)=>items.reduce((a,v,i)=>a+v/(1+r)**(i+1),0);
 test('Iteration 1 registers four distinct generators with course metadata',()=>{
  assert.equal(templates.length,4);
  assert.deepEqual(templates.map(x=>x.id),['tax-depreciation-method-comparison','tax-temporary-differences','tax-payments-schedule','tax-loss-carryforward']);
- assert.equal(TEMPLATE_CATALOG.length,122);
+ assert.equal(TEMPLATE_CATALOG.length,126);
  for(const t of templates){
   const row=TEMPLATE_CATALOG.find(x=>x.id===t.id);
   assert.ok(row && row.area==='taxes' && row.skill && row.topic==='tax',t.id);
@@ -95,7 +95,7 @@ test('Tax generator answers are deterministic and obey independent identities fo
 });
 
 test('B13 is a complete distinct solved case integrated into the case bank',()=>{
- assert.equal(CASE_BANK.length,107);
+ assert.equal(CASE_BANK.length,111);
  const b=CASE_BY_ID.get('B13');
  assert.ok(b);
  assert.match(b.conditionHtml,/600|амортизац/i);
