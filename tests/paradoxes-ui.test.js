@@ -7,9 +7,9 @@ import {MIN_ANSWER_LENGTH,filterParadoxes,promptFor,normalizeRecord,canMarkRevie
 const answer='Рост показателя сам по себе не доказывает создание стоимости. Нужно отделить денежные потоки от бухгалтерской прибыли, проверить модель финансирования, временные ограничения и риск. '.repeat(2);
 
 test('Each original seminar question is preserved, uniquely mapped and nonempty',()=>{
- assert.equal(SEMINARS.length,3);
- assert.equal(PARADOXES.length,30);
- assert.equal(Object.keys(ORIGINAL_PROMPTS).length,30);
+ assert.equal(SEMINARS.length,4);
+ assert.equal(PARADOXES.length,40);
+ assert.equal(Object.keys(ORIGINAL_PROMPTS).length,40);
  assert.equal(new Set(PARADOXES.map(p=>p.id)).size,30);
  for(const s of SEMINARS){
   const arr=PARADOXES.filter(p=>p.seminar===s.id);
@@ -23,10 +23,14 @@ test('Each original seminar question is preserved, uniquely mapped and nonempty'
  }
 });
 test('Keyword search is case independent and preserves the selected seminar',()=>{
- assert.equal(filterParadoxes().length,30);
+ assert.equal(filterParadoxes().length,40);
  assert.equal(filterParadoxes(1).length,10);
  assert.equal(filterParadoxes('2').length,10);
  assert.equal(filterParadoxes('3').length,10);
+ assert.equal(filterParadoxes('4').length,10);
+ assert.ok(filterParadoxes('4','liquidation').length===0);
+ assert.ok(filterParadoxes('4','LBO').some(p=>p.id==='s4-p5'));
+ assert.ok(filterParadoxes('4','венчур').some(p=>p.id==='s4-p10'));
  assert.ok(filterParadoxes('all','WACC').length>=3);
  assert.ok(filterParadoxes('all','wacc').length>=3);
  assert.ok(filterParadoxes('all','  МСФО  ').some(p=>p.id==='s1-p4'));
