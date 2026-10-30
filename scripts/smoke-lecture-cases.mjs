@@ -35,7 +35,7 @@ try{
  await page.locator('#bank-step-hint').click();
  assert.equal(await page.locator('.case-hint-panel').count(),0);
 
- assert.match(await page.locator('.case-counter').innerText(),/99 разобранных задач/);
+ assert.match(await page.locator('.case-counter').innerText(),/107 разобранных задач/);
  assert.match(await page.locator('.case-condition').innerText(),/500 млн/);
  await page.locator('#bank-answer').fill('150');
  await page.locator('#bank-answer-form button[type="submit"]').click();
@@ -123,6 +123,37 @@ try{
  }
  assert.equal(await page.locator('#bank-complete').isEnabled(),true);
  await page.screenshot({path:'artifacts/stage1-pecking-order.png',fullPage:true});
+ // The section 4 route maps theory to eight PDF cases and existing paradoxes.
+ await page.goto(base+'?page=practice&mode=bank&case=S4-03',{waitUntil:'networkidle'});
+ assert.equal(await page.locator('.case-code').innerText(),'S4-03');
+ assert.equal(await page.locator('#bank-group').inputValue(),'Семинар 4 · дополнительные задачи');
+ await page.locator('#section4-learning-path summary').click();
+ assert.equal(await page.locator('.section4-path-topic').count(),12);
+ assert.ok(await page.locator('.section4-path-link[href*="case=S4-01"]').count()>=1);
+ assert.ok(await page.locator('.section4-path-link[href*="paradox=s4-p5"]').count()>=1);
+ const destinations=await page.locator('.section4-path-link').evaluateAll(links=>links.map(a=>a.href));
+ assert.ok(destinations.every(url=>url.includes('?page=practice')||url.includes('?page=paradoxes')));
+ for(const [i,val] of ['21,053','26,667','5,614'].entries()){
+  await page.locator('#bank-answer').fill(val);
+  await page.locator('#bank-answer-form button[type="submit"]').click();
+  assert.match(await page.locator('#bank-feedback').innerText(),/Верно/,'S4-03 step '+i);
+  if(i<2)await page.locator('#bank-next').click();
+ }
+ assert.equal(await page.locator('#bank-complete').isEnabled(),true);
+ await page.goto(base+'?page=practice&mode=bank&case=S4-08',{waitUntil:'networkidle'});
+ assert.equal(await page.locator('.case-code').innerText(),'S4-08');
+ assert.match(await page.locator('.case-condition').innerText(),/Дополнительное условие/);
+ assert.ok(await page.locator('.case-caution').isVisible());
+ await page.locator('#bank-step-hint').click();
+ assert.equal(await page.locator('.case-hint-panel .financial-formula').count(),0);
+ await page.locator('#bank-step-hint').click();
+ assert.ok(await page.locator('.case-hint-panel .financial-formula').isVisible());
+ await page.locator('#bank-answer').fill('10,8333');
+ await page.locator('#bank-answer-form button[type="submit"]').click();
+ assert.match(await page.locator('#bank-feedback').innerText(),/Верно/);
+ await page.locator('#bank-solution-toggle').click();
+ assert.match(await page.locator('.case-full-solution').innerText(),/без добавленных условий/);
+ await page.screenshot({path:'artifacts/section4-novatech-desktop.png',fullPage:true});
  await page.goto(base+'?page=practice&mode=bank&case=VC03',{waitUntil:'networkidle'});
  assert.equal(await page.locator('.case-code').innerText(),'VC03');
  assert.match(await page.locator('.case-condition').innerText(),/500 млн/);
@@ -217,7 +248,13 @@ try{
  assert.ok(await mob.locator('.case-hint-panel').isVisible());
  const stage1Widths=await mob.evaluate(()=>({document:document.documentElement.scrollWidth,viewport:innerWidth}));
  assert.ok(stage1Widths.document<=stage1Widths.viewport+5,'CS02 mobile overflow: '+JSON.stringify(stage1Widths));
+ await mob.goto(base+'?page=practice&mode=bank&case=S4-01',{waitUntil:'networkidle'});
+ assert.equal(await mob.locator('.case-code').innerText(),'S4-01');
+ await mob.locator('#section4-learning-path summary').click();
+ assert.equal(await mob.locator('.section4-path-topic').count(),12);
+ const section4Widths=await mob.evaluate(()=>({document:document.documentElement.scrollWidth,viewport:innerWidth}));
+ assert.ok(section4Widths.document<=section4Widths.viewport+5,'seminar 4 route mobile overflow: '+JSON.stringify(section4Widths));
  await mobile.close();
  assert.deepEqual(errors,[]);
- console.log('PASS: 99 cases, three-stage hints, advanced LBO, fixed MM/Pecking numeric checks, persistence and mobile styling.');
+ console.log('PASS: 107 cases, section 4 linked guide, eight PDF solutions, three-stage hints, advanced LBO, fixed MM/Pecking numeric checks, persistence and mobile styling.');
 }finally{await browser?.close();server.kill('SIGTERM');}

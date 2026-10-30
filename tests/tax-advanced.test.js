@@ -95,7 +95,7 @@ test('Tax generator answers are deterministic and obey independent identities fo
 });
 
 test('B13 is a complete distinct solved case integrated into the case bank',()=>{
- assert.equal(CASE_BANK.length,99);
+ assert.equal(CASE_BANK.length,107);
  const b=CASE_BY_ID.get('B13');
  assert.ok(b);
  assert.match(b.conditionHtml,/600|амортизац/i);

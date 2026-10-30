@@ -13,8 +13,8 @@ test('two fixed Oct 30 tasks are added once without duplicating three earlier LB
  assert.equal(CAPITAL_ASSIGNMENT_CASES.length,2);
  assert.deepEqual(CAPITAL_ASSIGNMENT_CASES.map(c=>c.id),['CS01','CS02']);
  assert.equal(LECTURE_CASES.length,10);
- assert.equal(CASE_BANK.length,99);
- assert.equal(new Set(CASE_BANK.map(c=>c.id)).size,99);
+ assert.equal(CASE_BANK.length,107);
+ assert.equal(new Set(CASE_BANK.map(c=>c.id)).size,107);
  assert.equal(availableCases('LBO · видеолекция').length,3);
  assert.equal(availableCases('Структура капитала · комплексные кейсы').length,6);
  for(const id of ['LC01','LC02','LC03','CS01','CS02']){
