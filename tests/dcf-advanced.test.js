@@ -9,7 +9,7 @@ const get=(e,k)=>{let q=e.questions.find(x=>x.key===k);assert.ok(q,e.templateId+
 const ids=['dcf-fcff-ebitda-tax','dcf-fcfe-equity','dcf-two-stage','dcf-terminal-exit','dcf-midyear','dcf-sensitivity','dcf-income-capitalization'];
 test('Seven DCF generators registered for the valuation curriculum',()=>{
  assert.deepEqual(templates.map(x=>x.id),ids);
- assert.equal(TEMPLATE_CATALOG.length,122);
+ assert.equal(TEMPLATE_CATALOG.length,126);
  for(const x of templates){let t=TEMPLATE_CATALOG.find(t=>t.id===x.id);assert.equal(t.area,'value');}
 });
 test('Independent DCF reconciliation for 200 seeds per template',()=>{
@@ -66,7 +66,7 @@ test('B09 integrates FCFF DCF and FCFE DCF consistently',()=>{
  assert.ok(c.solutionHtml.length>1000);
  assert.ok(CASE_CHECKPOINTS.B09.length>=4);
  for(const q of CASE_CHECKPOINTS.B09)assert.equal(verifyCheckpoint(q,String(q.answer)),true);
- assert.equal(CASE_BY_ID.size,107);
+ assert.equal(CASE_BY_ID.size,111);
 });
 test('Income valuation glossary includes separate canonical models',()=>{
  for(const id of ['dcf-two-stage-model','dcf-terminal-exit-multiple','dcf-midyear-convention','dcf-capitalization-rate','dcf-value-sensitivity']){
