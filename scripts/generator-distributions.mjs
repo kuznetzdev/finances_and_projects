@@ -156,6 +156,8 @@ function execute(){
  console.log('Distribution audit: '+out.checkedExercises+' generated examples; '+out.sampledTemplates+
    ' templates; '+out.errors.length+' errors; '+out.warnings.length+' review flags');
  for(const e of out.errors.slice(0,25))console.error('ERROR ['+e.code+'] '+e.message);
+ // Keep diagnostics observable in CI logs, rather than only in a zipped artifact.
+ for(const w of out.warnings.slice(0,45))console.warn('REVIEW ['+w.code+'] '+w.message);
  if(out.errors.length)process.exitCode=1;
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href)execute();
