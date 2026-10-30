@@ -35,7 +35,7 @@ try{
  await page.locator('#bank-step-hint').click();
  assert.equal(await page.locator('.case-hint-panel').count(),0);
 
- assert.match(await page.locator('.case-counter').innerText(),/99 разобранных задач/);
+ assert.match(await page.locator('.case-counter').innerText(),/107 разобранных задач/);
  assert.match(await page.locator('.case-condition').innerText(),/500 млн/);
  await page.locator('#bank-answer').fill('150');
  await page.locator('#bank-answer-form button[type="submit"]').click();
@@ -219,5 +219,5 @@ try{
  assert.ok(stage1Widths.document<=stage1Widths.viewport+5,'CS02 mobile overflow: '+JSON.stringify(stage1Widths));
  await mobile.close();
  assert.deepEqual(errors,[]);
- console.log('PASS: 99 cases, three-stage hints, advanced LBO, fixed MM/Pecking numeric checks, persistence and mobile styling.');
+ console.log('PASS: 107 cases, three-stage hints, advanced LBO, fixed MM/Pecking numeric checks, persistence and mobile styling.');
 }finally{await browser?.close();server.kill('SIGTERM');}
