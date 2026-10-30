@@ -26,13 +26,16 @@ try{
  // A hint is available without disclosing or grading the user's result.
  await page.locator('#bank-step-hint').click();
  assert.equal(await page.locator('#bank-step-hint').getAttribute('aria-expanded'),'true');
+ assert.equal(await page.locator('.case-hint-panel .financial-formula').count(),0);
+ await page.locator('#bank-step-hint').click();
  assert.ok(await page.locator('.case-hint-panel .financial-formula').isVisible());
+ await page.locator('#bank-step-hint').click();
  assert.match(await page.locator('.case-hint-panel').innerText(),/350/);
  await page.screenshot({path:'artifacts/lecture-lbo-hint.png',fullPage:true});
  await page.locator('#bank-step-hint').click();
  assert.equal(await page.locator('.case-hint-panel').count(),0);
 
- assert.match(await page.locator('.case-counter').innerText(),/97 разобранных задач/);
+ assert.match(await page.locator('.case-counter').innerText(),/99 разобранных задач/);
  assert.match(await page.locator('.case-condition').innerText(),/500 млн/);
  await page.locator('#bank-answer').fill('150');
  await page.locator('#bank-answer-form button[type="submit"]').click();
@@ -43,20 +46,25 @@ try{
  await page.locator('#bank-next').click();
  await page.locator('#bank-answer').fill('2,333');
  await page.locator('#bank-answer-form button[type="submit"]').click();
+ await page.locator('#bank-next').click();
+ await page.locator('#bank-answer').fill('23,60');
+ await page.locator('#bank-answer-form button[type="submit"]').click();
+ await page.locator('#bank-next').click();
+ await page.locator('#bank-answer').fill('250');
+ await page.locator('#bank-answer-form button[type="submit"]').click();
  assert.equal(await page.locator('#bank-complete').isEnabled(),true);
  await page.screenshot({path:'artifacts/lecture-lbo-desktop.png',fullPage:true});
  // Regression: changing an already verified answer must immediately revoke credit.
  await page.locator('#bank-answer').fill('100');
  assert.equal(await page.locator('#bank-complete').isDisabled(),true);
  assert.match(await page.locator('#bank-feedback').innerText(),/изменён/);
- assert.equal(await page.locator('.case-workpad-head strong').innerText(),'2/3');
+ assert.equal(await page.locator('.case-workpad-head strong').innerText(),'4/5');
  await page.reload({waitUntil:'networkidle'});
- // The book intentionally returns to step one on page reload; navigate to the saved third answer.
- await page.locator('#bank-next').click();
- await page.locator('#bank-next').click();
+ // The book intentionally returns to step one on reload; navigate to saved fifth answer.
+ for(let i=0;i<4;i++)await page.locator('#bank-next').click();
  assert.equal(await page.locator('#bank-answer').inputValue(),'100');
  assert.equal(await page.locator('#bank-complete').isDisabled(),true);
- await page.locator('#bank-answer').fill('2,333');
+ await page.locator('#bank-answer').fill('250');
  await page.locator('#bank-answer-form button[type="submit"]').click();
  assert.equal(await page.locator('#bank-complete').isEnabled(),true);
  await page.locator('#bank-complete').click();
@@ -76,10 +84,45 @@ try{
    localStorage.setItem('finpraktika.v3',JSON.stringify(stats));
  });
  await page.reload({waitUntil:'networkidle'});
- assert.equal(await page.locator('.case-workpad-head strong').innerText(),'1/3');
+ assert.equal(await page.locator('.case-workpad-head strong').innerText(),'3/5');
  assert.equal(await page.locator('.case-success').count(),0);
  assert.equal(await page.locator('#bank-complete').isDisabled(),true);
  assert.doesNotMatch(await page.locator('#bank-feedback').innerText(),/Верно/);
+ // Two added fixed assignments and enhanced original LBO checks.
+ await page.goto(base+'?page=practice&mode=bank&case=LC02',{waitUntil:'networkidle'});
+ for(const [i,v] of ['630','6,3','600','30'].entries()){
+  await page.locator('#bank-answer').fill(v);
+  await page.locator('#bank-answer-form button[type="submit"]').click();
+  assert.match(await page.locator('#bank-feedback').innerText(),/Верно/,'LC02 step '+i);
+  if(i<3)await page.locator('#bank-next').click();
+ }
+ assert.equal(await page.locator('#bank-complete').isEnabled(),true);
+ await page.goto(base+'?page=practice&mode=bank&case=LC03',{waitUntil:'networkidle'});
+ assert.equal(await page.locator('#bank-answer').count(),0,'LBO vs VC is qualitative');
+ await page.locator('#bank-compare').click();
+ assert.equal(await page.locator('#bank-understood').isDisabled(),true);
+ await page.locator('#bank-solution-toggle').click();
+ assert.match(await page.locator('.case-full-solution').innerText(),/рефинансировать/);
+ await page.goto(base+'?page=practice&mode=bank&case=CS01',{waitUntil:'networkidle'});
+ assert.equal(await page.locator('.case-code').innerText(),'CS01');
+ for(const [i,v] of ['1000','21000','19500'].entries()){
+  await page.locator('#bank-answer').fill(v);
+  await page.locator('#bank-answer-form button[type="submit"]').click();
+  assert.match(await page.locator('#bank-feedback').innerText(),/Верно/,'CS01 step '+i);
+  if(i<2)await page.locator('#bank-next').click();
+ }
+ assert.equal(await page.locator('#bank-complete').isEnabled(),true);
+ await page.goto(base+'?page=practice&mode=bank&case=CS02',{waitUntil:'networkidle'});
+ assert.equal(await page.locator('#bank-code').count(),0);
+ assert.equal(await page.locator('.case-code').innerText(),'CS02');
+ for(const [i,v] of ['800','1200','0','0','120','300','200','174'].entries()){
+  await page.locator('#bank-answer').fill(v);
+  await page.locator('#bank-answer-form button[type="submit"]').click();
+  assert.match(await page.locator('#bank-feedback').innerText(),/Верно/,'CS02 step '+i);
+  if(i<7)await page.locator('#bank-next').click();
+ }
+ assert.equal(await page.locator('#bank-complete').isEnabled(),true);
+ await page.screenshot({path:'artifacts/stage1-pecking-order.png',fullPage:true});
  await page.goto(base+'?page=practice&mode=bank&case=VC03',{waitUntil:'networkidle'});
  assert.equal(await page.locator('.case-code').innerText(),'VC03');
  assert.match(await page.locator('.case-condition').innerText(),/500 млн/);
@@ -169,7 +212,12 @@ try{
  assert.equal(await mob.locator('#bank-answer').count(),1);
  const controlWidths=await mob.evaluate(()=>({document:document.documentElement.scrollWidth,viewport:innerWidth}));
  assert.ok(controlWidths.document<=controlWidths.viewport+5,'control valuation mobile overflow: '+JSON.stringify(controlWidths));
+ await mob.goto(base+'?page=practice&mode=bank&case=CS02',{waitUntil:'networkidle'});
+ await mob.locator('#bank-step-hint').click();
+ assert.ok(await mob.locator('.case-hint-panel').isVisible());
+ const stage1Widths=await mob.evaluate(()=>({document:document.documentElement.scrollWidth,viewport:innerWidth}));
+ assert.ok(stage1Widths.document<=stage1Widths.viewport+5,'CS02 mobile overflow: '+JSON.stringify(stage1Widths));
  await mobile.close();
  assert.deepEqual(errors,[]);
- console.log('PASS: valid saved answers, corrupt-state invalidation, formula hints, indexed search, filter reset, numeric/reasoned tasks and mobile styling.');
+ console.log('PASS: 99 cases, three-stage hints, advanced LBO, fixed MM/Pecking numeric checks, persistence and mobile styling.');
 }finally{await browser?.close();server.kill('SIGTERM');}

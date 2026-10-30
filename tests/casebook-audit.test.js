@@ -23,7 +23,7 @@ test('Random choice respects both seminar group and live search results',()=>{
  assert.throws(()=>nextCase([],'LBO · видеолекция',()=>0,'вряд_ли_найдём'),/Нечего выбирать/);
 });
 test('Every numerical lecture step has a meaningful safe guide and legible formula',()=>{
- assert.equal(Object.keys(LECTURE_CHECKPOINTS).length,6);
+ assert.equal(Object.keys(LECTURE_CHECKPOINTS).length,7);
  for(const [id,steps] of Object.entries(LECTURE_CHECKPOINTS)){
   assert.ok(steps.length>=2,id);
   for(const q of steps){
@@ -41,5 +41,7 @@ test('Bank UI uses updated current-value verification and self-reviewed-text con
  assert.match(ui,/state\.revealedHint/);
  assert.match(ui,/aria-expanded="\$\{hintExpanded\}"/);
  assert.match(ui,/bank-match-count/);
- assert.match(ui,/formulaMarkup\(step\.hint\.formula,deps\.escape\)/);
+ assert.match(ui,/formulaMarkup\(step\.hint\?\.formula\?\?'',deps\.escape\)/);
+ assert.match(ui,/formulaMarkup\(hintLevels\[1\],deps\.escape\)/);
+ assert.match(ui,/state\.hintLevel/);
 });
