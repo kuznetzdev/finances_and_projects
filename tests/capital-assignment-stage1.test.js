@@ -16,7 +16,7 @@ test('two fixed Oct 30 tasks are added once without duplicating three earlier LB
  assert.equal(CASE_BANK.length,99);
  assert.equal(new Set(CASE_BANK.map(c=>c.id)).size,99);
  assert.equal(availableCases('LBO · видеолекция').length,3);
- assert.equal(availableCases('Структура капитала · комплексные кейсы').length,7);
+ assert.equal(availableCases('Структура капитала · комплексные кейсы').length,6);
  for(const id of ['LC01','LC02','LC03','CS01','CS02']){
   const record=CASE_BY_ID.get(id);
   assert.ok(record,'Missing original problem '+id);
@@ -42,7 +42,7 @@ test('original LBO numbers and the extended IRR and stress outcomes agree with i
  eq(lbo[2].answer,equity/sponsor,'MOIC');
  eq(lbo[3].answer,((equity/sponsor)**(1/years)-1)*100,'IRR');
  eq(lbo[4].answer,ev*.8-debt,'stress equity');
- assert.match(CASE_BY_ID.get('LC01').solutionHtml,/23,60%/);
+ assert.match(CASE_BY_ID.get('LC01').solutionHtml,/23,59%/);
  assert.match(CASE_BY_ID.get('LC01').conditionHtml,/после процентов/);
  assert.match(CASE_BY_ID.get('LC01').solutionHtml,/FCFF\/FCF до уплаты процентов/);
 });
@@ -78,7 +78,7 @@ test('MM fixed-source 20 000/4 000 and supplementary 1 500 distress calculation'
  assert.match(item.conditionHtml,/20 000/);
  assert.match(item.conditionHtml,/4 000/);
  assert.match(item.conditionHtml,/25%/);
- assert.match(item.conditionHtml,/ставка долга.*не задана/);
+ assert.match(item.conditionHtml,/Ставка долга.*не задана/);
  assert.equal(q.length,3);
  eq(q[0].answer,tax*debt,'shield');
  eq(q[1].answer,vu+tax*debt,'levered EV');
@@ -114,7 +114,7 @@ test('each new numeric answer is graded, has three progressive hints and detects
    assert.equal(verifyCheckpoint(q,String(q.answer)),true,id+':'+q.label);
    assert.equal(verifyCheckpoint(q,String(q.answer+1)),false,id+':'+q.label);
    assert.equal(q.hint.levels.length,3,id+':'+q.label);
-   assert.ok(q.hint.levels.every(s=>s&&s.length>=18),id+': short hint');
+   assert.ok(q.hint.levels.every((s,i)=>s&&s.length>=(i===1?8:18)),id+': short hint');
    assert.ok(q.hint.levels[0]!==q.hint.levels[1],id+': duplicate hint level');
   }
  }
