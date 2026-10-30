@@ -1,6 +1,6 @@
 /**
  * Eight fixed problems from user-provided "Задачи_LBO,_венчур_и_структура_капитала.pdf",
- * pages 1–4 (two problems per page). Numbers are preserved, not randomized.
+ * pages 1–4 (eight problems across four pages). Numbers are preserved, not randomized.
  *
  * Their concepts overlap existing generators, but none of these original
  * fixed datasets is duplicated in the solved casebook.
