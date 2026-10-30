@@ -1,5 +1,6 @@
 import {SEMINARS, PARADOXES} from '../data/paradoxes.js';
 import {PARADOX_CAVEATS} from '../data/paradox-audit.js';
+import {SEMINAR4_REFERENCES} from '../data/paradoxes-seminar4-sources.js';
 import {MIN_ANSWER_LENGTH, promptFor, filterParadoxes, normalizeRecord, canMarkReviewed, countReviewed} from '../engine/paradoxes.js';
 
 const STORAGE_KEY='finpraktika.paradoxes.v1';
@@ -50,9 +51,16 @@ function questionMarkup(p){
    .split(/(?<=\?)\s+(?=[А-ЯЁ])/u).filter(Boolean);
  return `${scenario?`<div class="paradox-scenario"><h3>Ситуация</h3><p>${escape(scenario)}</p></div>`:''}
    <div class="paradox-questions"><h3>${scenario?'Вопросы для разбора':'Вопрос семинара'}</h3>
-   ${questions.map(q=>`<p>${escape(q)}</p>`).join('')}</div>`;
+   ${questions.map(q=>`<p>${escape(q)}</p>`).join('')}</div>
+   ${p.focus?`<aside class="paradox-focus"><h3>На что обратить внимание</h3><p>${escape(p.focus)}</p></aside>`:''}`;
 }
 function analysisMarkup(analysis){
+ if(analysis.includes('\n\n')){
+  return analysis.trim().split(/\n\s*\n/).filter(Boolean).map(part=>{
+   const match=part.match(/^([^.!?]{3,60})\.\s+([\s\S]+)$/u);
+   return match?`<p><strong>${escape(match[1])}.</strong> ${escape(match[2])}</p>`:`<p>${escape(part)}</p>`;
+  }).join('');
+ }
  const sentences=analysis.trim().split(/(?<=[.!?])\s+(?=[А-ЯЁ])/u);
  const blocks=[];
  for(let i=0;i<sentences.length;i+=2)blocks.push(`<p>${escape(sentences.slice(i,i+2).join(' '))}</p>`);
@@ -63,7 +71,7 @@ function progress(){const done=countReviewed(records);
 }
 function toolbar(){return `<section class="paradox-toolbar" aria-label="Фильтры парадоксов">
  <label for="paradox-seminar">СЕМИНАР <select id="paradox-seminar">
- <option value="all">Все семинары · 30</option>
+ <option value="all">Все семинары · ${PARADOXES.length}</option>
  ${SEMINARS.map(s=>`<option value="${s.id}" ${String(s.id)===state.seminar?'selected':''}>Семинар ${s.id} · ${escape(s.title)}</option>`).join('')}
  </select></label>
  <label for="paradox-search">ПОИСК <input id="paradox-search" type="search" autocomplete="off" placeholder="Тема, формула или понятие" value="${escape(state.query)}"></label>
@@ -119,7 +127,9 @@ function detail(p){
  <div class="paradox-actions"><button type="button" id="paradox-done" class="button primary" ${canMarkReviewed(p,r)?'':'disabled'}>${completed?'✓ Разобран':'Отметить как разобранный'}</button>
  <button type="button" id="paradox-revise" class="button secondary">На повторение</button></div>
  <p class="paradox-help">Для отметки нужен собственный ответ от ${MIN_ANSWER_LENGTH} символов и все три подтверждённых критерия.</p></section>`:''}
- <details class="paradox-source"><summary>Происхождение вопроса</summary><p>Источник, указанный в каталоге: ${escape(SEMINARS[p.seminar-1].source)} · семинар ${p.seminar}, вопрос ${p.number}. Формулировка взята из банка вопросов приложения. Сверка с оригинальным PDF этого семинара не проводилась.</p><p>Числа и ставки в условиях используются как учебные допущения, а не как подтверждённые рыночные данные.</p></details>
+ <details class="paradox-source"><summary>Происхождение вопроса</summary><p>Источник: ${escape(SEMINARS[p.seminar-1].source)} · семинар ${p.seminar}, вопрос ${p.number}. ${SEMINARS[p.seminar-1].sourceVerified?'Вопрос и направления обсуждения сверены с предоставленным PDF.':'Формулировка взята из банка вопросов приложения; отдельная сверка с PDF этого семинара не выполнялась.'}</p>
+ <p>Числовые примеры, не подтверждённые историческими источниками, являются учебными допущениями.</p>
+ ${(SEMINAR4_REFERENCES[p.id]||[]).length?`<p><strong>Проверяемые внешние источники:</strong></p><ul>${SEMINAR4_REFERENCES[p.id].map(ref=>`<li><a href="${escape(ref.url)}" target="_blank" rel="noopener noreferrer">${escape(ref.label)}</a></li>`).join('')}</ul>`:''}</details>
  <nav class="paradox-pagination" aria-label="Переходы между парадоксами">
  <button type="button" class="button ghost" data-neighbor="${index>0?siblings[index-1].id:''}" ${index===0?'disabled':''}>← Предыдущий</button>
  <button type="button" class="button secondary" data-neighbor="${index<siblings.length-1?siblings[index+1].id:''}" ${index===siblings.length-1?'disabled':''}>Следующий →</button></nav>
@@ -128,7 +138,7 @@ function detail(p){
 export function renderParadoxes(root,intro){
  if(!root)return;
  const selected=PARADOXES.find(x=>x.id===state.selected);
- root.innerHTML=`${intro('04 / ПАРАДОКСЫ','Парадоксы','30 семинарских вопросов: разбор по шагам, проверка допущений и самостоятельный ответ.','04')}${selected?detail(selected):list()}`;
+ root.innerHTML=`${intro('04 / ПАРАДОКСЫ','Парадоксы',`${PARADOXES.length} семинарских вопросов: разбор по шагам, проверка допущений и самостоятельный ответ.`,'04')}${selected?detail(selected):list()}`;
  if(!selected){
   const results=root.querySelector('#paradox-list-results');
   root.querySelector('#paradox-seminar').addEventListener('change',e=>{state.seminar=e.target.value;results.innerHTML=rows();});

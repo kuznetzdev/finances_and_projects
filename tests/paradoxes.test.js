@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { SEMINARS, PARADOXES, ORIGINAL_PROMPTS } from '../site/data/paradoxes.js';
 import { PARADOX_CAVEATS } from '../site/data/paradox-audit.js';
 
-test('30 paradoxes belong to the original three seminars', () => {
- assert.equal(SEMINARS.length, 3);
- assert.equal(PARADOXES.length, 30);
+test('40 paradoxes belong to four seminars', () => {
+ assert.equal(SEMINARS.length, 4);
+ assert.equal(PARADOXES.length, 40);
  for (const seminar of SEMINARS) {
   const subset=PARADOXES.filter(p=>p.seminar===seminar.id);
   assert.equal(subset.length,10);
@@ -25,7 +25,7 @@ test('Every paradox contains an answer and an actionable logic rubric', () => {
  }
 });
 
-test('Original seminar prompts and audit notes cover all 30 paradoxes', () => {
+test('Original prompts and audit notes cover all 40 paradoxes', () => {
  const ids=PARADOXES.map(p=>p.id);
  assert.deepEqual(Object.keys(ORIGINAL_PROMPTS).sort(),[...ids].sort());
  assert.deepEqual(Object.keys(PARADOX_CAVEATS).sort(),[...ids].sort());
