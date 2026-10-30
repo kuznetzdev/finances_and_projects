@@ -10,7 +10,7 @@ test('Each original seminar question is preserved, uniquely mapped and nonempty'
  assert.equal(SEMINARS.length,4);
  assert.equal(PARADOXES.length,40);
  assert.equal(Object.keys(ORIGINAL_PROMPTS).length,40);
- assert.equal(new Set(PARADOXES.map(p=>p.id)).size,30);
+ assert.equal(new Set(PARADOXES.map(p=>p.id)).size,40);
  for(const s of SEMINARS){
   const arr=PARADOXES.filter(p=>p.seminar===s.id);
   assert.deepEqual(arr.map(p=>p.number),[1,2,3,4,5,6,7,8,9,10]);
