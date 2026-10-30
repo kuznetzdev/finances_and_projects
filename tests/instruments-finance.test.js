@@ -82,7 +82,7 @@ test('call/put short and long payoffs and insured share loss independently recon
  near(ans('I04',3),13,'max loss is a positive amount, not signed P&L');
  near(ans('I04',4),108,'protective put BE');
  assert.match(CASE_BY_ID.get('I03').solutionHtml,/неограниченн/);
- assert.match(CASE_BY_ID.get('I04').solutionHtml,/преми/);
+ assert.match(CASE_BY_ID.get('I04').solutionHtml,/преми/i);
 });
 
 test('four generator oracle implementations reject every numeric answer corruption over 200 seeds',()=>{
