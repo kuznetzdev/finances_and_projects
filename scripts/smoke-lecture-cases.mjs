@@ -152,7 +152,7 @@ try{
  await page.locator('#bank-answer-form button[type="submit"]').click();
  assert.match(await page.locator('#bank-feedback').innerText(),/Верно/);
  await page.locator('#bank-solution-toggle').click();
- assert.match(await page.locator('.case-full-solution').innerText(),/Без этих допущений/);
+ assert.match(await page.locator('.case-full-solution').innerText(),/без добавленных условий/);
  await page.screenshot({path:'artifacts/section4-novatech-desktop.png',fullPage:true});
  await page.goto(base+'?page=practice&mode=bank&case=VC03',{waitUntil:'networkidle'});
  assert.equal(await page.locator('.case-code').innerText(),'VC03');
