@@ -8,7 +8,7 @@ const close=(a,b,where)=>assert.ok(Math.abs(a-b)<=1e-8,where+': '+a+' != '+b);
 
 test('13 reporting control tasks are distinct, searchable, sourced and have worked solutions',()=>{
  assert.equal(REPORTING_CONTROL_CASES.length,13);
- assert.equal(CASE_BANK.length,107);
+ assert.equal(CASE_BANK.length,111);
  assert.equal(availableCases('Контрольные · Финансовая отчётность').length,13);
  assert.equal(new Set(CASE_BANK.map(c=>c.id)).size,CASE_BANK.length);
  for(const item of REPORTING_CONTROL_CASES){
