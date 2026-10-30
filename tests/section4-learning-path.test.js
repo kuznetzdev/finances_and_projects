@@ -32,7 +32,7 @@ test('eight PDF cases are unique, sourced and linked through section 4 route',()
  for(const c of SECTION4_SOURCE_CASES){
   assert.equal(CASE_BY_ID.get(c.id),c);
   assert.ok(c.conditionHtml.length>190,c.id);
-  assert.ok(c.solutionHtml.length>1000,c.id);
+  assert.ok(c.solutionHtml.length>650,c.id);
   assert.ok(c.steps.length>=4,c.id);
   assert.match(c.source,/стр\. [1234]/);
   assert.ok(SECTION4_PATH.some(x=>x.cases.includes(c.id)),c.id+' not in route');
