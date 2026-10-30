@@ -7,6 +7,8 @@ import {ORACLE_TEMPLATES,validateFinanceOracle} from './finance-oracles.js';
 import {BASIC_ORACLE_TEMPLATES,validateBasicOracle} from './basic-finance-oracles.js';
 import {TAX_MODEL_ORACLE_TEMPLATES,validateTaxModelOracle} from './tax-model-oracles.js';
 import {INSTRUMENT_ORACLE_TEMPLATES,validateInstrumentOracle} from './instrument-oracles.js';
+import {CAPITAL_ORACLE_TEMPLATES,validateCapitalOracle} from './capital-answer-oracles.js';
+import {TAX_ADVANCED_ORACLE_TEMPLATES,validateTaxAdvancedOracle} from './tax-advanced-answer-oracles.js';
 import {validatePlausibility} from './financial-plausibility.js';
 import {CONTROL_WORK_REFERENCES,validateControlWorkReferences} from './control-work-oracles.js';
 import {CASE_BANK,CASE_CHECKPOINTS,verifyCheckpoint} from '../../site/engine/casebook.js';
@@ -158,7 +160,7 @@ function validateAssets(){
 }
 export function preflight({seeds=24}={}){
  const errors=validateCatalog(TEMPLATE_CATALOG),warnings=[];
- const output={errors,warnings,checkedTemplates:TEMPLATE_CATALOG.length,checkedExercises:0,checkedOracleAnswers:0,checkedOracleTemplates:ORACLE_TEMPLATES.length+BASIC_ORACLE_TEMPLATES.length+TAX_MODEL_ORACLE_TEMPLATES.length+INSTRUMENT_ORACLE_TEMPLATES.length,checkedPlausibilityExercises:0,checkedControlWorkAnswers:0,checkedCases:0,checkedConcepts:0,checkedFormulas:0,checkedFiles:0};
+ const output={errors,warnings,checkedTemplates:TEMPLATE_CATALOG.length,checkedExercises:0,checkedOracleAnswers:0,checkedOracleTemplates:ORACLE_TEMPLATES.length+BASIC_ORACLE_TEMPLATES.length+TAX_MODEL_ORACLE_TEMPLATES.length+INSTRUMENT_ORACLE_TEMPLATES.length+CAPITAL_ORACLE_TEMPLATES.length+TAX_ADVANCED_ORACLE_TEMPLATES.length,checkedPlausibilityExercises:0,checkedControlWorkAnswers:0,checkedCases:0,checkedConcepts:0,checkedFormulas:0,checkedFiles:0};
  const maxSeed=Number(seeds);
  if(!Number.isInteger(maxSeed)||maxSeed<1||maxSeed>500)throw Error('seeds must be 1..500');
  for(const t of TEMPLATE_CATALOG){
@@ -171,8 +173,8 @@ export function preflight({seeds=24}={}){
      output.checkedExercises++;
      const plausibility=validatePlausibility(ex);
      output.checkedPlausibilityExercises++;
-     const issues=[...validateExercise(ex),...validateDcfAudit(ex),...validateBusinessAudit(ex),...validateFinanceOracle(ex),...validateBasicOracle(ex),...validateTaxModelOracle(ex),...validateInstrumentOracle(ex),...plausibility.errors];
-     if(ORACLE_TEMPLATES.includes(t.id)||BASIC_ORACLE_TEMPLATES.includes(t.id)||TAX_MODEL_ORACLE_TEMPLATES.includes(t.id)||INSTRUMENT_ORACLE_TEMPLATES.includes(t.id))output.checkedOracleAnswers+=ex.questions.filter(q=>q.type==='number').length;
+     const issues=[...validateExercise(ex),...validateDcfAudit(ex),...validateBusinessAudit(ex),...validateFinanceOracle(ex),...validateBasicOracle(ex),...validateTaxModelOracle(ex),...validateInstrumentOracle(ex),...validateCapitalOracle(ex),...validateTaxAdvancedOracle(ex),...plausibility.errors];
+     if(ORACLE_TEMPLATES.includes(t.id)||BASIC_ORACLE_TEMPLATES.includes(t.id)||TAX_MODEL_ORACLE_TEMPLATES.includes(t.id)||INSTRUMENT_ORACLE_TEMPLATES.includes(t.id)||CAPITAL_ORACLE_TEMPLATES.includes(t.id)||TAX_ADVANCED_ORACLE_TEMPLATES.includes(t.id))output.checkedOracleAnswers+=ex.questions.filter(q=>q.type==='number').length;
      if(seed===1){
       const repeated=generateExercise(args);
       if(JSON.stringify(ex)!==JSON.stringify(repeated))errors.push(issue('NON_DETERMINISTIC',t.id+' does not reproduce seed=1'));
