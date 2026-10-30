@@ -70,6 +70,6 @@ export const INSTRUMENT_CASES=[
   'Авторская задача по запросу пользователя · защитный PUT и риски; не из загруженной лекции «Облигации.pdf»')
 ];
 export const INSTRUMENT_REFERENCE={
- duration:{face:n,coupon:cp,years:3,y,flows,price,mac,mod,bumped,pctExact},
+ duration:{face:n,coupon:cp80,years:3,y,flows,price,mac,mod,bumped,pctExact},
  ytm:{face:1000,coupon:120,years:3,price:bondYPrice,y:.15}
 };
