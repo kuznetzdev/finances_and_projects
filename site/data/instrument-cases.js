@@ -11,7 +11,7 @@ function item(id,title,topic,condition,questions,steps,answer,source){
   solutionHtml:steps.map(p).join(''),steps:steps.map(p),answerHtml:p('<strong>Итог.</strong> '+answer),
   source,caveat:true};
 }
-const n=1000,cp80,y=.1,flows=[80,80,1080];
+const n=1000,cp80=80,y=.1,flows=[80,80,1080];
 const pv=flows.map((x,i)=>x/(1+y)**(i+1));
 const price=pv.reduce((a,b)=>a+b,0);
 const mac=pv.reduce((a,b,i)=>a+b*(i+1),0)/price;
