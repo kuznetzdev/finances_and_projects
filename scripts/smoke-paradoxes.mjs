@@ -70,6 +70,7 @@ try{
  await page.goto(HOST+'?page=paradoxes&paradox=s4-p8',{waitUntil:'networkidle'});
  await page.locator('#paradox-reveal').click();
  assert.ok(await page.locator('.paradox-source a[href^="https://"]').count()>=2);
+ await page.locator('.paradox-source summary').click();
  assert.match(await page.locator('.paradox-source').innerText(),/сверены с предоставленным PDF/);
  await page.goto(HOST+'?page=paradoxes&paradox=s1-p1',{waitUntil:'networkidle'});
  assert.equal(await page.locator('.paradox-detail').count(),1);
