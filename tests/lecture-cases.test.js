@@ -9,14 +9,14 @@ const checkpoint=(id,index)=>LECTURE_CHECKPOINTS[id][index].answer;
 
 test('Ten original lecture-specific assignments remain stable beside two new capital cases',()=>{
  assert.equal(LECTURE_CASES.length,10);
- assert.equal(CASE_BANK.length,111);
- assert.equal(new Set(CASE_BANK.map(x=>x.id)).size,111);
+ assert.equal(CASE_BANK.length,124);
+ assert.equal(new Set(CASE_BANK.map(x=>x.id)).size,124);
  assert.deepEqual(LECTURE_CASES.map(x=>x.id),[
   'LC01','LC02','LC03','VC01','VC02','VC03','VC04','RO01','RO02','RO03'
  ]);
- assert.equal(availableCases('LBO · видеолекция').length,3);
- assert.equal(availableCases('Венчур · видеолекция').length,4);
- assert.equal(availableCases('Реальные опционы · видеолекция').length,3);
+ assert.equal(availableCases('LBO · видеолекция').length,5);
+ assert.equal(availableCases('Венчур · видеолекция').length,5);
+ assert.equal(availableCases('Реальные опционы · видеолекция').length,4);
  for(const item of LECTURE_CASES){
   assert.ok(CASE_BY_ID.has(item.id),item.id);
   assert.ok(CASE_GROUPS.includes(item.group),item.id);
