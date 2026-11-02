@@ -15,11 +15,11 @@ test('all thirteen source references are unique, correctly grouped and searchabl
  assert.equal(new Set(CASE_BANK.map(x=>x.id)).size,124);
  const groups={
  'Контрольные · Финансовая отчётность':[1,2,10],
- 'Облигации и опционы · углублённые кейсы':[3,4],
+ 'Облигации и опционы · углублённые кейсы':[4],
  'Реальные опционы · видеолекция':[5],
  'Доходный подход · комплексные кейсы':[6],
  'LBO · видеолекция':[7,13],
- 'Структура капитала · комплексные кейсы':[8,9,11],
+ 'Структура капитала · комплексные кейсы':[3,8,9,11],
  'Венчур · видеолекция':[12]
  };
  for(const [group,numbers] of Object.entries(groups)){
@@ -93,6 +93,7 @@ test('LBO interest waterfall, tax-shield sequence and missing-data scenarios sta
   const label='ROE при доле долга '+(100*pct)+'% и A=5000';
   close(c('PREP26-11',label),(1000-5000*pct*.12)*.8/(5000*(1-pct))*100,'debt share '+pct);
   close(c('PREP26-11',label),expected,'teaching case '+pct);
+  if(pct===.8)close(c('PREP26-11','Снижение EBIT для нулевой прибыли при 80% долга'),(1000-4000*.12)/1000*100,'EBIT break-even stress');
  }
  close(c('PREP26-12','Доля основателей при пуле 20% до сделки'),.8*.8*100,'founder 64');
  close(c('PREP26-12','Доля основателей при обязательном пуле 20% после сделки'),60,'founder 60');
