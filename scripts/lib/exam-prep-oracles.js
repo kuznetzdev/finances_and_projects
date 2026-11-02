@@ -149,15 +149,14 @@ export const EXAM_PREP_ORACLES=Object.freeze({
   'Вес долга':pct(leverDebtWeight),
   'WACC':pct(leverEquityWeight*leverRoe+leverDebtWeight*lever.kd*(1-lever.tax))
  }),
- 'PREP26-09':as('млн',{
+ 'PREP26-09':merge(as('млн',{
   'EV без долга':mmVu,
   'Годовая налоговая экономия':mmTaxAnnual,
   'PV вечного налогового щита':mmShield,
   'EV после объявления':mmVl,
   'Equity после объявления до размещения':mmVl,
-  'Equity после размещения и выкупа':mmEquityAfter,
-  'WACC после выкупа':pct(mm.ebit*(1-mm.tax)/mmVl)
- }),
+  'Equity после размещения и выкупа':mmEquityAfter
+ }),as('%',{'WACC после выкупа':pct(mm.ebit*(1-mm.tax)/mmVl)})),
  'PREP26-10':as('ед.',{
   'Изменение операционного NWC':deltaNwc,
   'CFO с процентами в операционном потоке':operatingCash,
