@@ -18,7 +18,7 @@ const independentPrice=(face,coupon,years,yieldRate)=>{
  for(let t=1;t<=years;t++)price+=face*coupon/(1+yieldRate)**t+(t===years?face/(1+yieldRate)**t:0);
  return price;
 };
-const originalCount=107;
+const originalCount=120;
 test('four instrument generators and four source-separated worked cases integrate without duplicate IDs',()=>{
  assert.equal(TEMPLATE_CATALOG.length,126);
  assert.equal(new Set(TEMPLATE_CATALOG.map(x=>x.id)).size,126);
