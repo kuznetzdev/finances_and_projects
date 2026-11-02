@@ -41,6 +41,7 @@ jobs:
           node scripts/smoke-paradoxes.mjs
           node scripts/smoke-visual.mjs
           node scripts/smoke-lecture-cases.mjs
+          node scripts/smoke-all-casebook.mjs
       - name: Attach preflight report and visual evidence
         if: always()
         uses: actions/upload-artifact@v7
