@@ -918,6 +918,6 @@ export const EXAM_PREP_CASES=raw.map(x=>({
  source:source(Number(x.id.slice(-2)))
 }));
 export const EXAM_PREP_CHECKPOINTS=Object.fromEntries(raw.map(x=>[x.id,x.checks.map(([label,answer,unit,...help])=>({
- label,answer,unit,tolerance:unit==='%'?0.035:unit==='раз'?0.012:Math.max(0.025,Math.abs(answer)*0.00008),
+ label,answer,unit,tolerance:unit==='%'?0.035:unit==='раз'?0.012:0.05,
  hint:{levels:help.slice(0,3)}
 }))]));
