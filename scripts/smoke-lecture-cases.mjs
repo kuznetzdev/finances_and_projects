@@ -22,7 +22,7 @@ try{
  assert.equal(await page.locator('.case-code').innerText(),'LC01');
  assert.equal(await page.locator('#bank-group').inputValue(),'LBO · видеолекция');
  assert.equal(await page.locator('#bank-random .ui-icon').count(),1);
- assert.equal(await page.locator('#bank-match-count').innerText(),'3 найдено по фильтру');
+ assert.equal(await page.locator('#bank-match-count').innerText(),'5 найдено по фильтру');
  // A hint is available without disclosing or grading the user's result.
  await page.locator('#bank-step-hint').click();
  assert.equal(await page.locator('#bank-step-hint').getAttribute('aria-expanded'),'true');
@@ -35,7 +35,7 @@ try{
  await page.locator('#bank-step-hint').click();
  assert.equal(await page.locator('.case-hint-panel').count(),0);
 
- assert.match(await page.locator('.case-counter').innerText(),/111 разобранных задач/);
+ assert.match(await page.locator('.case-counter').innerText(),/124 разобранных задач/);
  assert.match(await page.locator('.case-condition').innerText(),/500 млн/);
  await page.locator('#bank-answer').fill('150');
  await page.locator('#bank-answer-form button[type="submit"]').click();
@@ -229,7 +229,7 @@ try{
  assert.match(await page.locator('.case-condition').innerText(),/переключ/);
  assert.equal(await page.locator('#bank-group').inputValue(),'Реальные опционы · видеолекция');
  await page.locator('#bank-group').selectOption('Реальные опционы · видеолекция');
- assert.equal(await page.locator('#bank-select option').count(),3);
+ assert.equal(await page.locator('#bank-select option').count(),4);
  // Search the actual problem text, not only title metadata.
  await page.locator('#bank-group').selectOption('Все направления');
  await page.locator('#bank-search').fill('мебель');
@@ -297,7 +297,23 @@ try{
  assert.equal(await mob.locator('#instruments-learning-path .section4-path-topic').count(),5);
  const instrumentWidths=await mob.evaluate(()=>({doc:document.documentElement.scrollWidth,viewport:innerWidth}));
  assert.ok(instrumentWidths.doc<=instrumentWidths.viewport+5,'bond/option mobile overflow '+JSON.stringify(instrumentWidths));
+ await mob.goto(base+'?page=practice&mode=bank&case=PREP26-01',{waitUntil:'networkidle'});
+ assert.equal(await mob.locator('.case-code').innerText(),'PREP26-01');
+ await mob.locator('#exam-prep-learning-path summary').click();
+ assert.equal(await mob.locator('#exam-prep-learning-path .section4-path-topic').count(),7);
+ assert.equal(await mob.locator('#exam-prep-learning-path .section4-path-link').count(),13);
+ assert.ok(await mob.locator('#exam-prep-learning-path a[href*="case=PREP26-13"]').count()>=1);
+ await mob.locator('#bank-step-hint').click();
+ assert.ok(await mob.locator('.case-hint-panel').isVisible());
+ await mob.locator('#bank-answer').fill('1500');
+ await mob.locator('#bank-answer-form button[type="submit"]').click();
+ assert.match(await mob.locator('#bank-feedback').innerText(),/Верно/);
+ await mob.locator('#bank-solution-toggle').click();
+ assert.match(await mob.locator('.case-full-solution').innerText(),/537,5/);
+ const examWidths=await mob.evaluate(()=>({doc:document.documentElement.scrollWidth,viewport:innerWidth}));
+ assert.ok(examWidths.doc<=examWidths.viewport+5,'exam prep mobile overflow '+JSON.stringify(examWidths));
+ await mob.screenshot({path:'artifacts/lecture-exam-prep-mobile.png',fullPage:true});
  await mobile.close();
  assert.deepEqual(errors,[]);
- console.log('PASS: 111 cases, section 4 linked guide, eight PDF solutions, three-stage hints, advanced LBO, fixed MM/Pecking numeric checks, persistence and mobile styling.');
+ console.log('PASS: 124 cases, section 4 linked guide, eight PDF solutions, three-stage hints, advanced LBO, fixed MM/Pecking numeric checks, persistence and mobile styling.');
 }finally{await browser?.close();server.kill('SIGTERM');}
