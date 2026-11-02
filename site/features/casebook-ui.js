@@ -54,6 +54,17 @@ function instrumentPathMarkup(){
   <small>Источник: ${deps.escape(x.source)}</small>
  </article>`).join('')}</div></details>`;
 }
+function examPrepPathMarkup(){
+ const cases=CASE_BANK.filter(item=>item.id.startsWith('PREP26-'));
+ const groups=[...new Set(cases.map(item=>item.group))];
+ return `<details class="section4-path" id="exam-prep-learning-path">
+ <summary>Подготовка к контрольной <span>${cases.length} решённых задач · формулы, подсказки и проверка</span></summary>
+ <p class="section4-path-intro">Задания распределены по тематическим разделам банка. Раскройте задачу, решите числовые шаги с подсказками и сравните с полным эталонным разбором. Для неоднозначных условий приведены отдельные сценарии.</p>
+ <div class="section4-path-grid">${groups.map(group=>`<article class="section4-path-topic">
+  <h3>${deps.escape(group)}</h3>
+  <div class="section4-path-links">${cases.filter(item=>item.group===group).map(item=>`<a class="section4-path-link" href="?page=practice&mode=bank&case=${encodeURIComponent(item.id)}">${deps.escape(item.id+' · '+item.title)}</a>`).join('')}</div>
+ </article>`).join('')}</div></details>`;
+}
 function selectCase(id,remember=true){
  if(!CASE_BY_ID.has(id))return;
  flushDraft();state.id=id;state.index=0;state.showReference=false;state.revealedStep=null;state.revealedHint=null;
@@ -98,7 +109,7 @@ function render(){
   activity=`<div class="case-step-heading"><span>ЭТАП ${idx+1} / ${count}</span><h3>Разберите решение: часть ${idx+1}</h3><p>Запишите формулу, ход вычислений или объяснение своими словами. Эти этапы проверяются самостоятельно, потому что единственного машинно проверяемого ответа может не быть.</p></div><label class="case-note-label" for="bank-notes">Ваш ход решения</label><textarea id="bank-notes" class="case-notes" rows="5" placeholder="Что известно? Какую формулу примените? Какие допущения понадобятся?">${deps.escape(content)}</textarea><p class="case-reasoning-note" id="bank-reasoning-note" aria-live="polite">Для отметки этапа напиши ответ от ${MIN_REASONING_LENGTH} символов. ${content.trim().length} / ${MIN_REASONING_LENGTH}</p><button type="button" class="button secondary" id="bank-compare" aria-expanded="${revealed}">${revealed?'Скрыть эталон':'Сравнить с решением'}</button>${revealed?`<div class="case-reference-piece formatted-bank"><div class="case-piece-title">Разбор из банка задач</div>${item.steps[idx]}</div><div class="case-assessment" aria-label="Самооценка этапа"><button type="button" class="button secondary" id="bank-review">Нужно повторить</button><button type="button" class="button primary" id="bank-understood" ${content.trim().length>=MIN_REASONING_LENGTH?'':'disabled'}>Разобрался ✓</button></div>`:''}`;
  }
  const completed=deps.stats.caseCompleted?.[item.id];
- deps.root.innerHTML=`${deps.intro('01 / БАНК ЗАДАЧ','Разобранные задачи','Учебные условия сохранены. Сначала решите сами, затем проверьте результат по шагам.','01')}${deps.tabs()}${filters()}${section4PathMarkup()}${instrumentPathMarkup()}
+ deps.root.innerHTML=`${deps.intro('01 / БАНК ЗАДАЧ','Разобранные задачи','Учебные условия сохранены. Сначала решите сами, затем проверьте результат по шагам.','01')}${deps.tabs()}${filters()}${examPrepPathMarkup()}${section4PathMarkup()}${instrumentPathMarkup()}
  <section class="case-workspace"><article class="case-statement" tabindex="-1"><div class="case-label-row"><span class="case-code">${item.id}</span><span>${deps.escape(item.group)}</span>${completed?'<span class="case-success">Изучено ✓</span>':''}</div><h2>${deps.escape(item.title)}</h2><div class="case-topic">${deps.escape(item.topic.replace(/^\d+(?:[.\d–-]+)?\s*/,'').trim())}</div>${item.caveat?'<div class="case-caution"><strong>Важны допущения.</strong> Сверяйте не только число, но и условия применимости вывода.</div>':''}<div class="formatted-bank case-condition">${item.conditionHtml}</div><div class="case-footnote">Источник: ${deps.escape(item.source)}.</div></article>
  <section class="case-workpad" aria-label="Рабочая тетрадь"><div class="case-workpad-head"><div><span class="case-workpad-kicker">РАБОЧАЯ ТЕТРАДЬ</span><h2>${numerical?'Проверьте расчёт':'Сверьте ход решения'}</h2></div><strong>${solved}/${count}</strong></div><div class="case-segment-track" role="progressbar" aria-valuemin="0" aria-valuemax="${count}" aria-valuenow="${solved}"><span style="width:${solved/count*100}%"></span></div>${activity}
  <div class="case-step-nav case-action-dock" role="group" aria-label="Действия с задачей"><button class="button secondary" id="bank-prev" type="button" ${idx===0?'disabled':''}>← Назад</button><span>${idx+1} / ${count}</span><button class="button secondary" id="bank-next" type="button">${idx===count-1?'К началу':'Далее →'}</button><button class="button secondary case-skip" id="bank-skip" type="button">Пропустить задачу →</button></div>
