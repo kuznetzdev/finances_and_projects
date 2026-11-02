@@ -40,6 +40,8 @@ jobs:
         run: node scripts/smoke-visual.mjs
       - name: Lecture cases Chromium smoke test
         run: node scripts/smoke-lecture-cases.mjs
+      - name: Every fixed case and every exam checkpoint in Chromium
+        run: node scripts/smoke-all-casebook.mjs
       - name: Attach UI screenshots
         if: always()
         uses: actions/upload-artifact@v7
@@ -54,4 +56,5 @@ jobs:
             artifacts/paradoxes-*.png
             artifacts/visual-*.png
             artifacts/lecture-*.png
+            artifacts/exam-*.png
           if-no-files-found: ignore
