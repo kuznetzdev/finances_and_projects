@@ -16,7 +16,7 @@ test('two fixed Oct 30 tasks are added once without duplicating three earlier LB
  assert.equal(CASE_BANK.length,124);
  assert.equal(new Set(CASE_BANK.map(c=>c.id)).size,124);
  assert.equal(availableCases('LBO · видеолекция').length,5);
- assert.equal(availableCases('Структура капитала · комплексные кейсы').length,9);
+ assert.equal(availableCases('Структура капитала · комплексные кейсы').length,10);
  for(const id of ['LC01','LC02','LC03','CS01','CS02']){
   const record=CASE_BY_ID.get(id);
   assert.ok(record,'Missing original problem '+id);
