@@ -23,7 +23,7 @@ try{
  const page=await desktop.newPage(),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
  page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
- let inspected=0,answered=0,referenceSteps=0;
+ let inspected=0,answered=0,examAnswers=0;
  for(const item of CASE_BANK){
   const url=base+'?page=practice&mode=bank&case='+encodeURIComponent(item.id);
   const response=await page.goto(url,{waitUntil:'domcontentloaded'});
@@ -35,25 +35,28 @@ try{
   await page.locator('#bank-solution-toggle').click();
   assert.ok((await page.locator('.case-full-solution').innerText()).length>40,item.id+' missing full solution');
   inspected++;
-  if(!EXAM_PREP_CASE_IDS.includes(item.id))continue;
-  await page.locator('#bank-solution-toggle').click();
   const questions=CASE_CHECKPOINTS[item.id];
-  assert.ok(questions?.length>=4,item.id);
+  if(!questions?.length)continue;
+  const exam=EXAM_PREP_CASE_IDS.includes(item.id);
+  await page.locator('#bank-solution-toggle').click();
+  if(exam)assert.ok(questions.length>=4,item.id);
   for(let i=0;i<questions.length;i++){
    const q=questions[i];
    assert.equal(await page.locator('.case-step-heading h3').innerText(),q.label,item.id+' step '+i);
-   await page.locator('#bank-step-hint').click();
-   assert.equal(await page.locator('#bank-step-hint').getAttribute('aria-expanded'),'true',item.id+' hint 1');
-   await page.locator('#bank-step-hint').click();
-   assert.ok(await page.locator('.case-hint-panel').isVisible(),item.id+' hint 2');
-   await page.locator('#bank-step-hint').click();
-   assert.ok(await page.locator('.case-hint-panel').isVisible(),item.id+' hint 3');
-   await page.locator('#bank-step-hint').click();
-   assert.equal(await page.locator('.case-hint-panel').count(),0,item.id+' hints hide');
+   if(exam){
+    await page.locator('#bank-step-hint').click();
+    assert.equal(await page.locator('#bank-step-hint').getAttribute('aria-expanded'),'true',item.id+' hint 1');
+    await page.locator('#bank-step-hint').click();
+    assert.ok(await page.locator('.case-hint-panel').isVisible(),item.id+' hint 2');
+    await page.locator('#bank-step-hint').click();
+    assert.ok(await page.locator('.case-hint-panel').isVisible(),item.id+' hint 3');
+    await page.locator('#bank-step-hint').click();
+    assert.equal(await page.locator('.case-hint-panel').count(),0,item.id+' hints hide');
+   }
    await page.locator('#bank-answer').fill(String(q.answer));
    await page.locator('#bank-answer-form button[type="submit"]').click();
    assert.match(await page.locator('#bank-feedback').innerText(),/Верно/,item.id+' / '+q.label);
-   answered++;referenceSteps++;
+   answered++;if(exam)examAnswers++;
    if(i+1<questions.length)await page.locator('#bank-next').click();
   }
   assert.equal(await page.locator('#bank-complete').isEnabled(),true,item.id+' mark complete');
@@ -61,7 +64,8 @@ try{
   if(item.id==='PREP26-13')await page.screenshot({path:'artifacts/exam-all-steps-desktop.png',fullPage:true});
  }
  assert.equal(inspected,124,'all 124 bank cases must render');
- assert.equal(answered,EXAM_PREP_CASE_IDS.reduce((n,id)=>n+CASE_CHECKPOINTS[id].length,0));
+ assert.equal(answered,Object.values(CASE_CHECKPOINTS).reduce((n,questions)=>n+questions.length,0),'all numeric answers graded in browser');
+ assert.equal(examAnswers,EXAM_PREP_CASE_IDS.reduce((n,id)=>n+CASE_CHECKPOINTS[id].length,0),'all exam answers graded');
  assert.deepEqual(errors,[],'app console and runtime errors');
  await desktop.close();
  const mobile=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true});
@@ -79,7 +83,7 @@ try{
  await mob.screenshot({path:'artifacts/exam-final-case-mobile.png',fullPage:true});
  assert.deepEqual(mobileErrors,[]);
  await mobile.close();
- console.log('PASS: browser opened '+inspected+'/124 fixed cases, viewed every full solution, answered '+answered+' exam checkpoints with three hint levels; '+9+' exam mobile pages checked.');
+ console.log('PASS: browser opened '+inspected+'/124 fixed cases, viewed every full solution, graded '+answered+' fixed checkpoints including '+examAnswers+' exam checkpoints with three hint levels; '+9+' exam mobile pages checked.');
 }finally{
  await browser?.close();
  server.kill('SIGTERM');
