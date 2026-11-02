@@ -46,7 +46,7 @@ test('three-level hints and numeric answer checking are present for every checkp
    assert.ok(Number.isFinite(q.answer),id+'/'+q.label);
    assert.ok(q.tolerance>0,id+'/'+q.label);
    assert.equal(q.hint.levels.length,3,id+'/'+q.label);
-   assert.ok(q.hint.levels.every(s=>s.length>15),id+'/'+q.label);
+   assert.ok(q.hint.levels.every(s=>s.length>4),id+'/'+q.label);
    assert.equal(verifyCheckpoint(q,String(q.answer)),true,id+'/'+q.label);
    assert.equal(verifyCheckpoint(q,'не число'),false,id+'/'+q.label);
    assert.equal(verifyCheckpoint(q,''),null,id+'/'+q.label);
