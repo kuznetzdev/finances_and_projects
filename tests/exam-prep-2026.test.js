@@ -69,7 +69,7 @@ test('bond, option and DCF references independently discount correctly timed flo
  const yd=c('PREP26-03','Эффективная стоимость долга Rd')/100;
  const bondPv=[140,140,140,140,1140].reduce((s,cf,i)=>s+cf/(1+yd)**(i+1),0);
  close(bondPv,debtNet,'debt issue IRR',.00001);
- close(c('PREP26-03','WACC'),(.5*.17+.5*yd*(1-.25))*100,'WACC issue');
+ close(c('PREP26-03','WACC с налоговым щитом'),(.5*.17+.5*yd*(1-.25))*100,'WACC issue');
  close(c('PREP26-04','Стоимость облигации'),[500,360,230,110].reduce((s,cf,i)=>s+cf/1.11**(i+1),0),'amort bond');
  const base=-600+(.7*800+.3*200)/1.12;
  const option=.7*(400/1.12-300)/1.12;
