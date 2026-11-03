@@ -72,7 +72,7 @@ export function reconstructBank(id,s){
  }
  case 'bank-amortizing-bond':{
   const face=take(s,'Номинал облигации','₽'),years=take(s,'Срок','лет');
-  const coupon=take(s,'купон','%')/100,y=take(s,'доходность инвестора','%')/100;
+  const coupon=take(s,'одновременно с купоном','%')/100,y=take(s,'доходность инвестора','%')/100;
   const principal=face/years;
   const flows=Array.from({length:years},(_,i)=>principal+(face-i*principal)*coupon);
   const value=flows.reduce((acc,cf,i)=>acc+cf/(1+y)**(i+1),0);
