@@ -91,12 +91,15 @@ export const SOURCE_BANK_REFERENCES=Object.freeze({
   'Текущая ликвидность':t08.ca/t08.cl
  }),
  T10:u('₽',{'Справедливая цена облигации':bondPrice(b10.face,b10.coupon,b10.n,b10.y)}),
- T11:u('₽',{'Цена облигации при доходности 8%':b11.face/(1+b11.y)**b11.n,
-  'YTM при цене 850 ₽':null}),
+ T11:merge(u('₽',{'Цена облигации при доходности 8%':b11.face/(1+b11.y)**b11.n}),
+ u('%',{'YTM при цене 850 ₽':pc((b11.face/b11.marketPrice)**(1/b11.n)-1)})),
  T13:u('года',{'Дюрация Маколея':dMac}),
  T14:u('%',{'Текущая доходность':pc(b14.coupon/b14.marketPrice),
   'Приблизительная YTM':pc(((b14.face-b14.marketPrice)/b14.n+b14.coupon)/((b14.face+b14.marketPrice)/2))}),
- V01:u('%',{'WACC':pc(v01Wacc)}),
+ V01:merge(u('%',{'WACC':pc(v01Wacc)}),u('млн ₽',{
+  'Терминальная стоимость при первом g':v01.fcff6/(v01Wacc-v01.g1),
+  'Терминальная стоимость при втором g':v01.fcff6/(v01Wacc-v01.g2)
+ })),
  V02:u('млн ₽',{'Терминальная стоимость на конец горизонта':v02Terminal,
   'Приведённая терминальная стоимость':v02Terminal/(1+v02.wacc)**v02.years}),
  V03:u('млн ₽',{'FCFF':v03.ebit*(1-v03.tax)+v03.da-v03.capex-v03.nwcIncrease}),
@@ -111,8 +114,6 @@ export const SOURCE_BANK_REFERENCES=Object.freeze({
  V12:u('млн ₽',{'Скорректированный NAV':v12.assets-v12.liabilities+v12.writeUp-v12.badAr+v12.patent}),
  V16:u('млн ₽',{'FCFF':v16Fcff,'FCFE':v16Fcfe})
 });
-SOURCE_BANK_REFERENCES.T11['YTM при цене 850 ₽'].answer=pc((b11.face/b11.marketPrice)**(1/b11.n)-1);
-SOURCE_BANK_REFERENCES.V01['Терминальная стоимость при первом g']={answer:v01.fcff6/(v01Wacc-v01.g1),unit:'млн ₽'};
-SOURCE_BANK_REFERENCES.V01['Терминальная стоимость при втором g']={answer:v01.fcff6/(v01Wacc-v01.g2),unit:'млн ₽'};
+SOURCE_BANK_REFERENCES.T13['Дюрация Маколея'].precision=4;
 export const SOURCE_BANK_CASE_IDS=Object.freeze(Object.keys(SOURCE_BANK_REFERENCES));
-export const validateSourceBankReferences=(cases,checkpoints)=>verifyReferenceSet({cases,checkpoints,references:SOURCE_BANK_REFERENCES,code:'SOURCE'});
+export const validateSourceBankReferences=(cases,checkpoints)=>verifyReferenceSet({cases,checkpoints,references:SOURCE_BANK_REFERENCES,code:'SOURCE',roundingPrecision:2});
