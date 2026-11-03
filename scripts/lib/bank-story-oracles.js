@@ -107,9 +107,19 @@ export function validateBankStoryMath(ex){
  try{expected=reconstructBank(ex.templateId,String(ex.story??''));}
  catch(e){return [{code:'BANK_SOURCE',message:ex.templateId+': '+e.message}];}
  // Dynamic difficulty levels are subsets of the full accounting schedule.
- const keys=new Set(ex.questions.map(q=>q.key));
- if(!Object.keys(expected).every(k=>typeof expected[k].answer==='number'||typeof expected[k].answer==='string'))
-  return [{code:'BANK_SOURCE',message:ex.templateId+': invalid independent result'}];
- const selected=Object.fromEntries(Object.entries(expected).filter(([k])=>keys.has(k)));
+ const schema={
+  'bank-ledger-day':[ ['start'],['cash','goods'],['profit','equity'],['total'] ],
+  'bank-ebitda-property':[ ['ebit'],['ebitda'],['margin'],['property'] ],
+  'bank-three-cashflows':[ [],['cfo'],['cfi','cff'],['delta','closing'] ],
+  'bank-tax-year-profile':[ [],[],['linear','sy','straight','accelerated'],['winner'] ],
+  'bank-capm-supplier':[ [],['a','b'],['as'],['spec'] ],
+  'bank-covenant-penalty':[ [],[],['ratio2'],['ratio3','year3','extra'] ],
+  'bank-amortizing-bond':[ [],[],['principal','first','last'],['price'] ],
+  'bank-dcf-multiples-bridge':[ [],[],['ev','netdebt','equity'],['price'] ],
+  'bank-liquid-assets':[ [],['cr'],['qr','qar'],['forgive'] ]
+ };
+ const level=Math.max(1,Math.min(4,Number(ex.level)||1));
+ const required=schema[ex.templateId].slice(0,level).flat();
+ const selected=Object.fromEntries(Object.entries(expected).filter(([k])=>required.includes(k)));
  return compareScenarioAnswers(ex,selected,'BANK',{tolerance:.035});
 }
