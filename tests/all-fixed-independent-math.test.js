@@ -28,3 +28,21 @@ test('unmapped or unregistered case answers must not silently pass a generic int
  const missing=CASE_BANK.filter(x=>x.id!==id);
  assert.ok(validateAllFixedReferences(missing,CASE_CHECKPOINTS).errors.some(x=>x.code.includes('MISSING')));
 });
+
+test('all 310 numeric checkpoints reject a tampered unit of measurement',()=>{
+ for(const item of CASE_BANK){
+  const original=CASE_CHECKPOINTS[item.id]??[];
+  for(let i=0;i<original.length;i++){
+   const changed=original.map((q,j)=>j===i?{...q,unit:'unit-tampered'}:q);
+   const result=validateAllFixedReferences(CASE_BANK,{...CASE_CHECKPOINTS,[item.id]:changed});
+   assert.ok(result.errors.some(x=>x.code.includes('UNIT')&&x.message.includes(item.id+'/'+original[i].label)),item.id+'/'+original[i].label);
+  }
+ }
+});
+test('source-bank rounding is accepted only at published precision and never hides major mistakes',()=>{
+ const original=CASE_CHECKPOINTS.T10;
+ const near=original.map(q=>({...q,answer:q.answer+.001}));
+ assert.deepEqual(validateAllFixedReferences(CASE_BANK,{...CASE_CHECKPOINTS,T10:near}).errors,[]);
+ const far=original.map(q=>({...q,answer:q.answer+.1}));
+ assert.ok(validateAllFixedReferences(CASE_BANK,{...CASE_CHECKPOINTS,T10:far}).errors.some(x=>x.code.includes('MISMATCH')));
+});
