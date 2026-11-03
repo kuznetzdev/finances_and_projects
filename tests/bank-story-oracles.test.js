@@ -20,3 +20,14 @@ test('all bank-derived exercise steps fail on a wrong answer, with complete vari
   }
  }
 });
+
+test('lagged covenant: year 3 interest must reflect year 2 breach, not year 1 breach',()=>{
+ const x=generateExercise({templateId:'bank-covenant-penalty',topic:'ratios',level:4,seed:7});
+ const year3=x.questions.find(q=>q.key==='year3').answer;
+ const base=Number(x.story.match(/остаток по ставке (\d+)% годовых/)[1]);
+ const eb2=Number(x.story.match(/EBITDA в годах 1–4:\s*[\d\s,.]+;\s*([\d\s,.]+);/)[1].trim().replace(',','.'));
+ const loan=Number(x.story.match(/Долг компании (\d+) млн/)[1]);
+ const limit=Number(x.story.match(/превышает ([\d,]+)/)[1].replace(',','.'));
+ assert.ok(loan/eb2<=limit,'second year is not in breach');
+ assert.equal(year3,base,'year 3 must return to base interest after a compliant year 2');
+});
