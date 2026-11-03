@@ -28,6 +28,7 @@ test('lagged covenant: year 3 interest must reflect year 2 breach, not year 1 br
  const eb2=Number(x.story.match(/EBITDA в годах 1–4:\s*[\d\s,.]+;\s*([\d\s,.]+);/)[1].replace(/[\s\u00a0\u202f]/g,'').replace(',','.'));
  const loan=Number(x.story.match(/Долг компании (\d+) млн/)[1]);
  const limit=Number(x.story.match(/превышает ([\d,]+)/)[1].replace(',','.'));
- assert.ok(loan/eb2<=limit,'second year is not in breach');
- assert.equal(year3,base,'year 3 must return to base interest after a compliant year 2');
+ const penalty=Number(x.story.match(/ставка на СЛЕДУЮЩИЙ год растёт на (\d+) п\.п\./)[1]);
+ assert.ok(loan/eb2>limit,'second year breached the debt/EBITDA limit');
+ assert.equal(year3,base+penalty,'year 3 must include penalty triggered by year 2');
 });
