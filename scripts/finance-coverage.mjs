@@ -12,8 +12,14 @@ import {TAX_MODEL_ORACLE_TEMPLATES} from './lib/tax-model-oracles.js';
 import {INSTRUMENT_ORACLE_TEMPLATES} from './lib/instrument-oracles.js';
 import {CAPITAL_ORACLE_TEMPLATES} from './lib/capital-answer-oracles.js';
 import {TAX_ADVANCED_ORACLE_TEMPLATES} from './lib/tax-advanced-answer-oracles.js';
+import {ADVANCED_DCF_ORACLE_TEMPLATES} from './lib/advanced-dcf-oracle.js';
+import {ADVANCED_STORY_ORACLE_IDS,validateAdvancedStoryMath} from './lib/advanced-story-oracles.js';
+import {LEGACY_STORY_ORACLE_IDS,validateLegacyStoryMath} from './lib/legacy-story-oracles.js';
+import {BANK_STORY_ORACLE_IDS,validateBankStoryMath} from './lib/bank-story-oracles.js';
+import {REASONING_STORY_ORACLE_IDS,validateReasoningStoryMath} from './lib/reasoning-story-oracles.js';
+import {PRACTICE_STORY_ORACLE_IDS} from './lib/practice-story-oracles.js';
 
-const oracle=new Set([...ORACLE_TEMPLATES,...BASIC_ORACLE_TEMPLATES,...TAX_MODEL_ORACLE_TEMPLATES,...INSTRUMENT_ORACLE_TEMPLATES,...CAPITAL_ORACLE_TEMPLATES,...TAX_ADVANCED_ORACLE_TEMPLATES]);
+const oracle=new Set([...ORACLE_TEMPLATES,...BASIC_ORACLE_TEMPLATES,...TAX_MODEL_ORACLE_TEMPLATES,...INSTRUMENT_ORACLE_TEMPLATES,...CAPITAL_ORACLE_TEMPLATES,...TAX_ADVANCED_ORACLE_TEMPLATES,...ADVANCED_DCF_ORACLE_TEMPLATES,...ADVANCED_STORY_ORACLE_IDS,...LEGACY_STORY_ORACLE_IDS,...BANK_STORY_ORACLE_IDS,...REASONING_STORY_ORACLE_IDS,...PRACTICE_STORY_ORACLE_IDS]);
 const domainIds=new Set([
   ...ORACLE_TEMPLATES,...INSTRUMENT_ORACLE_TEMPLATES,...CAPITAL_ORACLE_TEMPLATES,...TAX_ADVANCED_ORACLE_TEMPLATES,
   'capital-financing-match','capital-roa-debt-roe','capital-wacc-dynamic',
@@ -60,7 +66,7 @@ for(const t of TEMPLATE_CATALOG){
 }
 if(new Set(rows.map(r=>r.id)).size!==TEMPLATE_CATALOG.length)throw Error('Duplicate or lost template in coverage matrix');
 for(const id of oracle)if(!rows.some(r=>r.id===id))throw Error('Orphan finance oracle '+id);
-if(oracle.size!==ORACLE_TEMPLATES.length+BASIC_ORACLE_TEMPLATES.length+TAX_MODEL_ORACLE_TEMPLATES.length+INSTRUMENT_ORACLE_TEMPLATES.length+CAPITAL_ORACLE_TEMPLATES.length+TAX_ADVANCED_ORACLE_TEMPLATES.length)throw Error('Oracle template IDs overlap');
+if(oracle.size!==ORACLE_TEMPLATES.length+BASIC_ORACLE_TEMPLATES.length+TAX_MODEL_ORACLE_TEMPLATES.length+INSTRUMENT_ORACLE_TEMPLATES.length+CAPITAL_ORACLE_TEMPLATES.length+TAX_ADVANCED_ORACLE_TEMPLATES.length+ADVANCED_DCF_ORACLE_TEMPLATES.length+ADVANCED_STORY_ORACLE_IDS.length+LEGACY_STORY_ORACLE_IDS.length+BANK_STORY_ORACLE_IDS.length+REASONING_STORY_ORACLE_IDS.length+PRACTICE_STORY_ORACLE_IDS.length)throw Error('Oracle template IDs overlap');
 
 const counts=Object.fromEntries([...new Set(rows.map(r=>r.status))].sort().map(
   s=>[s,rows.filter(r=>r.status===s).length]
@@ -71,7 +77,7 @@ const md=[
   '',
   'Автоматически сформировано из текущего TEMPLATE_CATALOG. Вывод не следует редактировать вручную.',
   '',
-  'Статусы: independent-answer-oracle = независимый пересчёт каждого числового ответа в preflight;',
+  'Статусы: independent-answer-oracle = независимый пересчёт всех числовых и вариантов выбора из сценария в preflight;',
   'preflight-domain-identity = проверка финансовых тождеств по audit, но не всех отображаемых ответов;',
   'separate-numeric-tests = отдельные числовые тесты, ещё без единого oracle в preflight;',
   'audit-data-only = audit есть, но универсальный независимый oracle не назначен;',

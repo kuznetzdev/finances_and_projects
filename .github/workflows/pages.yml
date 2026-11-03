@@ -30,6 +30,8 @@ jobs:
         run: npm run preflight
       - name: Generate full financial verification matrix
         run: npm run coverage:finance
+      - name: Independently verify all 310 fixed-case answers by financial domain
+        run: node scripts/audit-fixed-math.mjs
       - name: Distribution and plausibility smoke audit
         run: npm run audit:distributions
       - name: Deep distribution audit (1000 seeds per tier)
@@ -41,6 +43,7 @@ jobs:
           node scripts/smoke-paradoxes.mjs
           node scripts/smoke-visual.mjs
           node scripts/smoke-lecture-cases.mjs
+          node scripts/smoke-all-casebook.mjs
       - name: Attach preflight report and visual evidence
         if: always()
         uses: actions/upload-artifact@v7
@@ -50,6 +53,7 @@ jobs:
             artifacts/preflight-report.json
             artifacts/finance-coverage.md
             artifacts/finance-coverage.json
+            artifacts/fixed-math-audit.json
             artifacts/generator-distributions.json
             artifacts/generator-distributions.md
             artifacts/*.png
