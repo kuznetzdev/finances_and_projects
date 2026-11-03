@@ -12,6 +12,7 @@ import {TAX_ADVANCED_ORACLE_TEMPLATES,validateTaxAdvancedOracle} from './tax-adv
 import {validatePlausibility} from './financial-plausibility.js';
 import {CONTROL_WORK_REFERENCES,validateControlWorkReferences} from './control-work-oracles.js';
 import {EXAM_PREP_ORACLES,validateExamPrepReferences} from './exam-prep-oracles.js';
+import {validateAllFixedReferences} from './all-fixed-oracles.js';
 import {CASE_BANK,CASE_CHECKPOINTS,verifyCheckpoint} from '../../site/engine/casebook.js';
 import {CONCEPTS} from '../../site/data/knowledge.js';
 import {glossaryIntegrity} from '../../site/data/glossary-engine.js';
@@ -161,7 +162,7 @@ function validateAssets(){
 }
 export function preflight({seeds=24}={}){
  const errors=validateCatalog(TEMPLATE_CATALOG),warnings=[];
- const output={errors,warnings,checkedTemplates:TEMPLATE_CATALOG.length,checkedExercises:0,checkedOracleAnswers:0,checkedOracleTemplates:ORACLE_TEMPLATES.length+BASIC_ORACLE_TEMPLATES.length+TAX_MODEL_ORACLE_TEMPLATES.length+INSTRUMENT_ORACLE_TEMPLATES.length+CAPITAL_ORACLE_TEMPLATES.length+TAX_ADVANCED_ORACLE_TEMPLATES.length,checkedPlausibilityExercises:0,checkedControlWorkAnswers:0,checkedExamPrepAnswers:0,checkedFixedCheckpointAnswers:0,checkedCases:0,checkedConcepts:0,checkedFormulas:0,checkedFiles:0};
+ const output={errors,warnings,checkedTemplates:TEMPLATE_CATALOG.length,checkedExercises:0,checkedOracleAnswers:0,checkedOracleTemplates:ORACLE_TEMPLATES.length+BASIC_ORACLE_TEMPLATES.length+TAX_MODEL_ORACLE_TEMPLATES.length+INSTRUMENT_ORACLE_TEMPLATES.length+CAPITAL_ORACLE_TEMPLATES.length+TAX_ADVANCED_ORACLE_TEMPLATES.length,checkedPlausibilityExercises:0,checkedControlWorkAnswers:0,checkedExamPrepAnswers:0,checkedFixedCheckpointAnswers:0,checkedFixedIndependentAnswers:0,checkedCases:0,checkedConcepts:0,checkedFormulas:0,checkedFiles:0};
  const maxSeed=Number(seeds);
  if(!Number.isInteger(maxSeed)||maxSeed<1||maxSeed>500)throw Error('seeds must be 1..500');
  for(const t of TEMPLATE_CATALOG){
@@ -197,6 +198,9 @@ export function preflight({seeds=24}={}){
  output.checkedFixedCheckpointAnswers=Object.values(CASE_CHECKPOINTS).reduce((total,questions)=>total+questions.length,0);
  output.checkedExamPrepAnswers=Object.values(EXAM_PREP_ORACLES).reduce((total,steps)=>total+Object.keys(steps).length,0);
  errors.push(...validateExamPrepReferences(CASE_BANK,CASE_CHECKPOINTS));
+ const fixedMath=validateAllFixedReferences(CASE_BANK,CASE_CHECKPOINTS);
+ output.checkedFixedIndependentAnswers=fixedMath.coveredAnswers;
+ errors.push(...fixedMath.errors);
  output.checkedControlWorkAnswers=Object.values(CONTROL_WORK_REFERENCES).reduce((total,steps)=>total+Object.keys(steps).length,0);
  errors.push(...validateControlWorkReferences(CASE_BANK,CASE_CHECKPOINTS));
  const ids=new Set();
