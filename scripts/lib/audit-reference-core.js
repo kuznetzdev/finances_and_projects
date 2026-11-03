@@ -6,7 +6,7 @@ export const combineReferences=(...groups)=>Object.assign({},...groups);
 export const sum=values=>values.reduce((total,value)=>total+value,0);
 export const presentValue=(flows,discount,start=1)=>sum(flows.map((x,i)=>x/(1+discount)**(i+start)));
 export const percent=x=>x*100;
-export function verifyReferenceSet({cases,checkpoints,references,code='REF',sourceIds=null}){
+export function verifyReferenceSet({cases,checkpoints,references,code='REF',sourceIds=null,roundingPrecision=null}){
  const problems=[],seen=new Set();
  const expectedIds=new Set(Object.keys(references));
  const allowed=new Set(sourceIds??expectedIds);
@@ -29,7 +29,9 @@ export function verifyReferenceSet({cases,checkpoints,references,code='REF',sour
    names.add(q.label);
    if(!ref){problems.push({code:code+'_UNMAPPED',message:name+' lacks source-derived independent reference'});continue;}
    if(q.unit!==ref.unit)problems.push({code:code+'_UNIT',message:name+' '+q.unit+' expected '+ref.unit});
-   const threshold=Math.max(1e-7,1e-9*Math.abs(ref.answer));
+   const precision=ref.precision??roundingPrecision;
+   const rounding=Number.isInteger(precision)&&precision>=0&&precision<=12?0.5*10**(-precision):0;
+   const threshold=Math.max(1e-7,1e-9*Math.abs(ref.answer),rounding+1e-9);
    if(!Number.isFinite(q.answer)||!Number.isFinite(ref.answer)||Math.abs(q.answer-ref.answer)>threshold)
     problems.push({code:code+'_MISMATCH',message:name+' '+q.answer+' expected '+ref.answer});
    if(!Number.isFinite(q.tolerance)||q.tolerance<0||q.tolerance>Math.max(.1,Math.abs(ref.answer)*.001))
