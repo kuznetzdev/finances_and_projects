@@ -14,6 +14,10 @@ import {CONTROL_WORK_REFERENCES,validateControlWorkReferences} from './control-w
 import {EXAM_PREP_ORACLES,validateExamPrepReferences} from './exam-prep-oracles.js';
 import {validateAllFixedReferences} from './all-fixed-oracles.js';
 import {ADVANCED_DCF_ORACLE_TEMPLATES,validateAdvancedDcfOracle} from './advanced-dcf-oracle.js';
+import {ADVANCED_STORY_ORACLE_IDS,validateAdvancedStoryMath} from './advanced-story-oracles.js';
+import {LEGACY_STORY_ORACLE_IDS,validateLegacyStoryMath} from './legacy-story-oracles.js';
+import {BANK_STORY_ORACLE_IDS,validateBankStoryMath} from './bank-story-oracles.js';
+import {REASONING_STORY_ORACLE_IDS,validateReasoningStoryMath} from './reasoning-story-oracles.js';
 import {CASE_BANK,CASE_CHECKPOINTS,verifyCheckpoint} from '../../site/engine/casebook.js';
 import {CONCEPTS} from '../../site/data/knowledge.js';
 import {glossaryIntegrity} from '../../site/data/glossary-engine.js';
@@ -163,7 +167,7 @@ function validateAssets(){
 }
 export function preflight({seeds=24}={}){
  const errors=validateCatalog(TEMPLATE_CATALOG),warnings=[];
- const output={errors,warnings,checkedTemplates:TEMPLATE_CATALOG.length,checkedExercises:0,checkedOracleAnswers:0,checkedOracleTemplates:ORACLE_TEMPLATES.length+BASIC_ORACLE_TEMPLATES.length+TAX_MODEL_ORACLE_TEMPLATES.length+INSTRUMENT_ORACLE_TEMPLATES.length+CAPITAL_ORACLE_TEMPLATES.length+TAX_ADVANCED_ORACLE_TEMPLATES.length+ADVANCED_DCF_ORACLE_TEMPLATES.length,checkedPlausibilityExercises:0,checkedControlWorkAnswers:0,checkedExamPrepAnswers:0,checkedFixedCheckpointAnswers:0,checkedFixedIndependentAnswers:0,checkedCases:0,checkedConcepts:0,checkedFormulas:0,checkedFiles:0};
+ const output={errors,warnings,checkedTemplates:TEMPLATE_CATALOG.length,checkedExercises:0,checkedOracleAnswers:0,checkedOracleTemplates:ORACLE_TEMPLATES.length+BASIC_ORACLE_TEMPLATES.length+TAX_MODEL_ORACLE_TEMPLATES.length+INSTRUMENT_ORACLE_TEMPLATES.length+CAPITAL_ORACLE_TEMPLATES.length+TAX_ADVANCED_ORACLE_TEMPLATES.length+ADVANCED_DCF_ORACLE_TEMPLATES.length+ADVANCED_STORY_ORACLE_IDS.length+LEGACY_STORY_ORACLE_IDS.length+BANK_STORY_ORACLE_IDS.length+REASONING_STORY_ORACLE_IDS.length,checkedPlausibilityExercises:0,checkedControlWorkAnswers:0,checkedExamPrepAnswers:0,checkedFixedCheckpointAnswers:0,checkedFixedIndependentAnswers:0,checkedCases:0,checkedConcepts:0,checkedFormulas:0,checkedFiles:0};
  const maxSeed=Number(seeds);
  if(!Number.isInteger(maxSeed)||maxSeed<1||maxSeed>500)throw Error('seeds must be 1..500');
  for(const t of TEMPLATE_CATALOG){
@@ -176,8 +180,8 @@ export function preflight({seeds=24}={}){
      output.checkedExercises++;
      const plausibility=validatePlausibility(ex);
      output.checkedPlausibilityExercises++;
-     const issues=[...validateExercise(ex),...validateDcfAudit(ex),...validateBusinessAudit(ex),...validateFinanceOracle(ex),...validateBasicOracle(ex),...validateTaxModelOracle(ex),...validateInstrumentOracle(ex),...validateCapitalOracle(ex),...validateTaxAdvancedOracle(ex),...validateAdvancedDcfOracle(ex),...plausibility.errors];
-     if(ORACLE_TEMPLATES.includes(t.id)||BASIC_ORACLE_TEMPLATES.includes(t.id)||TAX_MODEL_ORACLE_TEMPLATES.includes(t.id)||INSTRUMENT_ORACLE_TEMPLATES.includes(t.id)||CAPITAL_ORACLE_TEMPLATES.includes(t.id)||TAX_ADVANCED_ORACLE_TEMPLATES.includes(t.id)||ADVANCED_DCF_ORACLE_TEMPLATES.includes(t.id))output.checkedOracleAnswers+=ex.questions.filter(q=>q.type==='number').length;
+     const issues=[...validateExercise(ex),...validateDcfAudit(ex),...validateBusinessAudit(ex),...validateFinanceOracle(ex),...validateBasicOracle(ex),...validateTaxModelOracle(ex),...validateInstrumentOracle(ex),...validateCapitalOracle(ex),...validateTaxAdvancedOracle(ex),...validateAdvancedDcfOracle(ex),...validateAdvancedStoryMath(ex),...validateLegacyStoryMath(ex),...validateBankStoryMath(ex),...validateReasoningStoryMath(ex),...plausibility.errors];
+     if(ORACLE_TEMPLATES.includes(t.id)||BASIC_ORACLE_TEMPLATES.includes(t.id)||TAX_MODEL_ORACLE_TEMPLATES.includes(t.id)||INSTRUMENT_ORACLE_TEMPLATES.includes(t.id)||CAPITAL_ORACLE_TEMPLATES.includes(t.id)||TAX_ADVANCED_ORACLE_TEMPLATES.includes(t.id)||ADVANCED_DCF_ORACLE_TEMPLATES.includes(t.id)||ADVANCED_STORY_ORACLE_IDS.includes(t.id)||LEGACY_STORY_ORACLE_IDS.includes(t.id)||BANK_STORY_ORACLE_IDS.includes(t.id)||REASONING_STORY_ORACLE_IDS.includes(t.id))output.checkedOracleAnswers+=ex.questions.filter(q=>q.type==='number').length;
      if(seed===1){
       const repeated=generateExercise(args);
       if(JSON.stringify(ex)!==JSON.stringify(repeated))errors.push(issue('NON_DETERMINISTIC',t.id+' does not reproduce seed=1'));
