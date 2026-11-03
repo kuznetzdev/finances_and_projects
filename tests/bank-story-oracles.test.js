@@ -25,7 +25,7 @@ test('lagged covenant: year 3 interest must reflect year 2 breach, not year 1 br
  const x=generateExercise({templateId:'bank-covenant-penalty',topic:'ratios',level:4,seed:7});
  const year3=x.questions.find(q=>q.key==='year3').answer;
  const base=Number(x.story.match(/остаток по ставке (\d+)% годовых/)[1]);
- const eb2=Number(x.story.match(/EBITDA в годах 1–4:\s*[\d\s,.]+;\s*([\d\s,.]+);/)[1].trim().replace(',','.'));
+ const eb2=Number(x.story.match(/EBITDA в годах 1–4:\s*[\d\s,.]+;\s*([\d\s,.]+);/)[1].replace(/[\s\u00a0\u202f]/g,'').replace(',','.'));
  const loan=Number(x.story.match(/Долг компании (\d+) млн/)[1]);
  const limit=Number(x.story.match(/превышает ([\d,]+)/)[1].replace(',','.'));
  assert.ok(loan/eb2<=limit,'second year is not in breach');
