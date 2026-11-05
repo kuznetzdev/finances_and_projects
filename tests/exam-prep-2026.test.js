@@ -106,3 +106,19 @@ test('LBO interest waterfall, tax-shield sequence and missing-data scenarios sta
   assert.ok(CASE_BY_ID.get(id).caveat,id);
  }
 });
+
+test('PREP26-03 separates discounted issue yield from the coupon tax shield and completes the alternate fee basis',()=>{
+ const item=CASE_BY_ID.get('PREP26-03');
+ assert.match(item.solutionHtml,/17,3937%/);
+ assert.match(item.solutionHtml,/10,5%/);
+ assert.match(item.solutionHtml,/17,4759%/);
+ const actual=c('PREP26-03','Эффективная стоимость долга Rd')/100;
+ const alternate=c('PREP26-03','Rd при эмиссионных расходах 3% от номинала')/100;
+ assert.ok(actual>.14&&actual>.105,'effective Rd must not be coupon or after-tax coupon');
+ const pv=(rate)=>[140,140,140,140,1140].reduce((sum,cf,i)=>sum+cf/(1+rate)**(i+1),0);
+ close(pv(actual),920*(1-.03),'net issue receipts 892.4',1e-6);
+ close(pv(alternate),920-1000*.03,'net issue receipts 890',1e-6);
+ close(c('PREP26-03','WACC при эмиссионных расходах 3% от номинала'),
+  (0.5*.17+0.5*alternate*.75)*100,'alternate issue WACC');
+ assert.ok(alternate>actual);
+});
