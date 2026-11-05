@@ -318,3 +318,28 @@ main#content {
 /* The absence of attempts is a status, not a numerical zero. */
 #content[data-page="progress"] .stat-no-data {font-size:clamp(13px,1.55vw,19px);line-height:1.5;letter-spacing:0;white-space:normal;}
 .flip-surface::after {display:none;content:none;}
+
+/* Numeric answer inputs: one accessible focus ring, with unit labels outside the text. */
+.case-number-wrap input:focus-visible {
+  outline: none;
+}
+.answer-input:focus-visible, .answer-select:focus-visible {
+  outline: none;
+}
+.answer-input:focus, .answer-select:focus {
+  border-color: var(--ok);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 25%, transparent);
+}
+.case-number-wrap input {
+  padding-right: 12px;
+}
+.case-number-wrap input::placeholder, .answer-input::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+.case-number-wrap span {
+  flex: 0 0 auto;
+  padding-left: 10px;
+  border-left: 1px solid var(--line);
+  line-height: 1.2;
+}

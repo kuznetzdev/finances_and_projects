@@ -43,6 +43,26 @@ try{
   for(let i=0;i<questions.length;i++){
    const q=questions[i];
    assert.equal(await page.locator('.case-step-heading h3').innerText(),q.label,item.id+' step '+i);
+   if(item.id==='PREP26-03' && i===0){
+    // Numeric field has one external focus ring; units stay in their own area.
+    const focus=await page.locator('#bank-answer').evaluate(input=>{
+     input.focus();
+     const wrap=input.closest('.case-number-wrap'),unit=wrap.querySelector('span');
+     return {
+      innerOutline:getComputedStyle(input).outlineStyle,
+      outerOutline:getComputedStyle(wrap).outlineStyle,
+      unitLeft:unit.getBoundingClientRect().left,
+      inputRight:input.getBoundingClientRect().right,
+      unitRight:unit.getBoundingClientRect().right,
+      wrapRight:wrap.getBoundingClientRect().right
+     };
+    });
+    assert.equal(focus.innerOutline,'none','numeric input must not draw an orange focus rectangle inside its wrapper');
+    assert.equal(focus.outerOutline,'solid','external visible keyboard focus indicator must remain');
+    assert.ok(focus.unitLeft>=focus.inputRight-1&&focus.unitRight<=focus.wrapRight+1,
+     'units must remain readable beside the entry area '+JSON.stringify(focus));
+    await page.screenshot({path:'artifacts/exam-input-focus-desktop.png'});
+   }
    if(exam){
     await page.locator('#bank-step-hint').click();
     assert.equal(await page.locator('#bank-step-hint').getAttribute('aria-expanded'),'true',item.id+' hint 1');
@@ -76,6 +96,18 @@ try{
   await mob.goto(base+'?page=practice&mode=bank&case='+encodeURIComponent(id),{waitUntil:'domcontentloaded'});
   await mob.locator('.case-code').waitFor();
   assert.equal(await mob.locator('.case-code').innerText(),id);
+  if(id==='PREP26-03'){
+   const bounds=await mob.locator('.case-number-wrap').evaluate(wrap=>{
+    const input=wrap.querySelector('input'),unit=wrap.querySelector('span');
+    const parent=wrap.getBoundingClientRect(),u=unit.getBoundingClientRect(),i=input.getBoundingClientRect();
+    return {unitLeft:u.left,unitRight:u.right,inputRight:i.right,wrapRight:parent.right};
+   });
+   assert.ok(bounds.unitLeft>=bounds.inputRight-1&&bounds.unitRight<=bounds.wrapRight+1,
+    'mobile units clipped or overlapping input '+JSON.stringify(bounds));
+   await mob.locator('#bank-answer').focus();
+   assert.equal(await mob.locator('#bank-answer').evaluate(el=>getComputedStyle(el).outlineStyle),'none');
+   await mob.screenshot({path:'artifacts/exam-input-focus-mobile.png'});
+  }
   const widths=await mob.evaluate(()=>({document:document.documentElement.scrollWidth,viewport:innerWidth}));
   assert.ok(widths.document<=widths.viewport+5,id+' mobile horizontal overflow '+JSON.stringify(widths));
  }
