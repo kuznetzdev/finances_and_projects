@@ -30,7 +30,7 @@ jobs:
         run: npm run preflight
       - name: Generate full financial verification matrix
         run: npm run coverage:finance
-      - name: Independently verify all 310 fixed-case answers by financial domain
+      - name: Independently verify all fixed-case answers by financial domain
         run: node scripts/audit-fixed-math.mjs
       - name: Distribution and plausibility smoke audit
         run: npm run audit:distributions
