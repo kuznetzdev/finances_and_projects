@@ -40,6 +40,7 @@ const currentAfter=Object.values(assetsAfter).reduce((a,b)=>a+b,0);
 const quickAfter=assetsAfter.cash+assetsAfter.receivables;
 const bondIssue={face:1000,coupon:.14,proceeds:920,flotation:.03,tax:.25,ke:.15+.02};
 const bondDebt=bondYtm(bondIssue.proceeds*(1-bondIssue.flotation),bondIssue.face*bondIssue.coupon,bondIssue.face,5);
+const bondDebtFaceFee=bondYtm(bondIssue.proceeds-bondIssue.face*bondIssue.flotation,bondIssue.face*bondIssue.coupon,bondIssue.face,5);
 const amort={principal:[400,300,200,100],yield:.11,rate:.10,face:1000};
 let outstanding=amort.face;
 const amortFlows=amort.principal.map(repay=>{
@@ -113,7 +114,9 @@ export const EXAM_PREP_ORACLES=Object.freeze({
  }),as('%',{
   'Эффективная стоимость долга Rd':pct(bondDebt),
   'Стоимость акционерного капитала':pct(bondIssue.ke),
-  'WACC с налоговым щитом':pct(.5*bondIssue.ke+.5*bondDebt*(1-bondIssue.tax))
+  'WACC с налоговым щитом':pct(.5*bondIssue.ke+.5*bondDebt*(1-bondIssue.tax)),
+  'Rd при эмиссионных расходах 3% от номинала':pct(bondDebtFaceFee),
+  'WACC при эмиссионных расходах 3% от номинала':pct(.5*bondIssue.ke+.5*bondDebtFaceFee*(1-bondIssue.tax))
  })),
  'PREP26-04':as('ед.',{
   'Купон первого года':amort.face*amort.rate,
