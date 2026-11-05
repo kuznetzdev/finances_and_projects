@@ -2,10 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
-const css=readFileSync(new URL('../site/styles.css',import.meta.url),'utf8');
+const baseCss=readFileSync(new URL('../site/styles.css',import.meta.url),'utf8');
+const css=readFileSync(new URL('../site/workbench.css',import.meta.url),'utf8');
 
 test('bank numeric field uses one visible focus indicator, not a clipped orange inner outline',()=>{
- assert.match(css,/\.case-number-wrap:focus-within\s*\{[^}]*outline:\s*2px solid var\(--ok\)/);
+ assert.match(baseCss,/\.case-number-wrap:focus-within\s*\{[^}]*outline:\s*2px solid var\(--ok\)/);
  assert.match(css,/\.case-number-wrap input:focus-visible\s*\{[^}]*outline:\s*(?:none|0)\s*;/);
 });
 
