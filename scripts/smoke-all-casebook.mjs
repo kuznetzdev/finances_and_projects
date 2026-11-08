@@ -83,7 +83,7 @@ try{
   assert.equal(await page.locator('.case-workpad-head strong').innerText(),questions.length+'/'+questions.length,item.id+' progress');
   if(item.id==='PREP26-13')await page.screenshot({path:'artifacts/exam-all-steps-desktop.png',fullPage:true});
  }
- assert.equal(inspected,124,'all 124 bank cases must render');
+ assert.equal(inspected,174,'all 174 bank cases must render');
  assert.equal(answered,Object.values(CASE_CHECKPOINTS).reduce((n,questions)=>n+questions.length,0),'all numeric answers graded in browser');
  assert.equal(examAnswers,EXAM_PREP_CASE_IDS.reduce((n,id)=>n+CASE_CHECKPOINTS[id].length,0),'all exam answers graded');
  assert.deepEqual(errors,[],'app console and runtime errors');
@@ -115,7 +115,7 @@ try{
  await mob.screenshot({path:'artifacts/exam-final-case-mobile.png',fullPage:true});
  assert.deepEqual(mobileErrors,[]);
  await mobile.close();
- console.log('PASS: browser opened '+inspected+'/124 fixed cases, viewed every full solution, graded '+answered+' fixed checkpoints including '+examAnswers+' exam checkpoints with three hint levels; '+9+' exam mobile pages checked.');
+ console.log('PASS: browser opened '+inspected+'/174 fixed cases, viewed every full solution, graded '+answered+' fixed checkpoints including '+examAnswers+' exam checkpoints with three hint levels; '+9+' exam mobile pages checked.');
 }finally{
  await browser?.close();
  server.kill('SIGTERM');
