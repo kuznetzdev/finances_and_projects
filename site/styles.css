@@ -154,3 +154,6 @@
 .section4-path-link{display:inline-block;max-width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:9px;font-size:12px;line-height:1.45;color:var(--forest2);overflow-wrap:anywhere;text-decoration:none}
 .section4-path-link:hover{text-decoration:underline}
 @media(max-width:700px){.section4-path-grid{grid-template-columns:minmax(0,1fr);padding:0 12px 12px}.section4-path>summary{padding:14px;flex-wrap:wrap}.section4-path-topic{padding:14px}.section4-path-intro{margin:0 14px 12px}}
+
+/* Direct entry point for the combined exam-preparation route. */
+.prep-entry{margin:-10px 0 22px;line-height:1.5}.prep-entry .section4-path-link{font-weight:700;border-color:var(--line)}
