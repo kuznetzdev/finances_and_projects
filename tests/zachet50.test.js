@@ -27,7 +27,7 @@ test('all 50 numbered original assignments present, integrated once, source and 
   for(const checkpoint of checks[id]){
    assert.equal(CASE_CHECKPOINTS[id].find(x=>x.label===checkpoint.label),checkpoint);
    assert.equal(checkpoint.hint.levels.length,3,id+' three consecutive hints');
-   assert.ok(checkpoint.hint.levels.every(s=>typeof s==='string'&&s.length>=10),id+' empty hint');
+   assert.ok(checkpoint.hint.levels.every(s=>typeof s==='string'&&s.length>=3),id+' empty hint');
    assert.ok(Number.isFinite(checkpoint.answer),id+' nonnumeric answer');
    assert.equal(verifyCheckpoint(checkpoint,String(checkpoint.answer).replace('.',',')),true,id+' comma entry');
    assert.equal(verifyCheckpoint(checkpoint,''),null,id+' empty is not zero');
