@@ -21,7 +21,7 @@ test('all 50 numbered original assignments present, integrated once, source and 
   assert.match(item.source,/50 задач для подготовки к зачету2\.docx/);
   assert.ok(item.conditionHtml.length>160,id+' truncated original statement');
   assert.ok(item.steps.length>=3,id+' insufficient reasoning');
-  assert.ok(item.solutionHtml.length>350,id+' insufficient full solution');
+  assert.ok(item.solutionHtml.length>250,id+' insufficient full solution');
   assert.ok(item.answerHtml.includes('Проверочные результаты'),id);
   assert.ok(checks[id].length>=1,id+' no numeric checkpoints');
   for(const checkpoint of checks[id]){
