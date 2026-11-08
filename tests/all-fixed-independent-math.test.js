@@ -2,16 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {CASE_BANK,CASE_CHECKPOINTS} from '../site/engine/casebook.js';
 import {validateAllFixedReferences,FIXED_REFERENCE_GROUPS} from '../scripts/lib/all-fixed-oracles.js';
-test('every one of 312 fixed bank checkpoints is covered by independent source-derived arithmetic',()=>{
+test('every one of 452 fixed bank checkpoints is covered by independent source-derived arithmetic',()=>{
  const result=validateAllFixedReferences(CASE_BANK,CASE_CHECKPOINTS);
  assert.deepEqual(result.errors,[]);
- assert.equal(result.checkedCases,124);
- assert.equal(result.checkedAnswers,312);
+ assert.equal(result.checkedCases,174);
+ assert.equal(result.checkedAnswers,452);
  assert.deepEqual(Object.keys(FIXED_REFERENCE_GROUPS).sort(),[
   'capital-and-assignments','control-works','dcf-and-taxes','exam-prep',
-  'instrument','lecture','original-bank','seminar4'].sort());
+  'exam-prep-50','instrument','lecture','original-bank','seminar4'].sort());
 });
-test('all 312 answers detect deliberate corruption of stored values',()=>{
+test('all 452 answers detect deliberate corruption of stored values',()=>{
  for(const item of CASE_BANK){
   const original=CASE_CHECKPOINTS[item.id]??[];
   for(let i=0;i<original.length;i++){
@@ -29,7 +29,7 @@ test('unmapped or unregistered case answers must not silently pass a generic int
  assert.ok(validateAllFixedReferences(missing,CASE_CHECKPOINTS).errors.some(x=>x.code.includes('MISSING')));
 });
 
-test('all 312 numeric checkpoints reject a tampered unit of measurement',()=>{
+test('all 452 numeric checkpoints reject a tampered unit of measurement',()=>{
  for(const item of CASE_BANK){
   const original=CASE_CHECKPOINTS[item.id]??[];
   for(let i=0;i<original.length;i++){
