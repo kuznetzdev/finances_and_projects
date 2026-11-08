@@ -79,9 +79,10 @@ test('debt announcement is not placement, and project finance is not a buyback',
 
 test('combined route visible in practice screen with old and new preparatory cases',()=>{
  const ui=readFileSync(new URL('../site/features/casebook-ui.js',import.meta.url),'utf8');
- const app=readFileSync(new URL('../site/app.js',import.meta.url),'utf8');
+ const navigation=readFileSync(new URL('../site/index.html',import.meta.url),'utf8');
  assert.match(ui,/Подготовка к контрольной \/ зачету/);
  assert.match(ui,/startsWith\('PREP26-'\)/);
  assert.match(ui,/startsWith\('ZACHET50-'\)/);
- assert.match(app,/case=ZACHET50-01/);
+ assert.match(navigation,/case=ZACHET50-01/);
+ assert.match(navigation,/mobile-prep-link/);
 });
