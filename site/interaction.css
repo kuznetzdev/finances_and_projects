@@ -598,8 +598,8 @@ h1,h2,h3,h4,.page-intro h1,.task-header h2,.mode-header h2,.term-item h3,
  .mobile-navigation>button span{font-size:18px}
  .mobile-navigation>button .ui-icon{width:20px;height:20px}
  .mobile-more-menu{position:absolute;right:10px;bottom:calc(100% + 8px);display:grid;gap:5px;background:var(--paper);border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.19);border-radius:14px;padding:8px;min-width:176px;max-width:calc(100vw - 20px)}
- .mobile-more-menu button{width:100%;display:flex;flex-direction:row;justify-content:flex-start;align-items:center;gap:10px;font-size:13px;text-align:left;padding:10px 12px;min-height:44px}
- .mobile-more-menu button .ui-icon{width:20px;height:20px;flex:none}
+ .mobile-more-menu button,.mobile-more-menu .mobile-prep-link{width:100%;display:flex;flex-direction:row;justify-content:flex-start;align-items:center;gap:10px;font-size:13px;text-align:left;padding:10px 12px;min-height:44px;color:var(--ink)}
+ .mobile-more-menu button .ui-icon,.mobile-more-menu .mobile-prep-link .ui-icon{width:20px;height:20px;flex:none}
  .progress-topic-row{flex-wrap:wrap}
  .progress-review{min-width:92px}
 }

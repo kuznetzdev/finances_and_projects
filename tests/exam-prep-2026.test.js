@@ -11,8 +11,8 @@ const c=(id,label)=>{
 };
 test('all thirteen source references are unique, correctly grouped and searchable',()=>{
  assert.equal(EXAM_PREP_CASES.length,13);
- assert.equal(CASE_BANK.length,124);
- assert.equal(new Set(CASE_BANK.map(x=>x.id)).size,124);
+ assert.equal(CASE_BANK.length,174);
+ assert.equal(new Set(CASE_BANK.map(x=>x.id)).size,174);
  const groups={
  'Контрольные · Финансовая отчётность':[1,2,10],
  'Облигации и опционы · углублённые кейсы':[4],

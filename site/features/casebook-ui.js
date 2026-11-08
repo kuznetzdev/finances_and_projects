@@ -55,15 +55,19 @@ function instrumentPathMarkup(){
  </article>`).join('')}</div></details>`;
 }
 function examPrepPathMarkup(){
- const cases=CASE_BANK.filter(item=>item.id.startsWith('PREP26-'));
- const groups=[...new Set(cases.map(item=>item.group))];
+ const old=CASE_BANK.filter(item=>item.id.startsWith('PREP26-'));
+ const newCases=CASE_BANK.filter(item=>item.id.startsWith('ZACHET50-'));
+ const groups=[...new Set(newCases.map(item=>item.group))];
+ const caseLink=item=>'<a class="section4-path-link" href="?page=practice&mode=bank&case='+encodeURIComponent(item.id)+'">'+deps.escape(item.id+' · '+item.title)+'</a>';
  return `<details class="section4-path" id="exam-prep-learning-path">
- <summary>Подготовка к контрольной <span>${cases.length} решённых задач · формулы, подсказки и проверка</span></summary>
- <p class="section4-path-intro">Задания распределены по тематическим разделам банка. Раскройте задачу, решите числовые шаги с подсказками и сравните с полным эталонным разбором. Для неоднозначных условий приведены отдельные сценарии.</p>
+ <summary>Подготовка к контрольной / зачету <span>${newCases.length} задач из файла + ${old.length} ранее решенных</span></summary>
+ <p class="section4-path-intro">Единый маршрут подготовки по всем блокам курса. Исходные условия 50 новых задач сохранены из DOCX; решения сверены с лекционной методикой. Начните с выбора тематического блока, а затем решайте промежуточные этапы. Подсказки раскрываются последовательно: смысл → формула → подстановка. В спорных условиях допущения указаны в разборе.</p>
  <div class="section4-path-grid">${groups.map(group=>`<article class="section4-path-topic">
-  <h3>${deps.escape(group)}</h3>
-  <div class="section4-path-links">${cases.filter(item=>item.group===group).map(item=>`<a class="section4-path-link" href="?page=practice&mode=bank&case=${encodeURIComponent(item.id)}">${deps.escape(item.id+' · '+item.title)}</a>`).join('')}</div>
- </article>`).join('')}</div></details>`;
+  <h3>${deps.escape(group)}</h3><div class="section4-path-links">${newCases.filter(item=>item.group===group).map(caseLink).join('')}</div>
+ </article>`).join('')}
+ <article class="section4-path-topic"><h3>Ранее добавленные разборы для контрольной</h3>
+ <p>Дополнительные 13 задач сохранены в общем маршруте, без дублирования и сброса прогресса.</p>
+ <div class="section4-path-links">${old.map(caseLink).join('')}</div></article></div></details>`;
 }
 function selectCase(id,remember=true){
  if(!CASE_BY_ID.has(id))return;

@@ -116,7 +116,8 @@ try{
  assert.equal(new URL(page.url()).searchParams.get('topic'),'all');
  await page.screenshot({path:'artifacts/visual-task-discovery.png',fullPage:true});
  assert.equal(await page.locator('.side-section-label').first().textContent(),'УЧЕБНЫЙ ПРОЦЕСС');
- assert.equal(await page.locator('#desktop-navigation .ui-icon').count(),6);
+ assert.equal(await page.locator('#desktop-navigation .ui-icon').count(),7);
+ assert.ok(await page.locator('#desktop-navigation a[href*="ZACHET50-01"]').isVisible(),'exam preparation is linked from desktop navigation');
  assert.equal(await page.locator('.brand-mark .ui-icon').count(),1);
  assert.equal(await page.locator('#theme-toggle .ui-icon').count(),1);
  const iconValidity=await page.evaluate(()=>[...document.querySelectorAll('svg use')].every(x=>Boolean(document.getElementById(x.getAttribute('href')?.replace('#','')))));

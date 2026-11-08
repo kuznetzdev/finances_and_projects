@@ -35,7 +35,7 @@ try{
  await page.locator('#bank-step-hint').click();
  assert.equal(await page.locator('.case-hint-panel').count(),0);
 
- assert.match(await page.locator('.case-counter').innerText(),/124 разобранных задач/);
+ assert.match(await page.locator('.case-counter').innerText(),/174 разобранных задач/);
  assert.match(await page.locator('.case-condition').innerText(),/500 млн/);
  await page.locator('#bank-answer').fill('150');
  await page.locator('#bank-answer-form button[type="submit"]').click();
@@ -300,8 +300,8 @@ try{
  await mob.goto(base+'?page=practice&mode=bank&case=PREP26-01',{waitUntil:'networkidle'});
  assert.equal(await mob.locator('.case-code').innerText(),'PREP26-01');
  await mob.locator('#exam-prep-learning-path summary').click();
- assert.equal(await mob.locator('#exam-prep-learning-path .section4-path-topic').count(),7);
- assert.equal(await mob.locator('#exam-prep-learning-path .section4-path-link').count(),13);
+ assert.equal(await mob.locator('#exam-prep-learning-path .section4-path-topic').count(),9);
+ assert.equal(await mob.locator('#exam-prep-learning-path .section4-path-link').count(),63);
  assert.ok(await mob.locator('#exam-prep-learning-path a[href*="case=PREP26-13"]').count()>=1);
  await mob.locator('#bank-step-hint').click();
  assert.ok(await mob.locator('.case-hint-panel').isVisible());
@@ -315,5 +315,5 @@ try{
  await mob.screenshot({path:'artifacts/lecture-exam-prep-mobile.png',fullPage:true});
  await mobile.close();
  assert.deepEqual(errors,[]);
- console.log('PASS: 124 cases, section 4 linked guide, eight PDF solutions, three-stage hints, advanced LBO, fixed MM/Pecking numeric checks, persistence and mobile styling.');
+ console.log('PASS: 174 cases, section 4 linked guide, eight PDF solutions, three-stage hints, advanced LBO, fixed MM/Pecking numeric checks, persistence and mobile styling.');
 }finally{await browser?.close();server.kill('SIGTERM');}
