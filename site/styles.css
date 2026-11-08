@@ -155,7 +155,3 @@
 .section4-path-link:hover{text-decoration:underline}
 @media(max-width:700px){.section4-path-grid{grid-template-columns:minmax(0,1fr);padding:0 12px 12px}.section4-path>summary{padding:14px;flex-wrap:wrap}.section4-path-topic{padding:14px}.section4-path-intro{margin:0 14px 12px}}
 
-/* The direct exam entry stays on the tab row rather than pushing the mobile task below the fold. */
-.practice-mode-tabs .prep-mode-link{display:flex;align-items:center;flex:0 0 auto;white-space:nowrap;padding:10px 12px;border-left:1px solid var(--line);font-size:12px;font-weight:700;color:var(--forest2);text-decoration:none}
-.practice-mode-tabs .prep-mode-link:hover{text-decoration:underline}
-.practice-mode-tabs .prep-mode-link:focus-visible{outline:3px solid var(--ok);outline-offset:-3px}
