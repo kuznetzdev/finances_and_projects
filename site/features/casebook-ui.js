@@ -180,6 +180,6 @@ export function setupCasebook({root,stats,save,notice,escape,intro,tabs,initialI
   state.id=state.collection==='exam'?'ZACHET50-01':nextCase(stats.recentCases??[]).id;
   state.search='';state.index=0;stats.recentCases=recordRecent(stats.recentCases??[],state.id,24);save();
  }
- if(state.collection==='exam')state.group='Все направления';
+ if(state.collection==='exam'||initialCollection==='all')state.group='Все направления';
  render();
 }
