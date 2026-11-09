@@ -114,7 +114,7 @@ function changePracticeMode(next) {
  window.scrollTo({top:0,behavior:'instant'});
  $('#content [data-practice-mode="'+next+'"]')?.focus({preventScroll:true});
 }
-function renderBankMode() { setupCasebook({root:$('#content'),stats,save,notice,escape,intro:pageIntro,tabs:practiceTabs,initialId:fromURL('case',null)}); }
+function renderBankMode() { setupCasebook({root:$('#content'),stats,save,notice,escape,intro:pageIntro,tabs:practiceTabs,initialId:fromURL('case',null),initialCollection:fromURL('collection',null)}); }
 function filterPickerMarkup(id,label,items,selected){
  const current=items.find(x=>x.id===selected)||items[0];
  return `<div class="discovery-field">

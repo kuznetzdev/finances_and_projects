@@ -83,6 +83,7 @@ test('combined route visible in practice screen with old and new preparatory cas
  assert.match(ui,/Подготовка к контрольной \/ зачету/);
  assert.match(ui,/startsWith\('PREP26-'\)/);
  assert.match(ui,/startsWith\('ZACHET50-'\)/);
- assert.match(navigation,/case=ZACHET50-01/);
- assert.match(navigation,/mobile-prep-link/);
+ assert.match(ui,/data-case-collection="exam"/);
+ assert.doesNotMatch(navigation,/mobile-prep-link/);
+ assert.doesNotMatch(navigation,/<a class="nav-button"[^>]*Подготовка к зачету/);
 });

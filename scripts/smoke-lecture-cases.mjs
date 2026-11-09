@@ -260,6 +260,29 @@ try{
  assert.match(await page.locator('#bank-feedback').innerText(),/Верно/);
  await page.locator('#bank-solution-toggle').click();
  assert.match(await page.locator('.case-full-solution').innerText(),/570/);
+ // Preparation is a collection of the same bank, not a separate navigation page.
+ assert.equal(await page.locator('#desktop-navigation a.nav-button').count(),0);
+ await page.goto(base+'?page=practice&mode=bank&collection=exam&case=ZACHET50-01',{waitUntil:'networkidle'});
+ assert.equal(await page.locator('.case-code').innerText(),'ZACHET50-01');
+ assert.equal(await page.locator('[data-case-collection="exam"]').getAttribute('aria-current'),'true');
+ assert.equal(await page.locator('#bank-select option').count(),63);
+ assert.equal(await page.locator('#bank-match-count').innerText(),'63 найдено по фильтру');
+ const examOptions=await page.locator('#bank-select option').evaluateAll(options=>options.map(x=>x.value));
+ assert.ok(examOptions.every(id=>/^(ZACHET50|PREP26)-/.test(id)),'exam collection only includes preparation tasks');
+ await page.locator('#bank-select').selectOption('PREP26-13');
+ assert.equal(await page.locator('.case-code').innerText(),'PREP26-13');
+ assert.match(page.url(),/collection=exam/);
+ await page.reload({waitUntil:'networkidle'});
+ assert.equal(await page.locator('#bank-select option').count(),63,'exam selection persists through refresh');
+ await page.locator('[data-case-collection="all"]').click();
+ assert.equal(await page.locator('#bank-select option').count(),174,'all collection restores all bank tasks');
+ assert.equal(await page.locator('[data-case-collection="all"]').getAttribute('aria-current'),'true');
+ assert.equal(await page.locator('#bank-group').inputValue(),'Все направления');
+ await page.goto(base+'?page=practice&mode=bank&case=ZACHET50-01',{waitUntil:'networkidle'});
+ assert.equal(await page.locator('[data-case-collection="exam"]').getAttribute('aria-current'),'true','legacy exam deep link infers prep collection');
+ await page.goto(base+'?page=practice&mode=bank&collection=exam&case=LC01',{waitUntil:'networkidle'});
+ assert.equal(await page.locator('[data-case-collection="all"]').getAttribute('aria-current'),'true','nonexam direct case must remain accessible');
+ assert.equal(await page.locator('.case-code').innerText(),'LC01');
  await page.locator('[data-page="glossary"]').first().click();
  await page.locator('#glossary-search').fill('pro-rata');
  assert.ok(await page.locator('.term-item').count()>=1);
@@ -298,6 +321,8 @@ try{
  const instrumentWidths=await mob.evaluate(()=>({doc:document.documentElement.scrollWidth,viewport:innerWidth}));
  assert.ok(instrumentWidths.doc<=instrumentWidths.viewport+5,'bond/option mobile overflow '+JSON.stringify(instrumentWidths));
  await mob.goto(base+'?page=practice&mode=bank&case=PREP26-01',{waitUntil:'networkidle'});
+ assert.equal(await mob.locator('.mobile-prep-link').count(),0);
+ assert.equal(await mob.locator('[data-case-collection="exam"]').getAttribute('aria-current'),'true');
  assert.equal(await mob.locator('.case-code').innerText(),'PREP26-01');
  await mob.locator('#exam-prep-learning-path summary').click();
  assert.equal(await mob.locator('#exam-prep-learning-path .section4-path-topic').count(),9);

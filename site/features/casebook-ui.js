@@ -1,10 +1,11 @@
 import {formulaMarkup} from './math-ui.js';
 import {CASE_BANK, CASE_CHECKPOINTS, CASE_GROUPS, availableCases, nextCase, recordRecent, verifyCheckpoint, CASE_BY_ID} from '../engine/casebook.js';
 import {recordSkip} from '../engine/attempts.js';
+import {chooseFresh} from '../engine/scheduler.js';
 import {SECTION4_PATH} from '../data/section4-path.js';
 import {INSTRUMENT_PATH} from '../data/instrument-path.js';
 
-const state={group:'Все направления',id:null,index:0,showReference:false,search:'',revealedStep:null,revealedHint:null,hintLevel:0};
+const state={group:'Все направления',collection:'all',id:null,index:0,showReference:false,search:'',revealedStep:null,revealedHint:null,hintLevel:0};
 const MIN_REASONING_LENGTH=80;
 let deps, pendingSave=null;
 function flushDraft(){if(pendingSave!==null){clearTimeout(pendingSave);pendingSave=null;}deps?.save();}
@@ -21,7 +22,23 @@ function invalidateCompletion(item){if(deps.stats.caseCompleted?.[item.id]){dele
 
 const safe=()=>deps.stats.caseDrafts ??= {};
 const draft=()=>safe()[state.id] ??= {answers:{}, checked:{}, notes:{}, reviewed:{}};
-const filters=()=>`<section class="case-toolbar" aria-label="Поиск по банку"><div class="case-filter-row"><label class="case-filter"><span>Раздел</span><select id="bank-group">${CASE_GROUPS.map(g=>`<option value="${deps.escape(g)}" ${g===state.group?'selected':''}>${deps.escape(g)}</option>`).join('')}</select></label><label class="case-filter"><span>Поиск по банку</span><input id="bank-search" type="search" value="${deps.escape(state.search)}" placeholder="Например: облигации, DCF, ликвидность" autocomplete="off"></label><label class="case-filter"><span>Задача</span><select id="bank-select">${availableCases(state.group,state.search).map(c=>`<option value="${c.id}" ${c.id===state.id?'selected':''}>${c.id} · ${deps.escape(c.title)}</option>`).join('')||'<option value="">Ничего не найдено</option>'}</select></label><button type="button" class="button primary" id="bank-random" ${availableCases(state.group,state.search).length?'':'disabled'}><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-refresh"></use></svg> Случайная задача</button></div><p class="case-counter">${CASE_BANK.length} разобранных задач из банка · ${CASE_BANK.filter(x=>deps.stats.caseCompleted?.[x.id]).length} изучено · <span id="bank-match-count" role="status" aria-live="polite">${availableCases(state.group,state.search).length} найдено по фильтру</span> · решения с оговорками обозначены отдельно</p></section>`;
+const isExamCase=item=>item?.id.startsWith('PREP26-')||item?.id.startsWith('ZACHET50-');
+const examCases=CASE_BANK.filter(isExamCase);
+const scopedCases=(group=state.group,query=state.search)=>availableCases(group,query).filter(item=>state.collection!=='exam'||isExamCase(item));
+const scopedGroups=()=>state.collection==='exam'?['Все направления',...new Set(examCases.map(item=>item.group))]:CASE_GROUPS;
+function filters(){
+ const cases=scopedCases(),isExam=state.collection==='exam';
+ const collectionLink=kind=>'?page=practice&mode=bank&collection='+kind+'&case='+encodeURIComponent(kind==='exam'&&!isExamCase(CASE_BY_ID.get(state.id))?'ZACHET50-01':state.id);
+ const completed=(isExam?examCases:CASE_BANK).filter(item=>deps.stats.caseCompleted?.[item.id]).length;
+ const counter=isExam?`${examCases.length} задач к зачету · ${completed} изучено`:`${CASE_BANK.length} разобранных задач из банка · ${completed} изучено`;
+ return `<section class="case-toolbar" aria-label="Поиск по банку">
+ <div class="case-collection-switch" role="group" aria-label="Подборки задач">
+ <span class="case-collection-label">ПОДБОРКИ</span>
+ <a href="${collectionLink('all')}" class="case-collection-option ${isExam?'':'active'}" data-case-collection="all" ${isExam?'':'aria-current="true"'}>Все задачи <small>${CASE_BANK.length}</small></a>
+ <a href="${collectionLink('exam')}" class="case-collection-option ${isExam?'active':''}" data-case-collection="exam" ${isExam?'aria-current="true"':''}>К зачету <small>${examCases.length}</small></a>
+ </div>
+ <div class="case-filter-row"><label class="case-filter"><span>Раздел</span><select id="bank-group">${scopedGroups().map(g=>`<option value="${deps.escape(g)}" ${g===state.group?'selected':''}>${deps.escape(g)}</option>`).join('')}</select></label><label class="case-filter"><span>Поиск по банку</span><input id="bank-search" type="search" value="${deps.escape(state.search)}" placeholder="Например: облигации, DCF, ликвидность" autocomplete="off"></label><label class="case-filter"><span>Задача</span><select id="bank-select">${cases.map(c=>`<option value="${c.id}" ${c.id===state.id?'selected':''}>${c.id} · ${deps.escape(c.title)}</option>`).join('')||'<option value="">Ничего не найдено</option>'}</select></label><button type="button" class="button primary" id="bank-random" ${cases.length?'':'disabled'}><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-refresh"></use></svg> Случайная задача</button></div><p class="case-counter">${counter} · <span id="bank-match-count" role="status" aria-live="polite">${cases.length} найдено по фильтру</span> · решения с оговорками обозначены отдельно</p></section>`;
+}
 function section4PathMarkup(){
  const links=(ids,kind)=>ids.map(id=>{
   const title=kind==='case'?CASE_BY_ID.get(id)?.title??id:id;
@@ -73,7 +90,7 @@ function selectCase(id,remember=true){
  if(!CASE_BY_ID.has(id))return;
  flushDraft();state.id=id;state.index=0;state.showReference=false;state.revealedStep=null;state.revealedHint=null;
  if(remember){deps.stats.recentCases=recordRecent(deps.stats.recentCases??[],id,24);deps.save();}
- const url=new URL(location.href);url.searchParams.set('mode','bank');url.searchParams.set('case',id);history.replaceState({},'',url);
+ const url=new URL(location.href);url.searchParams.set('mode','bank');url.searchParams.set('case',id);url.searchParams.set('collection',state.collection);history.replaceState({},'',url);
  render();
 }
 function render(){
@@ -113,19 +130,19 @@ function render(){
   activity=`<div class="case-step-heading"><span>ЭТАП ${idx+1} / ${count}</span><h3>Разберите решение: часть ${idx+1}</h3><p>Запишите формулу, ход вычислений или объяснение своими словами. Эти этапы проверяются самостоятельно, потому что единственного машинно проверяемого ответа может не быть.</p></div><label class="case-note-label" for="bank-notes">Ваш ход решения</label><textarea id="bank-notes" class="case-notes" rows="5" placeholder="Что известно? Какую формулу примените? Какие допущения понадобятся?">${deps.escape(content)}</textarea><p class="case-reasoning-note" id="bank-reasoning-note" aria-live="polite">Для отметки этапа напиши ответ от ${MIN_REASONING_LENGTH} символов. ${content.trim().length} / ${MIN_REASONING_LENGTH}</p><button type="button" class="button secondary" id="bank-compare" aria-expanded="${revealed}">${revealed?'Скрыть эталон':'Сравнить с решением'}</button>${revealed?`<div class="case-reference-piece formatted-bank"><div class="case-piece-title">Разбор из банка задач</div>${item.steps[idx]}</div><div class="case-assessment" aria-label="Самооценка этапа"><button type="button" class="button secondary" id="bank-review">Нужно повторить</button><button type="button" class="button primary" id="bank-understood" ${content.trim().length>=MIN_REASONING_LENGTH?'':'disabled'}>Разобрался ✓</button></div>`:''}`;
  }
  const completed=deps.stats.caseCompleted?.[item.id];
- deps.root.innerHTML=`${deps.intro('01 / БАНК ЗАДАЧ','Разобранные задачи','Учебные условия сохранены. Сначала решите сами, затем проверьте результат по шагам.','01')}${deps.tabs()}${filters()}${examPrepPathMarkup()}${section4PathMarkup()}${instrumentPathMarkup()}
+ deps.root.innerHTML=`${deps.intro('01 / БАНК ЗАДАЧ','Разобранные задачи','Учебные условия сохранены. Сначала решите сами, затем проверьте результат по шагам.','01')}${deps.tabs()}${filters()}${state.collection==='exam'?examPrepPathMarkup():section4PathMarkup()+instrumentPathMarkup()}
  <section class="case-workspace"><article class="case-statement" tabindex="-1"><div class="case-label-row"><span class="case-code">${item.id}</span><span>${deps.escape(item.group)}</span>${completed?'<span class="case-success">Изучено ✓</span>':''}</div><h2>${deps.escape(item.title)}</h2><div class="case-topic">${deps.escape(item.topic.replace(/^\d+(?:[.\d–-]+)?\s*/,'').trim())}</div>${item.caveat?'<div class="case-caution"><strong>Важны допущения.</strong> Сверяйте не только число, но и условия применимости вывода.</div>':''}<div class="formatted-bank case-condition">${item.conditionHtml}</div><div class="case-footnote">Источник: ${deps.escape(item.source)}.</div></article>
  <section class="case-workpad" aria-label="Рабочая тетрадь"><div class="case-workpad-head"><div><span class="case-workpad-kicker">РАБОЧАЯ ТЕТРАДЬ</span><h2>${numerical?'Проверьте расчёт':'Сверьте ход решения'}</h2></div><strong>${solved}/${count}</strong></div><div class="case-segment-track" role="progressbar" aria-valuemin="0" aria-valuemax="${count}" aria-valuenow="${solved}"><span style="width:${solved/count*100}%"></span></div>${activity}
  <div class="case-step-nav case-action-dock" role="group" aria-label="Действия с задачей"><button class="button secondary" id="bank-prev" type="button" ${idx===0?'disabled':''}>← Назад</button><span>${idx+1} / ${count}</span><button class="button secondary" id="bank-next" type="button">${idx===count-1?'К началу':'Далее →'}</button><button class="button secondary case-skip" id="bank-skip" type="button">Пропустить задачу →</button></div>
  <button type="button" class="case-solution-toggle" id="bank-solution-toggle" aria-expanded="${state.showReference}">${state.showReference?'Скрыть полный разбор':'Показать полное решение'} <span><svg class="ui-icon" aria-hidden="true" focusable="false"><use href="#icon-chevron"></use></svg></span></button>${state.showReference?`<div class="case-full-solution formatted-bank"><h3>Полное решение из банка</h3>${item.solutionHtml}${item.answerHtml?`<div class="case-source-answer">${item.answerHtml}</div>`:''}</div>`:''}
  <div class="case-finish"><button type="button" class="button secondary" id="bank-repeat">Отложить на повторение</button><button type="button" class="button primary" id="bank-complete" ${solved===count?'':'disabled title="Сначала пройдите все этапы"'}>Отметить изученной ✓</button></div></section></section>`;
- $('#bank-group').onchange=ev=>{state.group=ev.target.value;state.search='';const choices=availableCases(state.group);selectCase(choices[0].id);};
- $('#bank-search').oninput=ev=>{state.search=ev.target.value;const matches=availableCases(state.group,state.search);$('#bank-select').innerHTML=matches.length?matches.map(c=>`<option value="${c.id}" ${c.id===state.id?'selected':''}>${c.id} · ${deps.escape(c.title)}</option>`).join(''):'<option value="">Ничего не найдено</option>';$('#bank-random').disabled=matches.length===0;$('#bank-match-count').textContent=`${matches.length} найдено по фильтру`;};
+ $('#bank-group').onchange=ev=>{state.group=ev.target.value;state.search='';const choices=scopedCases(state.group);selectCase(choices[0].id);};
+ $('#bank-search').oninput=ev=>{state.search=ev.target.value;const matches=scopedCases(state.group,state.search);$('#bank-select').innerHTML=matches.length?matches.map(c=>`<option value="${c.id}" ${c.id===state.id?'selected':''}>${c.id} · ${deps.escape(c.title)}</option>`).join(''):'<option value="">Ничего не найдено</option>';$('#bank-random').disabled=matches.length===0;$('#bank-match-count').textContent=`${matches.length} найдено по фильтру`;};
  $('#bank-select').onchange=ev=>{state.search='';selectCase(ev.target.value);};
- $('#bank-random').onclick=()=>{if(!availableCases(state.group,state.search).length)return;selectCase(nextCase(deps.stats.recentCases??[],state.group,Math.random,state.search).id);};
+ $('#bank-random').onclick=()=>{const choices=scopedCases();if(!choices.length)return;selectCase(chooseFresh(choices,deps.stats.recentCases??[],Math.random,item=>item.id,8).id);};
  $('#bank-prev').onclick=()=>{state.index=Math.max(0,state.index-1);render();};
  $('#bank-next').onclick=()=>{state.index=(state.index+1)%count;render();};
- $('#bank-skip').onclick=()=>{const pool=availableCases(state.group,state.search);if(pool.length<2){deps.notice('В выбранном разделе нет другой задачи');return;}recordSkip(deps.stats,'case');deps.save();selectCase(nextCase(deps.stats.recentCases??[],state.group,Math.random,state.search).id);const heading=deps.root.querySelector('.case-statement');heading?.scrollIntoView({block:'start',behavior:'instant'});heading?.focus({preventScroll:true});deps.notice('Задача пропущена без оценки');};
+ $('#bank-skip').onclick=()=>{const pool=scopedCases();if(pool.length<2){deps.notice('В выбранном разделе нет другой задачи');return;}recordSkip(deps.stats,'case');deps.save();selectCase(chooseFresh(pool,deps.stats.recentCases??[],Math.random,item=>item.id,8).id);const heading=deps.root.querySelector('.case-statement');heading?.scrollIntoView({block:'start',behavior:'instant'});heading?.focus({preventScroll:true});deps.notice('Задача пропущена без оценки');};
  $('#bank-solution-toggle').onclick=()=>{state.showReference=!state.showReference;render();};
  $('#bank-repeat').onclick=()=>{deps.stats.caseReview??=[];if(!deps.stats.caseReview.includes(item.id))deps.stats.caseReview.unshift(item.id);deps.save();deps.notice('Задача добавлена на повторение');};
  $('#bank-complete').onclick=()=>{if(stepSolved(checkpoints,d,count)!==count){deps.notice('Сначала завершите все этапы');return;}deps.stats.caseCompleted??={};deps.stats.caseCompleted[item.id]=new Date().toISOString().slice(0,10);deps.stats.caseReview=(deps.stats.caseReview??[]).filter(x=>x!==item.id);deps.save();deps.notice('Задача отмечена как изученная');render();};
@@ -149,13 +166,20 @@ function render(){
  }
 }
 function $(selector){return deps.root.querySelector(selector);}
-export function setupCasebook({root,stats,save,notice,escape,intro,tabs,initialId=null}){
+export function setupCasebook({root,stats,save,notice,escape,intro,tabs,initialId=null,initialCollection=null}){
  deps={root,stats,save,notice,escape,intro,tabs};
+ // Legacy links to an exam task without a collection parameter still open its collection.
+ state.collection=initialCollection==='exam'||(initialCollection===null&&isExamCase(CASE_BY_ID.get(initialId)))?'exam':'all';
+ if(initialId&&CASE_BY_ID.has(initialId)&&state.collection==='exam'&&!isExamCase(CASE_BY_ID.get(initialId)))state.collection='all';
  if(initialId&&CASE_BY_ID.has(initialId)&&initialId!==state.id){
   state.id=initialId;
-  state.group=CASE_BY_ID.get(initialId).group;
+  state.group=state.collection==='exam'?'Все направления':CASE_BY_ID.get(initialId).group;
   state.search='';state.index=0;state.revealedStep=null;state.revealedHint=null;state.showReference=false;
  }
- if(!state.id){state.id=nextCase(stats.recentCases??[]).id;stats.recentCases=recordRecent(stats.recentCases??[],state.id,24);save();}
+ if(!state.id||(state.collection==='exam'&&!isExamCase(CASE_BY_ID.get(state.id)))){
+  state.id=state.collection==='exam'?'ZACHET50-01':nextCase(stats.recentCases??[]).id;
+  state.search='';state.index=0;stats.recentCases=recordRecent(stats.recentCases??[],state.id,24);save();
+ }
+ if(state.collection==='exam'||initialCollection==='all')state.group='Все направления';
  render();
 }
