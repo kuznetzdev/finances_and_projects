@@ -17,7 +17,8 @@ test('task 38 distinguishes target market D/E from actual balance-sheet debt',()
 
 test('task 45 does not silently allocate debt proceeds to buybacks',()=>{
  const x=item(45);
- const equityIfPaid=answer(45,'Equity после долга');
+ const equityIfPaid=answer(45,'Equity после долга при распределении 500 акционерам');
+ assert.ok(Number.isFinite(equityIfPaid),'graded outcome must identify the buyback/distribution assumption');
  const shieldedEV=answer(45,'Стоимость с долгом VL');
  assert.ok(Math.abs(equityIfPaid-(shieldedEV-500))<1e-8);
  assert.equal(x.caveat,true);
