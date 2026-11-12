@@ -325,7 +325,7 @@ try{
  assert.equal(await mob.locator('[data-case-collection="exam"]').getAttribute('aria-current'),'true');
  assert.equal(await mob.locator('.case-code').innerText(),'PREP26-01');
  await mob.locator('#exam-prep-learning-path summary').click();
- assert.equal(await mob.locator('#exam-prep-learning-path .section4-path-topic').count(),9);
+ assert.equal(await mob.locator('#exam-prep-learning-path .section4-path-topic').count(),10);
  assert.equal(await mob.locator('#exam-prep-learning-path .section4-path-link').count(),68);
  assert.ok(await mob.locator('#exam-prep-learning-path a[href*="case=PREP26-13"]').count()>=1);
  await mob.locator('#bank-step-hint').click();
