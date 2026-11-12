@@ -35,7 +35,7 @@ try{
  await page.locator('#bank-step-hint').click();
  assert.equal(await page.locator('.case-hint-panel').count(),0);
 
- assert.match(await page.locator('.case-counter').innerText(),/174 разобранных задач/);
+ assert.match(await page.locator('.case-counter').innerText(),/179 разобранных задач/);
  assert.match(await page.locator('.case-condition').innerText(),/500 млн/);
  await page.locator('#bank-answer').fill('150');
  await page.locator('#bank-answer-form button[type="submit"]').click();
@@ -265,17 +265,17 @@ try{
  await page.goto(base+'?page=practice&mode=bank&collection=exam&case=ZACHET50-01',{waitUntil:'networkidle'});
  assert.equal(await page.locator('.case-code').innerText(),'ZACHET50-01');
  assert.equal(await page.locator('[data-case-collection="exam"]').getAttribute('aria-current'),'true');
- assert.equal(await page.locator('#bank-select option').count(),63);
- assert.equal(await page.locator('#bank-match-count').innerText(),'63 найдено по фильтру');
+ assert.equal(await page.locator('#bank-select option').count(),68);
+ assert.equal(await page.locator('#bank-match-count').innerText(),'68 найдено по фильтру');
  const examOptions=await page.locator('#bank-select option').evaluateAll(options=>options.map(x=>x.value));
  assert.ok(examOptions.every(id=>/^(ZACHET50|PREP26)-/.test(id)),'exam collection only includes preparation tasks');
  await page.locator('#bank-select').selectOption('PREP26-13');
  assert.equal(await page.locator('.case-code').innerText(),'PREP26-13');
  assert.match(page.url(),/collection=exam/);
  await page.reload({waitUntil:'networkidle'});
- assert.equal(await page.locator('#bank-select option').count(),63,'exam selection persists through refresh');
+ assert.equal(await page.locator('#bank-select option').count(),68,'exam selection persists through refresh');
  await page.locator('[data-case-collection="all"]').click();
- assert.equal(await page.locator('#bank-select option').count(),174,'all collection restores all bank tasks');
+ assert.equal(await page.locator('#bank-select option').count(),179,'all collection restores all bank tasks');
  assert.equal(await page.locator('[data-case-collection="all"]').getAttribute('aria-current'),'true');
  assert.equal(await page.locator('#bank-group').inputValue(),'Все направления');
  await page.goto(base+'?page=practice&mode=bank&case=ZACHET50-01',{waitUntil:'networkidle'});
@@ -325,8 +325,8 @@ try{
  assert.equal(await mob.locator('[data-case-collection="exam"]').getAttribute('aria-current'),'true');
  assert.equal(await mob.locator('.case-code').innerText(),'PREP26-01');
  await mob.locator('#exam-prep-learning-path summary').click();
- assert.equal(await mob.locator('#exam-prep-learning-path .section4-path-topic').count(),9);
- assert.equal(await mob.locator('#exam-prep-learning-path .section4-path-link').count(),63);
+ assert.equal(await mob.locator('#exam-prep-learning-path .section4-path-topic').count(),10);
+ assert.equal(await mob.locator('#exam-prep-learning-path .section4-path-link').count(),68);
  assert.ok(await mob.locator('#exam-prep-learning-path a[href*="case=PREP26-13"]').count()>=1);
  await mob.locator('#bank-step-hint').click();
  assert.ok(await mob.locator('.case-hint-panel').isVisible());
@@ -340,5 +340,5 @@ try{
  await mob.screenshot({path:'artifacts/lecture-exam-prep-mobile.png',fullPage:true});
  await mobile.close();
  assert.deepEqual(errors,[]);
- console.log('PASS: 174 cases, section 4 linked guide, eight PDF solutions, three-stage hints, advanced LBO, fixed MM/Pecking numeric checks, persistence and mobile styling.');
+ console.log('PASS: 179 cases, section 4 linked guide, eight PDF solutions, three-stage hints, advanced LBO, fixed MM/Pecking numeric checks, persistence and mobile styling.');
 }finally{await browser?.close();server.kill('SIGTERM');}

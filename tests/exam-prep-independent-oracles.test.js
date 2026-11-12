@@ -50,8 +50,8 @@ test('new or removed checkpoints, missing cases, unapproved names and duplicates
 });
 
 test('all 124 fixed cases have stable unique ids, usable stages and no orphan numeric checkpoints',()=>{
- assert.equal(CASE_BANK.length,174);
- assert.equal(new Set(CASE_BANK.map(x=>x.id)).size,174);
+ assert.equal(CASE_BANK.length,179);
+ assert.equal(new Set(CASE_BANK.map(x=>x.id)).size,179);
  const ids=new Set(CASE_BANK.map(x=>x.id));
  for(const [id,qs] of Object.entries(CASE_CHECKPOINTS)){
   assert.ok(ids.has(id),'orphan checkpoints '+id);

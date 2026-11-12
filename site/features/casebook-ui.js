@@ -77,8 +77,8 @@ function examPrepPathMarkup(){
  const groups=[...new Set(newCases.map(item=>item.group))];
  const caseLink=item=>'<a class="section4-path-link" href="?page=practice&mode=bank&case='+encodeURIComponent(item.id)+'">'+deps.escape(item.id+' · '+item.title)+'</a>';
  return `<details class="section4-path" id="exam-prep-learning-path">
- <summary>Подготовка к контрольной / зачету <span>${newCases.length} задач из файла + ${old.length} ранее решенных</span></summary>
- <p class="section4-path-intro">Единый маршрут подготовки по всем блокам курса. Исходные условия 50 новых задач сохранены из DOCX; решения сверены с лекционной методикой. Начните с выбора тематического блока, а затем решайте промежуточные этапы. Подсказки раскрываются последовательно: смысл → формула → подстановка. В спорных условиях допущения указаны в разборе.</p>
+ <summary>Подготовка к контрольной / зачету <span>${newCases.length} задач №1–55 + ${old.length} ранее решенных</span></summary>
+ <p class="section4-path-intro">Единый маршрут подготовки по всем блокам курса. Условия №1–50 сохранены из DOCX, а №51–55 добавлены из отдельного задания пользователя. У задач есть пошаговые расчеты и контрольные ответы; неоднозначности отмечены отдельно. Начните с выбора тематического блока, а затем решайте промежуточные этапы. Подсказки раскрываются последовательно: смысл → формула → подстановка. В спорных условиях допущения указаны в разборе.</p>
  <div class="section4-path-grid">${groups.map(group=>`<article class="section4-path-topic">
   <h3>${deps.escape(group)}</h3><div class="section4-path-links">${newCases.filter(item=>item.group===group).map(caseLink).join('')}</div>
  </article>`).join('')}

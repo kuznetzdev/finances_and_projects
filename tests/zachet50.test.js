@@ -12,7 +12,7 @@ const close=(actual,expected,name,tol=0.0001)=>assert.ok(Math.abs(actual-expecte
 
 test('all 50 numbered original assignments present, integrated once, source and explanation intact',()=>{
  assert.equal(cases.length,50);
- assert.equal(CASE_BANK.length,174);
+ assert.equal(CASE_BANK.length,179);
  assert.equal(new Set(CASE_BANK.map(c=>c.id)).size,CASE_BANK.length);
  for(let n=1;n<=50;n++){
   const id='ZACHET50-'+String(n).padStart(2,'0'),item=cases[n-1];

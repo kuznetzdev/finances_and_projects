@@ -10,6 +10,7 @@ import {CONTROL_WORK_REFERENCES} from './control-work-oracles.js';
 import {EXAM_PREP_ORACLES} from './exam-prep-oracles.js';
 import {ZACHET50_ORACLES_A} from './zachet50-oracles-a.js';
 import {ZACHET50_ORACLES_B} from './zachet50-oracles-b.js';
+import {ZACHET51_55_REFERENCES} from './zachet51-55-oracles.js';
 import {verifyReferenceSet} from './audit-reference-core.js';
 export const FIXED_REFERENCE_GROUPS=Object.freeze({
  'original-bank':SOURCE_BANK_REFERENCES,
@@ -20,7 +21,8 @@ export const FIXED_REFERENCE_GROUPS=Object.freeze({
  'dcf-and-taxes':TAX_DCF_REFERENCES,
  'control-works':CONTROL_WORK_REFERENCES,
  'exam-prep':EXAM_PREP_ORACLES,
- 'exam-prep-50':Object.freeze({...ZACHET50_ORACLES_A,...ZACHET50_ORACLES_B})
+ 'exam-prep-50':Object.freeze({...ZACHET50_ORACLES_A,...ZACHET50_ORACLES_B}),
+ 'exam-prep-51-55':ZACHET51_55_REFERENCES
 });
 export const ALL_FIXED_REFERENCES=Object.freeze(Object.assign({},...Object.values(FIXED_REFERENCE_GROUPS)));
 export function validateAllFixedReferences(cases,checkpoints){
