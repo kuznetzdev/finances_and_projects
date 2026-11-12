@@ -35,7 +35,7 @@ try{
  await page.locator('#bank-step-hint').click();
  assert.equal(await page.locator('.case-hint-panel').count(),0);
 
- assert.match(await page.locator('.case-counter').innerText(),/174 разобранных задач/);
+ assert.match(await page.locator('.case-counter').innerText(),/179 разобранных задач/);
  assert.match(await page.locator('.case-condition').innerText(),/500 млн/);
  await page.locator('#bank-answer').fill('150');
  await page.locator('#bank-answer-form button[type="submit"]').click();
@@ -273,9 +273,9 @@ try{
  assert.equal(await page.locator('.case-code').innerText(),'PREP26-13');
  assert.match(page.url(),/collection=exam/);
  await page.reload({waitUntil:'networkidle'});
- assert.equal(await page.locator('#bank-select option').count(),63,'exam selection persists through refresh');
+ assert.equal(await page.locator('#bank-select option').count(),68,'exam selection persists through refresh');
  await page.locator('[data-case-collection="all"]').click();
- assert.equal(await page.locator('#bank-select option').count(),174,'all collection restores all bank tasks');
+ assert.equal(await page.locator('#bank-select option').count(),179,'all collection restores all bank tasks');
  assert.equal(await page.locator('[data-case-collection="all"]').getAttribute('aria-current'),'true');
  assert.equal(await page.locator('#bank-group').inputValue(),'Все направления');
  await page.goto(base+'?page=practice&mode=bank&case=ZACHET50-01',{waitUntil:'networkidle'});
@@ -340,5 +340,5 @@ try{
  await mob.screenshot({path:'artifacts/lecture-exam-prep-mobile.png',fullPage:true});
  await mobile.close();
  assert.deepEqual(errors,[]);
- console.log('PASS: 174 cases, section 4 linked guide, eight PDF solutions, three-stage hints, advanced LBO, fixed MM/Pecking numeric checks, persistence and mobile styling.');
+ console.log('PASS: 179 cases, section 4 linked guide, eight PDF solutions, three-stage hints, advanced LBO, fixed MM/Pecking numeric checks, persistence and mobile styling.');
 }finally{await browser?.close();server.kill('SIGTERM');}
