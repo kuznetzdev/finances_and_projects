@@ -265,8 +265,8 @@ try{
  await page.goto(base+'?page=practice&mode=bank&collection=exam&case=ZACHET50-01',{waitUntil:'networkidle'});
  assert.equal(await page.locator('.case-code').innerText(),'ZACHET50-01');
  assert.equal(await page.locator('[data-case-collection="exam"]').getAttribute('aria-current'),'true');
- assert.equal(await page.locator('#bank-select option').count(),63);
- assert.equal(await page.locator('#bank-match-count').innerText(),'63 найдено по фильтру');
+ assert.equal(await page.locator('#bank-select option').count(),68);
+ assert.equal(await page.locator('#bank-match-count').innerText(),'68 найдено по фильтру');
  const examOptions=await page.locator('#bank-select option').evaluateAll(options=>options.map(x=>x.value));
  assert.ok(examOptions.every(id=>/^(ZACHET50|PREP26)-/.test(id)),'exam collection only includes preparation tasks');
  await page.locator('#bank-select').selectOption('PREP26-13');
@@ -326,7 +326,7 @@ try{
  assert.equal(await mob.locator('.case-code').innerText(),'PREP26-01');
  await mob.locator('#exam-prep-learning-path summary').click();
  assert.equal(await mob.locator('#exam-prep-learning-path .section4-path-topic').count(),9);
- assert.equal(await mob.locator('#exam-prep-learning-path .section4-path-link').count(),63);
+ assert.equal(await mob.locator('#exam-prep-learning-path .section4-path-link').count(),68);
  assert.ok(await mob.locator('#exam-prep-learning-path a[href*="case=PREP26-13"]').count()>=1);
  await mob.locator('#bank-step-hint').click();
  assert.ok(await mob.locator('.case-hint-panel').isVisible());
