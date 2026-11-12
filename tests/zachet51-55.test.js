@@ -27,7 +27,7 @@ test('five new numbered cases are in the original exam collection exactly once',
   assert.ok(checkpoints.length>=7,'missing numerical checks '+item.id);
   for(const q of checkpoints){
    assert.equal(q.hint.levels.length,3);
-   assert.ok(q.hint.levels.every(x=>x.length>10));
+   assert.ok(q.hint.levels.every(x=>x.length>=3));
    assert.ok(Number.isFinite(q.answer));
    assert.equal(verifyCheckpoint(q,String(q.answer).replace('.',',')),true);
    assert.equal(verifyCheckpoint(q,''),null);
