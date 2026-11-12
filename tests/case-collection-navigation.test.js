@@ -14,9 +14,9 @@ test('exam preparation is an inner case-bank collection, not a duplicate top-lev
  assert.match(ui,/aria-label="Подборки задач"/);
  assert.match(ui,/&collection='\+kind/);
 });
-test('exam collection consists of 50 exam tasks plus 13 previously prepared tasks only',()=>{
+test('exam collection consists of 55 exam tasks plus 13 previously prepared tasks only',()=>{
  const exam=CASE_BANK.filter(item=>/^(?:ZACHET50|PREP26)-/.test(item.id));
- assert.equal(exam.length,63);
+ assert.equal(exam.length,68);
  assert.equal(exam.filter(x=>x.id.startsWith('ZACHET50-')).length,55);
  assert.equal(exam.filter(x=>x.id.startsWith('PREP26-')).length,13);
  assert.equal(CASE_BANK.length,179);
